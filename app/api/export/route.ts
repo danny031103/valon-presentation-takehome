@@ -22,6 +22,17 @@ type SlidePayload = {
   formatting?: SlideFormatting;
 };
 
+// Turn a deck title into a safe download filename: strip filesystem-unsafe
+// characters, collapse whitespace, fall back to "untitled-deck". Mirrors the
+// client-side sanitize in useDeck.ts.
+function toFileName(title: string | undefined): string {
+  const cleaned = (title ?? "")
+    .replace(/[/\\:*?"<>|]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return `${cleaned || "untitled-deck"}.pptx`;
+}
+
 // On-screen px values double as export pt sizes so output mirrors the canvas.
 const FONT_SIZE_PT: Record<NonNullable<SlideFormatting["fontSize"]>, number> = {
   S: 14,
@@ -198,7 +209,7 @@ export async function POST(request: Request) {
       headers: {
         "Content-Type":
           "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        "Content-Disposition": 'attachment; filename="valon-presentation-takehome-export.pptx"'
+        "Content-Disposition": `attachment; filename="${toFileName(body.title)}"`
       }
     });
   } catch (error) {

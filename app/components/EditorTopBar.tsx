@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { EditorMode, SlideLayout } from "../hooks/useDeck";
 import { LayoutPicker } from "./LayoutPicker";
 
@@ -12,6 +13,8 @@ type EditorTopBarProps = {
   onDelete: () => void;
   onUndo: () => void;
   canUndo: boolean;
+  deckTitle: string;
+  onDeckTitleChange: (title: string) => void;
   onExport: () => void;
 };
 
@@ -26,8 +29,16 @@ export function EditorTopBar({
   onDelete,
   onUndo,
   canUndo,
+  deckTitle,
+  onDeckTitleChange,
   onExport
 }: EditorTopBarProps) {
+  const [naming, setNaming] = useState(false);
+
+  function confirmExport() {
+    setNaming(false);
+    onExport();
+  }
   return (
     <div className="top-strip">
       <input
@@ -72,9 +83,41 @@ export function EditorTopBar({
         <button className="quiet-button" onClick={onDelete} type="button">
           Delete
         </button>
-        <button className="loud-button" disabled={exporting} onClick={onExport} type="button">
-          {exporting ? "Exporting…" : "Export to PowerPoint"}
-        </button>
+        {naming ? (
+          <>
+            <input
+              autoFocus
+              className="name-input"
+              onChange={(event) => onDeckTitleChange(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  confirmExport();
+                } else if (event.key === "Escape") {
+                  setNaming(false);
+                }
+              }}
+              placeholder="Deck title"
+              value={deckTitle}
+            />
+            <button
+              className="loud-button"
+              disabled={exporting}
+              onClick={confirmExport}
+              type="button"
+            >
+              {exporting ? "Exporting…" : "Export"}
+            </button>
+          </>
+        ) : (
+          <button
+            className="loud-button"
+            disabled={exporting}
+            onClick={() => setNaming(true)}
+            type="button"
+          >
+            {exporting ? "Exporting…" : "Export to PowerPoint"}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -47,10 +47,21 @@ function starterSlides(): Slide[] {
   return [makeSlide(0), makeSlide(1)];
 }
 
+// Turn a deck title into a safe download filename: strip filesystem-unsafe
+// characters, collapse whitespace, fall back to "untitled-deck".
+function toFileName(title: string): string {
+  const cleaned = title
+    .replace(/[/\\:*?"<>|]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return `${cleaned || "untitled-deck"}.pptx`;
+}
+
 export function useDeck() {
   const [slides, setSlides] = useState<Slide[]>(starterSlides);
   const [selectedId, setSelectedId] = useState<string>("");
   const [editorMode, setEditorMode] = useState<EditorMode>("ai");
+  const [deckTitle, setDeckTitle] = useState("Untitled deck");
   const [message, setMessage] = useState("Saved locally in your browser.");
   const [exporting, setExporting] = useState(false);
   const [history, setHistory] = useState<Slide[][]>([]);
@@ -73,6 +84,7 @@ export function useDeck() {
         slides: Slide[];
         selectedId: string;
         editorMode?: EditorMode;
+        deckTitle?: string;
       };
 
       if (parsed.slides?.length) {
@@ -80,6 +92,9 @@ export function useDeck() {
         setSelectedId(parsed.selectedId || parsed.slides[0].id);
         if (parsed.editorMode === "edit" || parsed.editorMode === "ai") {
           setEditorMode(parsed.editorMode);
+        }
+        if (typeof parsed.deckTitle === "string" && parsed.deckTitle) {
+          setDeckTitle(parsed.deckTitle);
         }
       }
     } catch {
@@ -96,9 +111,9 @@ export function useDeck() {
 
     window.localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode })
+      JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode, deckTitle })
     );
-  }, [slides, selectedId, editorMode]);
+  }, [slides, selectedId, editorMode, deckTitle]);
 
   const selectedSlide = slides.find((slide) => slide.id === selectedId) ?? slides[0];
 
@@ -297,7 +312,7 @@ export function useDeck() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          title: "Valon Presentation Takehome Export",
+          title: deckTitle,
           slides
         })
       });
@@ -311,7 +326,7 @@ export function useDeck() {
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = "valon-presentation-takehome-export.pptx";
+      anchor.download = toFileName(deckTitle);
       anchor.click();
       window.URL.revokeObjectURL(url);
       setMessage("Download started.");
@@ -329,6 +344,8 @@ export function useDeck() {
     selectedSlide,
     editorMode,
     setEditorMode,
+    deckTitle,
+    setDeckTitle,
     message,
     exporting,
     patchSlide,

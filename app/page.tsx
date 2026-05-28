@@ -16,6 +16,8 @@ export default function Home() {
     setSelectedId,
     editorMode,
     setEditorMode,
+    deckTitle,
+    setDeckTitle,
     message,
     exporting,
     patchSlide,
@@ -50,6 +52,8 @@ export default function Home() {
           onDelete={() => selectedSlide && killSlide(selectedSlide.id)}
           onUndo={undo}
           canUndo={canUndo}
+          deckTitle={deckTitle}
+          onDeckTitleChange={setDeckTitle}
           onExport={exportDeck}
         />
 
