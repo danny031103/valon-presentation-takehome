@@ -4,9 +4,13 @@ This plan evolves the starter (a deliberately bad, joke-styled deck builder) int
 
 ---
 
-## Phase 1 — UI Foundation
+## Phase 1 — UI Foundation ✅ Complete
 
 **Goal:** Replace the joke aesthetic and ironic copy with Valon's design system, and split the monolithic `app/page.tsx` into focused components so later phases have a clean home.
+
+> **Status:** Complete. Applied the Valon design tokens, fonts, and background gradient to `app/globals.css`/`app/layout.tsx`; relabeled all UI copy to plain English and removed the duplicate add-slide button; decomposed `app/page.tsx` into focused components plus a `useDeck` hook.
+>
+> **Deviation from plan:** A layout redesign was added as extra scope beyond the original component-split/restyle work — the editor layout was reworked, not just the styling and decomposition described above.
 
 ### Changes
 - **`app/globals.css`** — Replace `:root` tokens with the palette in `DESIGN_REFERENCE.md` (`--background`, `--surface`, `--surface-raised`, `--border`, `--foreground`, `--brand`, `--brand-soft`, `--danger`, `--success`, `--radius`). Swap font-family to Plus Jakarta Sans (body) and DM Serif Display (headings). Remove Comic Sans, rotated `.thumb` transforms, `.weird-button`, `ridge` borders, hot-pink `.loud-button`, yellow `.ghost-button`. Add the radial background gradient. Switch to 1px borders, soft radii, no heavy shadows. **(M)**
