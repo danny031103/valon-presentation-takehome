@@ -90,7 +90,14 @@ export function SlideThumbnail({
       >
         <div className="thumb-art">
           {slide.imageData ? (
-            <img alt={slide.name} src={slide.imageData} />
+            <>
+              <img alt={slide.name} src={slide.imageData} />
+              {(slide.title?.trim() || slide.body?.trim()) && (
+                <div className="thumb-art-overlay">
+                  <ThumbPreview slide={slide} />
+                </div>
+              )}
+            </>
           ) : (
             <ThumbPreview slide={slide} />
           )}
