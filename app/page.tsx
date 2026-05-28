@@ -42,7 +42,7 @@ export default function Home() {
 
         <SlideCanvas slide={selectedSlide} />
 
-        <div className="bottom-mess">
+        <div className="bottom-panel">
           <PromptPanel
             prompt={selectedSlide?.prompt ?? ""}
             onChange={(value) => selectedSlide && patchSlide(selectedSlide.id, { prompt: value })}

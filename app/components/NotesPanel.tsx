@@ -5,7 +5,7 @@ type NotesPanelProps = {
 
 export function NotesPanel({ note, onChange }: NotesPanelProps) {
   return (
-    <>
+    <div className="notes-section">
       <label className="field-label" htmlFor="note-box">
         Speaker notes
       </label>
@@ -13,9 +13,9 @@ export function NotesPanel({ note, onChange }: NotesPanelProps) {
         id="note-box"
         onChange={(event) => onChange(event.target.value)}
         placeholder="Add speaker notes for this slide."
-        rows={5}
+        rows={3}
         value={note}
       />
-    </>
+    </div>
   );
 }

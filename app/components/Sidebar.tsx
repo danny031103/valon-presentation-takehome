@@ -12,11 +12,7 @@ export function Sidebar({ slides, selectedId, onSelect, onAddSlide }: SidebarPro
   return (
     <aside className="sidebar">
       <div className="sidebar-top">
-        <p className="eyebrow">Valon Presentation Takehome</p>
         <h1>Valon Presentations</h1>
-        <button className="loud-button" onClick={onAddSlide} type="button">
-          New slide
-        </button>
       </div>
 
       <div className="slide-list">
@@ -29,6 +25,12 @@ export function Sidebar({ slides, selectedId, onSelect, onAddSlide }: SidebarPro
             onSelect={() => onSelect(slide.id)}
           />
         ))}
+      </div>
+
+      <div className="sidebar-bottom">
+        <button className="loud-button" onClick={onAddSlide} type="button">
+          New slide
+        </button>
       </div>
     </aside>
   );
