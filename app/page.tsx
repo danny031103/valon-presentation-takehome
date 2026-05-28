@@ -13,6 +13,8 @@ export default function Home() {
     slides,
     selectedSlide,
     setSelectedId,
+    editorMode,
+    setEditorMode,
     message,
     exporting,
     patchSlide,
@@ -35,6 +37,8 @@ export default function Home() {
         <EditorTopBar
           name={selectedSlide?.name ?? ""}
           exporting={exporting}
+          editorMode={editorMode}
+          onModeChange={setEditorMode}
           onRename={(name) => selectedSlide && patchSlide(selectedSlide.id, { name })}
           onDelete={() => selectedSlide && killSlide(selectedSlide.id)}
           onExport={exportDeck}
@@ -43,37 +47,48 @@ export default function Home() {
         <SlideCanvas slide={selectedSlide} />
 
         <div className="bottom-panel">
-          <PromptPanel
-            prompt={selectedSlide?.prompt ?? ""}
-            onChange={(value) => selectedSlide && patchSlide(selectedSlide.id, { prompt: value })}
-          />
+          {editorMode === "ai" ? (
+            <>
+              <PromptPanel
+                prompt={selectedSlide?.prompt ?? ""}
+                onChange={(value) => selectedSlide && patchSlide(selectedSlide.id, { prompt: value })}
+              />
 
-          <div className="side-controls">
-            <button
-              className="loud-button"
-              disabled={selectedSlide?.status === "working"}
-              onClick={() => {
-                void generateSlide("fresh");
-              }}
-              type="button"
-            >
-              {selectedSlide?.status === "working" ? "Generating…" : "Generate"}
-            </button>
-            <button
-              className="ghost-button"
-              disabled={selectedSlide?.status === "working"}
-              onClick={() => {
-                void generateSlide("again");
-              }}
-              type="button"
-            >
-              Regenerate
-            </button>
-            <NotesPanel
-              note={selectedSlide?.note ?? ""}
-              onChange={(value) => selectedSlide && patchSlide(selectedSlide.id, { note: value })}
-            />
-          </div>
+              <div className="side-controls">
+                <button
+                  className="loud-button"
+                  disabled={selectedSlide?.status === "working"}
+                  onClick={() => {
+                    void generateSlide("fresh");
+                  }}
+                  type="button"
+                >
+                  {selectedSlide?.status === "working" ? "Generating…" : "Generate"}
+                </button>
+                <button
+                  className="ghost-button"
+                  disabled={selectedSlide?.status === "working"}
+                  onClick={() => {
+                    void generateSlide("again");
+                  }}
+                  type="button"
+                >
+                  Regenerate
+                </button>
+                <NotesPanel
+                  note={selectedSlide?.note ?? ""}
+                  onChange={(value) => selectedSlide && patchSlide(selectedSlide.id, { note: value })}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="edit-panel">
+              <NotesPanel
+                note={selectedSlide?.note ?? ""}
+                onChange={(value) => selectedSlide && patchSlide(selectedSlide.id, { note: value })}
+              />
+            </div>
+          )}
         </div>
 
         <StatusBar message={message} />

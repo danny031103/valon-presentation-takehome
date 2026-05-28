@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 
 export type SlideStatus = "idle" | "working" | "done" | "error";
 
+export type EditorMode = "edit" | "ai";
+
 export type Slide = {
   id: string;
   name: string;
@@ -34,6 +36,7 @@ function starterSlides(): Slide[] {
 export function useDeck() {
   const [slides, setSlides] = useState<Slide[]>(starterSlides);
   const [selectedId, setSelectedId] = useState<string>("");
+  const [editorMode, setEditorMode] = useState<EditorMode>("ai");
   const [message, setMessage] = useState("Saved locally in your browser.");
   const [exporting, setExporting] = useState(false);
 
@@ -48,11 +51,18 @@ export function useDeck() {
     }
 
     try {
-      const parsed = JSON.parse(saved) as { slides: Slide[]; selectedId: string };
+      const parsed = JSON.parse(saved) as {
+        slides: Slide[];
+        selectedId: string;
+        editorMode?: EditorMode;
+      };
 
       if (parsed.slides?.length) {
         setSlides(parsed.slides);
         setSelectedId(parsed.selectedId || parsed.slides[0].id);
+        if (parsed.editorMode === "edit" || parsed.editorMode === "ai") {
+          setEditorMode(parsed.editorMode);
+        }
       }
     } catch {
       const fresh = starterSlides();
@@ -68,9 +78,9 @@ export function useDeck() {
 
     window.localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ slides, selectedId: selectedId || slides[0].id })
+      JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode })
     );
-  }, [slides, selectedId]);
+  }, [slides, selectedId, editorMode]);
 
   const selectedSlide = slides.find((slide) => slide.id === selectedId) ?? slides[0];
 
@@ -207,6 +217,8 @@ export function useDeck() {
     selectedId,
     setSelectedId,
     selectedSlide,
+    editorMode,
+    setEditorMode,
     message,
     exporting,
     patchSlide,

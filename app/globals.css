@@ -196,6 +196,34 @@ button {
   align-items: center;
 }
 
+/* Two-segment Edit / Generate toggle */
+.mode-toggle {
+  display: inline-flex;
+  flex: none;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+}
+
+.mode-toggle button {
+  height: 28px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: calc(var(--radius) - 0.25rem);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.85rem;
+  opacity: 0.65;
+  transition: background-color 120ms ease, opacity 120ms ease;
+}
+
+.mode-toggle button.active {
+  background: var(--background);
+  opacity: 1;
+  font-weight: 500;
+}
+
 .name-input {
   flex: 1;
   min-width: 0;
@@ -300,6 +328,19 @@ textarea:focus {
   background: var(--surface);
   min-height: 0;
   overflow: hidden;
+}
+
+/* Edit mode bottom panel — speaker notes only for now (toolbar arrives in 2c) */
+.edit-panel {
+  grid-column: 1 / -1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.edit-panel .notes-section {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 
 .prompt-card {
