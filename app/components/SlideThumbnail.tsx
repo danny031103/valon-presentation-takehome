@@ -1,6 +1,51 @@
-import type { DragEvent } from "react";
+import type { CSSProperties, DragEvent } from "react";
 
-import type { Slide } from "../hooks/useDeck";
+import type { Slide, SlideFormatting } from "../hooks/useDeck";
+
+// Thumbnail-sized equivalents of the canvas font sizes, expressed in container
+// query units so the preview text scales with the (16:9) thumbnail box.
+const FONT_SIZE_CQW: Record<NonNullable<SlideFormatting["fontSize"]>, string> = {
+  S: "4.5cqw",
+  M: "5.5cqw",
+  L: "7cqw",
+  XL: "10cqw"
+};
+
+// Mini preview of a slide that has no AI image yet: render its actual title/body
+// text with the slide's formatting, so the sidebar shows what's on the slide.
+function ThumbPreview({ slide }: { slide: Slide }) {
+  const formatting = slide.formatting;
+  const title = slide.title?.trim() ?? "";
+  const body = slide.body?.trim() ?? "";
+
+  if (!title && !body) {
+    return <div aria-hidden className="thumb-preview thumb-preview-empty" />;
+  }
+
+  const shared: CSSProperties = {
+    fontWeight: formatting?.bold ? 700 : undefined,
+    fontStyle: formatting?.italic ? "italic" : undefined,
+    color: formatting?.color || undefined,
+    textAlign: formatting?.align || undefined
+  };
+  // A slide-wide font size, when set, overrides both title and body (matches canvas).
+  const override = formatting?.fontSize ? FONT_SIZE_CQW[formatting.fontSize] : undefined;
+
+  return (
+    <div className="thumb-preview">
+      {title ? (
+        <p className="thumb-preview-title" style={{ ...shared, fontSize: override ?? "7cqw" }}>
+          {title}
+        </p>
+      ) : null}
+      {body ? (
+        <p className="thumb-preview-body" style={{ ...shared, fontSize: override ?? "4cqw" }}>
+          {body}
+        </p>
+      ) : null}
+    </div>
+  );
+}
 
 type SlideThumbnailProps = {
   slide: Slide;
@@ -47,7 +92,7 @@ export function SlideThumbnail({
           {slide.imageData ? (
             <img alt={slide.name} src={slide.imageData} />
           ) : (
-            <span>No image</span>
+            <ThumbPreview slide={slide} />
           )}
         </div>
         <div className="thumb-copy">
