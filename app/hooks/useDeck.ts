@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type SlideStatus = "idle" | "working" | "done" | "error";
 
@@ -53,6 +53,10 @@ export function useDeck() {
   const [editorMode, setEditorMode] = useState<EditorMode>("ai");
   const [message, setMessage] = useState("Saved locally in your browser.");
   const [exporting, setExporting] = useState(false);
+  const [history, setHistory] = useState<Slide[][]>([]);
+  // Tracks the target of the last coalesced edit (`${id}:${fields}`) so a run of
+  // edits to the same field on the same slide collapses into one undo entry.
+  const lastEditKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -104,24 +108,44 @@ export function useDeck() {
     }
   }, [selectedSlide, slides]);
 
-  function patchSlide(id: string, patch: Partial<Slide>) {
+  function pushHistory() {
+    setHistory((current) => {
+      const next = [...current, slides];
+      return next.length > 50 ? next.slice(next.length - 50) : next;
+    });
+  }
+
+  // Applies a patch without touching history. Used for generation-driven status
+  // churn, which should not be undoable.
+  function applyPatch(id: string, patch: Partial<Slide>) {
     setSlides((current) =>
       current.map((slide) => (slide.id === id ? { ...slide, ...patch } : slide))
     );
   }
 
-  function reorderSlides(from: number, to: number) {
-    setSlides((current) => {
-      if (
-        from === to ||
-        from < 0 ||
-        to < 0 ||
-        from >= current.length ||
-        to >= current.length
-      ) {
-        return current;
-      }
+  function patchSlide(id: string, patch: Partial<Slide>) {
+    const editKey = `${id}:${Object.keys(patch).sort().join(",")}`;
+    if (lastEditKeyRef.current !== editKey) {
+      pushHistory();
+      lastEditKeyRef.current = editKey;
+    }
+    applyPatch(id, patch);
+  }
 
+  function reorderSlides(from: number, to: number) {
+    if (
+      from === to ||
+      from < 0 ||
+      to < 0 ||
+      from >= slides.length ||
+      to >= slides.length
+    ) {
+      return;
+    }
+
+    pushHistory();
+    lastEditKeyRef.current = null;
+    setSlides((current) => {
       const next = [...current];
       const [moved] = next.splice(from, 1);
       next.splice(to, 0, moved);
@@ -130,6 +154,8 @@ export function useDeck() {
   }
 
   function addSlide() {
+    pushHistory();
+    lastEditKeyRef.current = null;
     const next = makeSlide(slides.length);
     setSlides((current) => [...current, next]);
     setSelectedId(next.id);
@@ -142,6 +168,8 @@ export function useDeck() {
       return;
     }
 
+    pushHistory();
+    lastEditKeyRef.current = null;
     const nextSlides = slides.filter((slide) => slide.id !== id);
     setSlides(nextSlides);
 
@@ -152,6 +180,55 @@ export function useDeck() {
     setMessage("Slide deleted.");
   }
 
+  function undo() {
+    if (!history.length) {
+      return;
+    }
+
+    const snapshot = history[history.length - 1];
+    setHistory((current) => current.slice(0, -1));
+    setSlides(snapshot);
+    if (!snapshot.some((slide) => slide.id === selectedId)) {
+      setSelectedId(snapshot[0]?.id ?? "");
+    }
+    lastEditKeyRef.current = null;
+    setMessage("Undid last change.");
+  }
+
+  // Keep a ref to the latest undo so the keydown listener can stay subscribed
+  // once while always calling the current closure.
+  const undoRef = useRef(undo);
+  undoRef.current = undo;
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const isUndo =
+        (event.metaKey || event.ctrlKey) &&
+        event.key.toLowerCase() === "z" &&
+        !event.shiftKey;
+      if (!isUndo) {
+        return;
+      }
+
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        // Let the browser handle native text undo inside editable fields.
+        return;
+      }
+
+      event.preventDefault();
+      undoRef.current();
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   async function generateSlide(mode: "fresh" | "again") {
     if (!selectedSlide) {
       return;
@@ -159,11 +236,11 @@ export function useDeck() {
 
     if (!selectedSlide.prompt.trim()) {
       setMessage("Add a prompt before generating.");
-      patchSlide(selectedSlide.id, { status: "error", feedback: "No prompt yet." });
+      applyPatch(selectedSlide.id, { status: "error", feedback: "No prompt yet." });
       return;
     }
 
-    patchSlide(selectedSlide.id, {
+    applyPatch(selectedSlide.id, {
       status: "working",
       feedback: "Generating image…"
     });
@@ -189,7 +266,7 @@ export function useDeck() {
     };
 
     if (!response.ok || !payload.imageData) {
-      patchSlide(selectedSlide.id, {
+      applyPatch(selectedSlide.id, {
         status: "error",
         feedback: payload.error ?? "Image generation failed."
       });
@@ -197,7 +274,7 @@ export function useDeck() {
       return;
     }
 
-    patchSlide(selectedSlide.id, {
+    applyPatch(selectedSlide.id, {
       imageData: payload.imageData,
       status: "done",
       feedback: payload.text || "Done."
@@ -258,6 +335,8 @@ export function useDeck() {
     addSlide,
     reorderSlides,
     killSlide,
+    undo,
+    canUndo: history.length > 0,
     generateSlide,
     exportDeck
   };

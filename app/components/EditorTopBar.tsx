@@ -10,6 +10,8 @@ type EditorTopBarProps = {
   onLayoutChange: (layout: SlideLayout) => void;
   onRename: (name: string) => void;
   onDelete: () => void;
+  onUndo: () => void;
+  canUndo: boolean;
   onExport: () => void;
 };
 
@@ -22,6 +24,8 @@ export function EditorTopBar({
   onLayoutChange,
   onRename,
   onDelete,
+  onUndo,
+  canUndo,
   onExport
 }: EditorTopBarProps) {
   return (
@@ -57,6 +61,14 @@ export function EditorTopBar({
       ) : null}
 
       <div className="top-actions">
+        <button
+          className="quiet-button"
+          disabled={!canUndo}
+          onClick={onUndo}
+          type="button"
+        >
+          Undo
+        </button>
         <button className="quiet-button" onClick={onDelete} type="button">
           Delete
         </button>

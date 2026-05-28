@@ -22,6 +22,8 @@ export default function Home() {
     addSlide,
     reorderSlides,
     killSlide,
+    undo,
+    canUndo,
     generateSlide,
     exportDeck
   } = useDeck();
@@ -46,6 +48,8 @@ export default function Home() {
           onLayoutChange={(layout) => selectedSlide && patchSlide(selectedSlide.id, { layout })}
           onRename={(name) => selectedSlide && patchSlide(selectedSlide.id, { name })}
           onDelete={() => selectedSlide && killSlide(selectedSlide.id)}
+          onUndo={undo}
+          canUndo={canUndo}
           onExport={exportDeck}
         />
 
