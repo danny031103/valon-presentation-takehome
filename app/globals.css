@@ -452,9 +452,12 @@ textarea:focus {
   overflow: hidden;
 }
 
-/* Edit mode bottom panel — speaker notes only for now (toolbar arrives in 2c) */
+/* Edit mode bottom panel — formatting toolbar above speaker notes */
 .edit-panel {
   grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 24px;
   overflow-y: auto;
 }
@@ -463,6 +466,91 @@ textarea:focus {
   margin-top: 0;
   padding-top: 0;
   border-top: 0;
+}
+
+/* Formatting toolbar */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+}
+
+.toolbar-btn {
+  min-width: 30px;
+  height: 28px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) - 0.35rem);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.85rem;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.toolbar-btn:hover {
+  border-color: var(--border);
+}
+
+.toolbar-btn.active {
+  background: var(--background);
+  border-color: var(--brand);
+}
+
+.toolbar-btn svg {
+  width: 18px;
+  height: 16px;
+  fill: none;
+  stroke: var(--foreground);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.toolbar-swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  transition: box-shadow 120ms ease;
+}
+
+.toolbar-swatch.active {
+  box-shadow: 0 0 0 2px var(--surface-raised), 0 0 0 3px var(--brand);
+}
+
+.toolbar-color-pick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px dashed var(--border);
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.toolbar-color-pick input[type="color"] {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
 .prompt-card {

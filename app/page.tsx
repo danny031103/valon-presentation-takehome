@@ -6,6 +6,7 @@ import { PromptPanel } from "./components/PromptPanel";
 import { Sidebar } from "./components/Sidebar";
 import { SlideCanvas } from "./components/SlideCanvas";
 import { StatusBar } from "./components/StatusBar";
+import { Toolbar } from "./components/Toolbar";
 import { useDeck } from "./hooks/useDeck";
 
 export default function Home() {
@@ -85,6 +86,12 @@ export default function Home() {
             </>
           ) : (
             <div className="edit-panel">
+              <Toolbar
+                formatting={selectedSlide?.formatting}
+                onChange={(formatting) =>
+                  selectedSlide && patchSlide(selectedSlide.id, { formatting })
+                }
+              />
               <NotesPanel
                 note={selectedSlide?.note ?? ""}
                 onChange={(value) => selectedSlide && patchSlide(selectedSlide.id, { note: value })}

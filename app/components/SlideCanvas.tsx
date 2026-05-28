@@ -1,4 +1,29 @@
-import type { Slide, SlideLayout, SlideStatus } from "../hooks/useDeck";
+import type { CSSProperties } from "react";
+
+import type { Slide, SlideFormatting, SlideLayout, SlideStatus } from "../hooks/useDeck";
+
+const FONT_SIZE_PX: Record<NonNullable<SlideFormatting["fontSize"]>, string> = {
+  S: "14px",
+  M: "18px",
+  L: "24px",
+  XL: "36px"
+};
+
+// Reflect slide-wide formatting onto the placeholder text regions so the
+// toolbar is testable in 2c. Real title/body text takes the same style in 2d.
+function formattingStyle(formatting: SlideFormatting | undefined): CSSProperties {
+  if (!formatting) {
+    return {};
+  }
+
+  return {
+    fontWeight: formatting.bold ? 700 : undefined,
+    fontStyle: formatting.italic ? "italic" : undefined,
+    fontSize: formatting.fontSize ? FONT_SIZE_PX[formatting.fontSize] : undefined,
+    color: formatting.color || undefined,
+    textAlign: formatting.align || undefined
+  };
+}
 
 const STATUS_LABEL: Record<SlideStatus, string> = {
   idle: "Ready",
@@ -25,20 +50,30 @@ function SlideImage({ slide }: { slide: Slide }) {
 }
 
 // Placeholder text regions — real editable title/body arrive in 2d.
-function TitlePlaceholder() {
-  return <span className="layout-placeholder layout-placeholder-title">Title</span>;
+function TitlePlaceholder({ style }: { style: CSSProperties }) {
+  return (
+    <span className="layout-placeholder layout-placeholder-title" style={style}>
+      Title
+    </span>
+  );
 }
 
-function BodyPlaceholder() {
-  return <span className="layout-placeholder">Body text</span>;
+function BodyPlaceholder({ style }: { style: CSSProperties }) {
+  return (
+    <span className="layout-placeholder" style={style}>
+      Body text
+    </span>
+  );
 }
 
 function CanvasBody({ layout, slide }: { layout: SlideLayout; slide: Slide }) {
+  const style = formattingStyle(slide.formatting);
+
   switch (layout) {
     case "title":
       return (
         <div className="layout-region layout-title">
-          <TitlePlaceholder />
+          <TitlePlaceholder style={style} />
         </div>
       );
     case "image-text":
@@ -48,16 +83,16 @@ function CanvasBody({ layout, slide }: { layout: SlideLayout; slide: Slide }) {
             <SlideImage slide={slide} />
           </div>
           <div className="layout-text-pane">
-            <TitlePlaceholder />
-            <BodyPlaceholder />
+            <TitlePlaceholder style={style} />
+            <BodyPlaceholder style={style} />
           </div>
         </div>
       );
     case "text-only":
       return (
         <div className="layout-region layout-text-only">
-          <TitlePlaceholder />
-          <BodyPlaceholder />
+          <TitlePlaceholder style={style} />
+          <BodyPlaceholder style={style} />
         </div>
       );
     case "full-bleed":

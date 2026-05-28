@@ -6,6 +6,14 @@ export type EditorMode = "edit" | "ai";
 
 export type SlideLayout = "title" | "image-text" | "text-only" | "full-bleed";
 
+export type SlideFormatting = {
+  bold?: boolean;
+  italic?: boolean;
+  fontSize?: "S" | "M" | "L" | "XL";
+  color?: string;
+  align?: "left" | "center" | "right";
+};
+
 export type Slide = {
   id: string;
   name: string;
@@ -15,6 +23,7 @@ export type Slide = {
   note: string;
   feedback?: string;
   layout?: SlideLayout;
+  formatting?: SlideFormatting;
 };
 
 const STORAGE_KEY = "valon-presentation-takehome-v2";
