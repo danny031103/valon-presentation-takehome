@@ -490,6 +490,17 @@ textarea:focus {
 }
 
 /* Status chip — tucked into the canvas padding, bottom-right, muted */
+.canvas-upload {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.prompt-upload {
+  margin-top: 12px;
+  align-self: flex-start;
+}
+
 .floating-chip {
   position: absolute;
   bottom: 12px;

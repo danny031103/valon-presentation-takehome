@@ -1,6 +1,10 @@
 import type { CSSProperties } from "react";
 
-import type { Slide, SlideFormatting, SlideLayout, SlideStatus } from "../hooks/useDeck";
+import type { EditorMode, Slide, SlideFormatting, SlideLayout, SlideStatus } from "../hooks/useDeck";
+import { UploadImageButton } from "./UploadImageButton";
+
+// Layouts whose canvas actually renders an image (see CanvasBody).
+const LAYOUTS_WITH_IMAGE: SlideLayout[] = ["image-text", "full-bleed"];
 
 const FONT_SIZE_PX: Record<NonNullable<SlideFormatting["fontSize"]>, string> = {
   S: "14px",
@@ -34,7 +38,9 @@ const STATUS_LABEL: Record<SlideStatus, string> = {
 
 type SlideCanvasProps = {
   slide: Slide | undefined;
+  editorMode: EditorMode;
   onPatch: (patch: Partial<Slide>) => void;
+  onUploadImage: (file: File) => void;
 };
 
 function SlideImage({ slide }: { slide: Slide }) {
@@ -140,14 +146,23 @@ function CanvasBody({
   }
 }
 
-export function SlideCanvas({ slide, onPatch }: SlideCanvasProps) {
+export function SlideCanvas({ slide, editorMode, onPatch, onUploadImage }: SlideCanvasProps) {
   const layout: SlideLayout = slide?.layout ?? "full-bleed";
+  const canUpload = Boolean(slide) && editorMode === "edit" && LAYOUTS_WITH_IMAGE.includes(layout);
 
   return (
     <div className="canvas-wrap">
       <div className={`canvas-card canvas-layout-${layout}`}>
         {slide ? <CanvasBody layout={layout} slide={slide} onPatch={onPatch} /> : null}
       </div>
+
+      {canUpload ? (
+        <UploadImageButton
+          className="ghost-button canvas-upload"
+          label={slide?.imageData ? "Replace image" : "Upload image"}
+          onSelect={onUploadImage}
+        />
+      ) : null}
 
       <div className="floating-chip">
         <span>{STATUS_LABEL[slide?.status ?? "idle"]}</span>

@@ -28,6 +28,7 @@ export default function Home() {
     undo,
     canUndo,
     generateSlide,
+    importImage,
     exportDeck
   } = useDeck();
 
@@ -61,7 +62,9 @@ export default function Home() {
 
         <SlideCanvas
           slide={selectedSlide}
+          editorMode={editorMode}
           onPatch={(patch) => selectedSlide && patchSlide(selectedSlide.id, patch)}
+          onUploadImage={importImage}
         />
 
         <div className="bottom-panel">
@@ -70,6 +73,7 @@ export default function Home() {
               <PromptPanel
                 prompt={selectedSlide?.prompt ?? ""}
                 onChange={(value) => selectedSlide && patchSlide(selectedSlide.id, { prompt: value })}
+                onUploadImage={importImage}
               />
 
               <div className="side-controls">

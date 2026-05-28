@@ -1,9 +1,12 @@
+import { UploadImageButton } from "./UploadImageButton";
+
 type PromptPanelProps = {
   prompt: string;
   onChange: (value: string) => void;
+  onUploadImage: (file: File) => void;
 };
 
-export function PromptPanel({ prompt, onChange }: PromptPanelProps) {
+export function PromptPanel({ prompt, onChange, onUploadImage }: PromptPanelProps) {
   return (
     <div className="prompt-card">
       <label className="field-label" htmlFor="prompt-box">
@@ -16,6 +19,7 @@ export function PromptPanel({ prompt, onChange }: PromptPanelProps) {
         rows={7}
         value={prompt}
       />
+      <UploadImageButton className="ghost-button prompt-upload" onSelect={onUploadImage} />
     </div>
   );
 }

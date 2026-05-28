@@ -109,10 +109,16 @@ export function useDeck() {
       return;
     }
 
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode, deckTitle })
-    );
+    try {
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode, deckTitle })
+      );
+    } catch {
+      // Most likely QuotaExceededError from a large imported image. Keep the
+      // deck working in memory this session; just warn that it won't persist.
+      setMessage("Deck too large to save locally — recent changes won't persist.");
+    }
   }, [slides, selectedId, editorMode, deckTitle]);
 
   const selectedSlide = slides.find((slide) => slide.id === selectedId) ?? slides[0];
@@ -322,6 +328,49 @@ export function useDeck() {
     setMessage("Image added to slide.");
   }
 
+  // Reads a local image file onto the selected slide as a base64 data URL — no
+  // API call. Oversized files warn but still import.
+  // NOTE: imageData is persisted to localStorage (~5MB cap, base64 inflates the
+  // size ~33%), so importing a large image risks exceeding the quota on save.
+  function importImage(file: File) {
+    if (!selectedSlide) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setMessage("That file isn't an image.");
+      return;
+    }
+
+    const WARN_BYTES = 4 * 1024 * 1024;
+    const oversized = file.size > WARN_BYTES;
+    if (oversized) {
+      setMessage("Heads up: image is over 4MB and may not save locally.");
+    }
+
+    const slideId = selectedSlide.id;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const imageData = typeof reader.result === "string" ? reader.result : "";
+      if (!imageData) {
+        setMessage("Couldn't read that image file.");
+        return;
+      }
+      patchSlide(slideId, {
+        imageData,
+        status: "done",
+        feedback: "Image uploaded."
+      });
+      if (!oversized) {
+        setMessage("Image added to slide.");
+      }
+    };
+    reader.onerror = () => {
+      setMessage("Couldn't read that image file.");
+    };
+    reader.readAsDataURL(file);
+  }
+
   async function exportDeck() {
     if (!slides.length) {
       return;
@@ -381,6 +430,7 @@ export function useDeck() {
     undo,
     canUndo: history.length > 0,
     generateSlide,
+    importImage,
     exportDeck
   };
 }
