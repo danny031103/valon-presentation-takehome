@@ -244,6 +244,31 @@ export function useDeck() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  function duplicateSlide(id: string) {
+    const index = slides.findIndex((slide) => slide.id === id);
+    if (index === -1) {
+      return;
+    }
+
+    const source = slides[index];
+    const copy: Slide = {
+      ...source,
+      id: crypto.randomUUID(),
+      name: `${source.name} copy`,
+      formatting: source.formatting ? { ...source.formatting } : undefined
+    };
+
+    pushHistory();
+    lastEditKeyRef.current = null;
+    setSlides((current) => {
+      const next = [...current];
+      next.splice(index + 1, 0, copy);
+      return next;
+    });
+    setSelectedId(copy.id);
+    setMessage("Slide duplicated.");
+  }
+
   async function generateSlide(mode: "fresh" | "again") {
     if (!selectedSlide) {
       return;
@@ -352,6 +377,7 @@ export function useDeck() {
     addSlide,
     reorderSlides,
     killSlide,
+    duplicateSlide,
     undo,
     canUndo: history.length > 0,
     generateSlide,

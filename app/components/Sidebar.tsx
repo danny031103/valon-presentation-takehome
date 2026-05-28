@@ -10,9 +10,17 @@ type SidebarProps = {
   onSelect: (id: string) => void;
   onAddSlide: () => void;
   onReorder: (from: number, to: number) => void;
+  onDuplicate: (id: string) => void;
 };
 
-export function Sidebar({ slides, selectedId, onSelect, onAddSlide, onReorder }: SidebarProps) {
+export function Sidebar({
+  slides,
+  selectedId,
+  onSelect,
+  onAddSlide,
+  onReorder,
+  onDuplicate
+}: SidebarProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
 
@@ -37,6 +45,7 @@ export function Sidebar({ slides, selectedId, onSelect, onAddSlide, onReorder }:
             dragging={dragIndex === index}
             dragOver={overIndex === index && dragIndex !== index}
             onSelect={() => onSelect(slide.id)}
+            onDuplicate={() => onDuplicate(slide.id)}
             onDragStart={() => setDragIndex(index)}
             onDragOver={(event: DragEvent) => {
               event.preventDefault();

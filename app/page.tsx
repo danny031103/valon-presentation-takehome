@@ -24,6 +24,7 @@ export default function Home() {
     addSlide,
     reorderSlides,
     killSlide,
+    duplicateSlide,
     undo,
     canUndo,
     generateSlide,
@@ -38,6 +39,7 @@ export default function Home() {
         onSelect={setSelectedId}
         onAddSlide={addSlide}
         onReorder={reorderSlides}
+        onDuplicate={duplicateSlide}
       />
 
       <section className="editor">

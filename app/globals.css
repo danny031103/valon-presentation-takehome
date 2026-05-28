@@ -186,6 +186,35 @@ button {
   opacity: 0.6;
 }
 
+.thumb-wrap {
+  position: relative;
+}
+
+/* Corner action, revealed on hover or keyboard focus so it stays out of the way */
+.thumb-duplicate {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 0.35rem);
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms ease, border-color 120ms ease;
+}
+
+.thumb-wrap:hover .thumb-duplicate,
+.thumb-duplicate:focus-visible {
+  opacity: 1;
+}
+
+.thumb-duplicate:hover {
+  border-color: var(--brand);
+}
+
 /* ---------- Editor column ---------- */
 
 .editor {
