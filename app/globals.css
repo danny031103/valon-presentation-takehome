@@ -162,8 +162,14 @@ button {
 }
 
 .thumb-art span {
+  aspect-ratio: 16 / 9;
   opacity: 0.5;
   font-size: 0.85rem;
+}
+
+.thumb-art img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
 }
 
 .thumb-art img,
