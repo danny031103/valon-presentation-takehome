@@ -36,9 +36,13 @@ This plan evolves the starter (a deliberately bad, joke-styled deck builder) int
 
 ---
  
-## Phase 2 — Core Functionality
+## Phase 2 — Core Functionality ✅ Complete
  
 **Goal:** Transform slides from simple image containers into fully editable documents — with a formatting toolbar, slide layout templates, an edit/AI mode toggle, text editing, reordering, undo, duplication, file naming, and image upload.
+
+> **Status:** Complete. All sub-phases 2a–2i shipped: edit/AI mode toggle, four layout templates (with export support), formatting toolbar, editable title/body text, drag-to-reorder, undo stack (`Cmd/Ctrl+Z` + button), custom export filename, slide duplication, and local image import. `npm run typecheck` passes.
+>
+> **Deviation from plan:** 2i added a `try/catch` guard around the localStorage save (beyond the original spec) — a large imported image can exceed the storage quota, so the app now warns instead of crashing.
  
 ### 2a — Edit mode vs AI mode toggle
 The central product insight: the bottom panel switches between two modes via a toggle in `EditorTopBar.tsx`.
