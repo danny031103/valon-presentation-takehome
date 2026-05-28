@@ -34,6 +34,7 @@ const STATUS_LABEL: Record<SlideStatus, string> = {
 
 type SlideCanvasProps = {
   slide: Slide | undefined;
+  onPatch: (patch: Partial<Slide>) => void;
 };
 
 function SlideImage({ slide }: { slide: Slide }) {
@@ -49,31 +50,69 @@ function SlideImage({ slide }: { slide: Slide }) {
   );
 }
 
-// Placeholder text regions — real editable title/body arrive in 2d.
-function TitlePlaceholder({ style }: { style: CSSProperties }) {
+// Editable text regions. Formatting (2c) is slide-wide, so a controlled
+// textarea per field is enough — no per-character rich text needed.
+function TitleField({
+  value,
+  style,
+  onChange
+}: {
+  value: string;
+  style: CSSProperties;
+  onChange: (value: string) => void;
+}) {
   return (
-    <span className="layout-placeholder layout-placeholder-title" style={style}>
-      Title
-    </span>
+    <textarea
+      aria-label="Slide title"
+      className="layout-text-field layout-text-field-title"
+      onChange={(event) => onChange(event.target.value)}
+      placeholder="Title"
+      rows={1}
+      style={style}
+      value={value}
+    />
   );
 }
 
-function BodyPlaceholder({ style }: { style: CSSProperties }) {
+function BodyField({
+  value,
+  style,
+  onChange
+}: {
+  value: string;
+  style: CSSProperties;
+  onChange: (value: string) => void;
+}) {
   return (
-    <span className="layout-placeholder" style={style}>
-      Body text
-    </span>
+    <textarea
+      aria-label="Slide body"
+      className="layout-text-field"
+      onChange={(event) => onChange(event.target.value)}
+      placeholder="Body text"
+      style={style}
+      value={value}
+    />
   );
 }
 
-function CanvasBody({ layout, slide }: { layout: SlideLayout; slide: Slide }) {
+function CanvasBody({
+  layout,
+  slide,
+  onPatch
+}: {
+  layout: SlideLayout;
+  slide: Slide;
+  onPatch: (patch: Partial<Slide>) => void;
+}) {
   const style = formattingStyle(slide.formatting);
+  const title = slide.title ?? "";
+  const body = slide.body ?? "";
 
   switch (layout) {
     case "title":
       return (
         <div className="layout-region layout-title">
-          <TitlePlaceholder style={style} />
+          <TitleField value={title} style={style} onChange={(value) => onPatch({ title: value })} />
         </div>
       );
     case "image-text":
@@ -83,16 +122,16 @@ function CanvasBody({ layout, slide }: { layout: SlideLayout; slide: Slide }) {
             <SlideImage slide={slide} />
           </div>
           <div className="layout-text-pane">
-            <TitlePlaceholder style={style} />
-            <BodyPlaceholder style={style} />
+            <TitleField value={title} style={style} onChange={(value) => onPatch({ title: value })} />
+            <BodyField value={body} style={style} onChange={(value) => onPatch({ body: value })} />
           </div>
         </div>
       );
     case "text-only":
       return (
         <div className="layout-region layout-text-only">
-          <TitlePlaceholder style={style} />
-          <BodyPlaceholder style={style} />
+          <TitleField value={title} style={style} onChange={(value) => onPatch({ title: value })} />
+          <BodyField value={body} style={style} onChange={(value) => onPatch({ body: value })} />
         </div>
       );
     case "full-bleed":
@@ -101,13 +140,13 @@ function CanvasBody({ layout, slide }: { layout: SlideLayout; slide: Slide }) {
   }
 }
 
-export function SlideCanvas({ slide }: SlideCanvasProps) {
+export function SlideCanvas({ slide, onPatch }: SlideCanvasProps) {
   const layout: SlideLayout = slide?.layout ?? "full-bleed";
 
   return (
     <div className="canvas-wrap">
       <div className={`canvas-card canvas-layout-${layout}`}>
-        {slide ? <CanvasBody layout={layout} slide={slide} /> : null}
+        {slide ? <CanvasBody layout={layout} slide={slide} onPatch={onPatch} /> : null}
       </div>
 
       <div className="floating-chip">

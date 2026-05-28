@@ -47,7 +47,10 @@ export default function Home() {
           onExport={exportDeck}
         />
 
-        <SlideCanvas slide={selectedSlide} />
+        <SlideCanvas
+          slide={selectedSlide}
+          onPatch={(patch) => selectedSlide && patchSlide(selectedSlide.id, patch)}
+        />
 
         <div className="bottom-panel">
           {editorMode === "ai" ? (

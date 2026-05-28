@@ -24,6 +24,8 @@ export type Slide = {
   feedback?: string;
   layout?: SlideLayout;
   formatting?: SlideFormatting;
+  title?: string;
+  body?: string;
 };
 
 const STORAGE_KEY = "valon-presentation-takehome-v2";

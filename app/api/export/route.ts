@@ -3,13 +3,51 @@ import pptxgen from "pptxgenjs";
 
 type SlideLayout = "title" | "image-text" | "text-only" | "full-bleed";
 
+type SlideFormatting = {
+  bold?: boolean;
+  italic?: boolean;
+  fontSize?: "S" | "M" | "L" | "XL";
+  color?: string;
+  align?: "left" | "center" | "right";
+};
+
 type SlidePayload = {
   name: string;
   prompt: string;
   note?: string;
   imageData?: string;
   layout?: SlideLayout;
+  title?: string;
+  body?: string;
+  formatting?: SlideFormatting;
 };
+
+// On-screen px values double as export pt sizes so output mirrors the canvas.
+const FONT_SIZE_PT: Record<NonNullable<SlideFormatting["fontSize"]>, number> = {
+  S: 14,
+  M: 18,
+  L: 24,
+  XL: 36
+};
+
+// Build pptxgenjs text props from slide-wide formatting (2c). fontSize, when
+// set, overrides the field's default size — applies to both title and body.
+function textOptions(
+  formatting: SlideFormatting | undefined,
+  defaults: { fontFace: string; fontSize: number; align: "left" | "center" | "right" }
+) {
+  return {
+    fontFace: defaults.fontFace,
+    fontSize:
+      formatting?.fontSize !== undefined ? FONT_SIZE_PT[formatting.fontSize] : defaults.fontSize,
+    bold: formatting?.bold ?? false,
+    italic: formatting?.italic ?? false,
+    color: (formatting?.color ?? "#141414").replace(/^#/, ""),
+    align: formatting?.align ?? defaults.align,
+    valign: "middle" as const,
+    margin: 0
+  };
+}
 
 export async function POST(request: Request) {
   try {
@@ -65,6 +103,46 @@ export async function POST(request: Request) {
             color: "2B1E16",
             align: "center"
           });
+        }
+      }
+
+      // Editable title/body, positioned per layout. full-bleed is image-only
+      // (matches the canvas), so it gets no text boxes here.
+      const title = slideData.title?.trim() ? slideData.title : "";
+      const body = slideData.body?.trim() ? slideData.body : "";
+
+      if (layout === "title") {
+        if (title) {
+          slide.addText(
+            title,
+            { x: 0.8, y: 2.6, w: 11.733, h: 2.3, ...textOptions(slideData.formatting, { fontFace: "Aptos Display", fontSize: 40, align: "center" }) }
+          );
+        }
+      } else if (layout === "image-text") {
+        if (title) {
+          slide.addText(
+            title,
+            { x: 7.0, y: 1.0, w: 5.8, h: 1.5, ...textOptions(slideData.formatting, { fontFace: "Aptos Display", fontSize: 28, align: "left" }) }
+          );
+        }
+        if (body) {
+          slide.addText(
+            body,
+            { x: 7.0, y: 2.6, w: 5.8, h: 3.8, ...textOptions(slideData.formatting, { fontFace: "Aptos", fontSize: 18, align: "left" }) }
+          );
+        }
+      } else if (layout === "text-only") {
+        if (title) {
+          slide.addText(
+            title,
+            { x: 1.0, y: 1.2, w: 11.333, h: 1.5, ...textOptions(slideData.formatting, { fontFace: "Aptos Display", fontSize: 32, align: "center" }) }
+          );
+        }
+        if (body) {
+          slide.addText(
+            body,
+            { x: 1.0, y: 2.9, w: 11.333, h: 3.5, ...textOptions(slideData.formatting, { fontFace: "Aptos", fontSize: 18, align: "left" }) }
+          );
         }
       }
 

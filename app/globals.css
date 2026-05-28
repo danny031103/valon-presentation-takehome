@@ -411,17 +411,36 @@ textarea:focus {
   padding: 48px;
 }
 
-/* Muted placeholders — real editable text arrives in 2d */
-.layout-placeholder {
+/* Editable title/body fields — transparent until focus, text sits on canvas.
+   Inline formatting styles (2c) override these defaults. */
+.layout-text-field {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) - 0.35rem);
+  background: transparent;
   color: var(--foreground);
-  opacity: 0.35;
+  font-family: inherit;
   font-size: 1rem;
+  line-height: 1.3;
+  padding: 4px 6px;
+  resize: none;
+  transition: border-color 120ms ease, background-color 120ms ease;
 }
 
-.layout-placeholder-title {
+.layout-text-field:focus {
+  border-color: var(--brand-soft);
+  background: var(--surface);
+}
+
+.layout-text-field::placeholder {
+  color: var(--foreground);
+  opacity: 0.35;
+}
+
+.layout-text-field-title {
   font-family: var(--font-display);
   font-size: 2rem;
-  opacity: 0.4;
+  text-align: center;
 }
 
 /* Status chip — tucked into the canvas padding, bottom-right, muted */
