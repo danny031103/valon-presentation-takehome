@@ -110,6 +110,25 @@ export function useDeck() {
     );
   }
 
+  function reorderSlides(from: number, to: number) {
+    setSlides((current) => {
+      if (
+        from === to ||
+        from < 0 ||
+        to < 0 ||
+        from >= current.length ||
+        to >= current.length
+      ) {
+        return current;
+      }
+
+      const next = [...current];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  }
+
   function addSlide() {
     const next = makeSlide(slides.length);
     setSlides((current) => [...current, next]);
@@ -237,6 +256,7 @@ export function useDeck() {
     exporting,
     patchSlide,
     addSlide,
+    reorderSlides,
     killSlide,
     generateSlide,
     exportDeck

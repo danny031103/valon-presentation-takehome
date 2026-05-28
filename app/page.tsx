@@ -20,6 +20,7 @@ export default function Home() {
     exporting,
     patchSlide,
     addSlide,
+    reorderSlides,
     killSlide,
     generateSlide,
     exportDeck
@@ -32,6 +33,7 @@ export default function Home() {
         selectedId={selectedSlide?.id}
         onSelect={setSelectedId}
         onAddSlide={addSlide}
+        onReorder={reorderSlides}
       />
 
       <section className="editor">

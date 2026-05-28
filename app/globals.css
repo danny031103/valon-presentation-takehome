@@ -121,7 +121,8 @@ button {
   background: var(--surface);
   text-align: left;
   border-radius: var(--radius);
-  transition: border-color 120ms ease;
+  cursor: grab;
+  transition: border-color 120ms ease, opacity 120ms ease;
 }
 
 .thumb:hover {
@@ -130,6 +131,22 @@ button {
 
 .thumb.active {
   border-color: var(--brand);
+}
+
+.thumb.dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.thumb.drag-over {
+  border-color: var(--brand);
+  box-shadow: 0 -2px 0 0 var(--brand);
+}
+
+/* Don't let the browser hijack the reorder drag with native image dragging */
+.thumb img {
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .thumb-art {

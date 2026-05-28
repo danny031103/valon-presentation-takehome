@@ -1,17 +1,43 @@
+import type { DragEvent } from "react";
+
 import type { Slide } from "../hooks/useDeck";
 
 type SlideThumbnailProps = {
   slide: Slide;
   index: number;
   active: boolean;
+  dragging: boolean;
+  dragOver: boolean;
   onSelect: () => void;
+  onDragStart: () => void;
+  onDragOver: (event: DragEvent) => void;
+  onDrop: () => void;
+  onDragEnd: () => void;
 };
 
-export function SlideThumbnail({ slide, index, active, onSelect }: SlideThumbnailProps) {
+export function SlideThumbnail({
+  slide,
+  index,
+  active,
+  dragging,
+  dragOver,
+  onSelect,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd
+}: SlideThumbnailProps) {
   return (
     <button
-      className={`thumb ${active ? "active" : ""}`}
+      className={`thumb ${active ? "active" : ""} ${dragging ? "dragging" : ""} ${
+        dragOver ? "drag-over" : ""
+      }`}
+      draggable
       onClick={onSelect}
+      onDragEnd={onDragEnd}
+      onDragOver={onDragOver}
+      onDragStart={onDragStart}
+      onDrop={onDrop}
       type="button"
     >
       <div className="thumb-art">
