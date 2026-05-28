@@ -1,10 +1,13 @@
-import type { EditorMode } from "../hooks/useDeck";
+import type { EditorMode, SlideLayout } from "../hooks/useDeck";
+import { LayoutPicker } from "./LayoutPicker";
 
 type EditorTopBarProps = {
   name: string;
   exporting: boolean;
   editorMode: EditorMode;
+  layout: SlideLayout;
   onModeChange: (mode: EditorMode) => void;
+  onLayoutChange: (layout: SlideLayout) => void;
   onRename: (name: string) => void;
   onDelete: () => void;
   onExport: () => void;
@@ -14,7 +17,9 @@ export function EditorTopBar({
   name,
   exporting,
   editorMode,
+  layout,
   onModeChange,
+  onLayoutChange,
   onRename,
   onDelete,
   onExport
@@ -46,6 +51,10 @@ export function EditorTopBar({
           Generate
         </button>
       </div>
+
+      {editorMode === "edit" ? (
+        <LayoutPicker layout={layout} onChange={onLayoutChange} />
+      ) : null}
 
       <div className="top-actions">
         <button className="quiet-button" onClick={onDelete} type="button">

@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import pptxgen from "pptxgenjs";
 
+type SlideLayout = "title" | "image-text" | "text-only" | "full-bleed";
+
 type SlidePayload = {
   name: string;
   prompt: string;
   note?: string;
   imageData?: string;
+  layout?: SlideLayout;
 };
 
 export async function POST(request: Request) {
@@ -30,33 +33,39 @@ export async function POST(request: Request) {
       const slide = deck.addSlide();
       slide.background = { color: "F4E7B8" };
 
-      if (slideData.imageData) {
-        slide.addImage({
-          data: slideData.imageData,
-          x: 0,
-          y: 0,
-          w: 13.333,
-          h: 7.5
-        });
-      } else {
-        slide.addShape("rect", {
-          x: 0.7,
-          y: 1.1,
-          w: 11.9,
-          h: 4.9,
-          fill: { color: "FFF7DC" },
-          line: { color: "2B1E16", width: 1.5 }
-        });
-        slide.addText("No image on this slide yet.", {
-          x: 1.2,
-          y: 3.1,
-          w: 7.5,
-          h: 0.5,
-          fontFace: "Aptos",
-          fontSize: 24,
-          bold: true,
-          color: "2B1E16"
-        });
+      // Honor layout when placing the image. Editable title/body text
+      // arrives in 2d — title/text-only layouts intentionally have no image.
+      const layout: SlideLayout = slideData.layout ?? "full-bleed";
+      const hasImageRegion = layout === "full-bleed" || layout === "image-text";
+      const imageRegion =
+        layout === "image-text"
+          ? { x: 0, y: 0, w: 6.667, h: 7.5 }
+          : { x: 0, y: 0, w: 13.333, h: 7.5 };
+
+      if (hasImageRegion) {
+        if (slideData.imageData) {
+          slide.addImage({ data: slideData.imageData, ...imageRegion });
+        } else {
+          slide.addShape("rect", {
+            x: imageRegion.x + 0.3,
+            y: imageRegion.y + 0.3,
+            w: imageRegion.w - 0.6,
+            h: imageRegion.h - 0.6,
+            fill: { color: "FFF7DC" },
+            line: { color: "2B1E16", width: 1.5 }
+          });
+          slide.addText("No image on this slide yet.", {
+            x: imageRegion.x + 0.3,
+            y: 3.1,
+            w: imageRegion.w - 0.6,
+            h: 0.5,
+            fontFace: "Aptos",
+            fontSize: 18,
+            bold: true,
+            color: "2B1E16",
+            align: "center"
+          });
+        }
       }
 
       slide.addText(slideData.name || "Untitled slide", {

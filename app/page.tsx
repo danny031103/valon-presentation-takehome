@@ -38,7 +38,9 @@ export default function Home() {
           name={selectedSlide?.name ?? ""}
           exporting={exporting}
           editorMode={editorMode}
+          layout={selectedSlide?.layout ?? "full-bleed"}
           onModeChange={setEditorMode}
+          onLayoutChange={(layout) => selectedSlide && patchSlide(selectedSlide.id, { layout })}
           onRename={(name) => selectedSlide && patchSlide(selectedSlide.id, { name })}
           onDelete={() => selectedSlide && killSlide(selectedSlide.id)}
           onExport={exportDeck}

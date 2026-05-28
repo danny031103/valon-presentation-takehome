@@ -4,6 +4,8 @@ export type SlideStatus = "idle" | "working" | "done" | "error";
 
 export type EditorMode = "edit" | "ai";
 
+export type SlideLayout = "title" | "image-text" | "text-only" | "full-bleed";
+
 export type Slide = {
   id: string;
   name: string;
@@ -12,6 +14,7 @@ export type Slide = {
   status: SlideStatus;
   note: string;
   feedback?: string;
+  layout?: SlideLayout;
 };
 
 const STORAGE_KEY = "valon-presentation-takehome-v2";
