@@ -73,9 +73,31 @@ button {
 }
 
 .sidebar-top {
-  display: grid;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 6px;
   padding: 24px;
+}
+
+.sidebar-slide-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.sidebar-add-btn {
+  flex-shrink: 0;
+  width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  font-size: 1rem;
+  line-height: 1;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 4px !important;
 }
 
 .sidebar h1 {
@@ -104,14 +126,6 @@ button {
   padding: 0 16px 16px;
 }
 
-.sidebar-bottom {
-  padding: 16px;
-  border-top: 1px solid var(--border);
-}
-
-.sidebar-bottom .loud-button {
-  width: 100%;
-}
 
 .thumb {
   display: grid;

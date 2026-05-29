@@ -10,7 +10,6 @@ type EditorTopBarProps = {
   onModeChange: (mode: EditorMode) => void;
   onLayoutChange: (layout: SlideLayout) => void;
   onRename: (name: string) => void;
-  onDelete: () => void;
   deckTitle: string;
   onDeckTitleChange: (title: string) => void;
   onExport: () => void;
@@ -26,7 +25,6 @@ export function EditorTopBar({
   onModeChange,
   onLayoutChange,
   onRename,
-  onDelete,
   deckTitle,
   onDeckTitleChange,
   onExport,
@@ -86,9 +84,6 @@ export function EditorTopBar({
       ) : null}
 
       <div className="top-actions">
-        <button className="quiet-button" onClick={onDelete} type="button">
-          Delete
-        </button>
         {naming ? (
           <>
             <input

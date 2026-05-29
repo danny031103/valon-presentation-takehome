@@ -50,6 +50,7 @@ export default function Home() {
         selectedId={selectedSlide?.id}
         onSelect={setSelectedId}
         onAddSlide={addSlide}
+        onDeleteSlide={() => selectedSlide && killSlide(selectedSlide.id)}
         onReorder={reorderSlides}
         onDuplicate={duplicateSlide}
       />
@@ -63,7 +64,6 @@ export default function Home() {
           onModeChange={setEditorMode}
           onLayoutChange={(layout) => selectedSlide && patchSlide(selectedSlide.id, { layout })}
           onRename={(name) => selectedSlide && patchSlide(selectedSlide.id, { name })}
-          onDelete={() => selectedSlide && killSlide(selectedSlide.id)}
           deckTitle={deckTitle}
           onDeckTitleChange={setDeckTitle}
           onExport={exportDeck}

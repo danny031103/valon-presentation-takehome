@@ -9,6 +9,7 @@ type SidebarProps = {
   selectedId: string | undefined;
   onSelect: (id: string) => void;
   onAddSlide: () => void;
+  onDeleteSlide: () => void;
   onReorder: (from: number, to: number) => void;
   onDuplicate: (id: string) => void;
 };
@@ -18,6 +19,7 @@ export function Sidebar({
   selectedId,
   onSelect,
   onAddSlide,
+  onDeleteSlide,
   onReorder,
   onDuplicate
 }: SidebarProps) {
@@ -33,6 +35,14 @@ export function Sidebar({
     <aside className="sidebar">
       <div className="sidebar-top">
         <h1>Valon Presentations</h1>
+        <div className="sidebar-slide-actions">
+          <button className="loud-button sidebar-add-btn" onClick={onAddSlide} type="button" title="New slide">
+            +
+          </button>
+          <button className="loud-button sidebar-add-btn" onClick={onDeleteSlide} type="button" title="Delete slide" disabled={!selectedId}>
+            −
+          </button>
+        </div>
       </div>
 
       <div className="slide-list">
@@ -60,12 +70,6 @@ export function Sidebar({
             onDragEnd={resetDrag}
           />
         ))}
-      </div>
-
-      <div className="sidebar-bottom">
-        <button className="loud-button" onClick={onAddSlide} type="button">
-          New slide
-        </button>
       </div>
     </aside>
   );
