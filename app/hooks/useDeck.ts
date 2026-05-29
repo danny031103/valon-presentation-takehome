@@ -17,6 +17,7 @@ export type SlideLayout = "title" | "image-text" | "text-only" | "full-bleed";
 export type SlideFormatting = {
   bold?: boolean;
   italic?: boolean;
+  bullets?: boolean;
   fontSize?: "S" | "M" | "L" | "XL";
   color?: string;
   align?: "left" | "center" | "right";
@@ -77,6 +78,7 @@ export function useDeck() {
   const [saving, setSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [history, setHistory] = useState<Slide[][]>([]);
+  const [future, setFuture] = useState<Slide[][]>([]);
   // Tracks the target of the last coalesced edit (`${id}:${fields}`) so a run of
   // edits to the same field on the same slide collapses into one undo entry.
   const lastEditKeyRef = useRef<string | null>(null);
@@ -163,6 +165,7 @@ export function useDeck() {
       const next = [...current, slides];
       return next.length > 50 ? next.slice(next.length - 50) : next;
     });
+    setFuture([]);
   }
 
   // Applies a patch without touching history. Used for generation-driven status
@@ -237,6 +240,10 @@ export function useDeck() {
 
     const snapshot = history[history.length - 1];
     setHistory((current) => current.slice(0, -1));
+    setFuture((current) => {
+      const next = [slides, ...current];
+      return next.length > 50 ? next.slice(0, 50) : next;
+    });
     setSlides(snapshot);
     if (!snapshot.some((slide) => slide.id === selectedId)) {
       setSelectedId(snapshot[0]?.id ?? "");
@@ -245,18 +252,40 @@ export function useDeck() {
     setMessage("Undid last change.");
   }
 
-  // Keep a ref to the latest undo so the keydown listener can stay subscribed
-  // once while always calling the current closure.
+  function redo() {
+    if (!future.length) {
+      return;
+    }
+
+    const snapshot = future[0];
+    setFuture((current) => current.slice(1));
+    setHistory((current) => {
+      const next = [...current, slides];
+      return next.length > 50 ? next.slice(next.length - 50) : next;
+    });
+    setSlides(snapshot);
+    if (!snapshot.some((slide) => slide.id === selectedId)) {
+      setSelectedId(snapshot[0]?.id ?? "");
+    }
+    lastEditKeyRef.current = null;
+    setMessage("Redid last change.");
+  }
+
+  // Keep refs to the latest undo/redo so the keydown listener can stay
+  // subscribed once while always calling the current closures.
   const undoRef = useRef(undo);
   undoRef.current = undo;
+  const redoRef = useRef(redo);
+  redoRef.current = redo;
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      const isUndo =
-        (event.metaKey || event.ctrlKey) &&
-        event.key.toLowerCase() === "z" &&
-        !event.shiftKey;
-      if (!isUndo) {
+      const mod = event.metaKey || event.ctrlKey;
+      const isUndo = mod && event.key.toLowerCase() === "z" && !event.shiftKey;
+      const isRedo =
+        (mod && event.key.toLowerCase() === "z" && event.shiftKey) ||
+        (event.ctrlKey && event.key.toLowerCase() === "y");
+      if (!isUndo && !isRedo) {
         return;
       }
 
@@ -267,12 +296,15 @@ export function useDeck() {
           target.tagName === "TEXTAREA" ||
           target.isContentEditable)
       ) {
-        // Let the browser handle native text undo inside editable fields.
         return;
       }
 
       event.preventDefault();
-      undoRef.current();
+      if (isRedo) {
+        redoRef.current();
+      } else {
+        undoRef.current();
+      }
     }
 
     window.addEventListener("keydown", handleKeyDown);
@@ -542,6 +574,8 @@ export function useDeck() {
     duplicateSlide,
     undo,
     canUndo: history.length > 0,
+    redo,
+    canRedo: future.length > 0,
     generateSlide,
     importImage,
     exportDeck,

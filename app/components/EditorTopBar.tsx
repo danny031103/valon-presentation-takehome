@@ -13,6 +13,8 @@ type EditorTopBarProps = {
   onDelete: () => void;
   onUndo: () => void;
   canUndo: boolean;
+  onRedo: () => void;
+  canRedo: boolean;
   deckTitle: string;
   onDeckTitleChange: (title: string) => void;
   onExport: () => void;
@@ -31,6 +33,8 @@ export function EditorTopBar({
   onDelete,
   onUndo,
   canUndo,
+  onRedo,
+  canRedo,
   deckTitle,
   onDeckTitleChange,
   onExport,
@@ -97,6 +101,14 @@ export function EditorTopBar({
           type="button"
         >
           Undo
+        </button>
+        <button
+          className="quiet-button"
+          disabled={!canRedo}
+          onClick={onRedo}
+          type="button"
+        >
+          Redo
         </button>
         <button className="quiet-button" onClick={onDelete} type="button">
           Delete

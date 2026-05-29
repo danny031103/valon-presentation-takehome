@@ -34,6 +34,8 @@ export default function Home() {
     duplicateSlide,
     undo,
     canUndo,
+    redo,
+    canRedo,
     generateSlide,
     importImage,
     exportDeck,
@@ -64,6 +66,8 @@ export default function Home() {
           onDelete={() => selectedSlide && killSlide(selectedSlide.id)}
           onUndo={undo}
           canUndo={canUndo}
+          onRedo={redo}
+          canRedo={canRedo}
           deckTitle={deckTitle}
           onDeckTitleChange={setDeckTitle}
           onExport={exportDeck}
@@ -126,6 +130,8 @@ export default function Home() {
                 onChange={(formatting) =>
                   selectedSlide && patchSlide(selectedSlide.id, { formatting })
                 }
+                body={selectedSlide?.body}
+                onBodyChange={(body) => selectedSlide && patchSlide(selectedSlide.id, { body })}
               />
               <NotesPanel
                 note={selectedSlide?.note ?? ""}
