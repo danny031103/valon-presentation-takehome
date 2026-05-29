@@ -91,7 +91,7 @@ export function SlideThumbnail({
         <div className="thumb-art">
           {slide.imageData ? (
             <>
-              <img alt={slide.name} src={slide.imageData} />
+              <img alt={slide.name || "Slide image"} src={slide.imageData} />
               {(slide.title?.trim() || slide.body?.trim()) && (
                 <div className="thumb-art-overlay">
                   <ThumbPreview slide={slide} />
@@ -104,12 +104,17 @@ export function SlideThumbnail({
         </div>
         <div className="thumb-copy">
           <strong>
-            {index + 1}. {slide.name}
+            {index + 1}.{" "}
+            {slide.name || (
+              <span style={{ opacity: 0.4, fontWeight: 400, fontStyle: "italic" }}>
+                Untitled slide
+              </span>
+            )}
           </strong>
         </div>
       </button>
       <button
-        aria-label={`Duplicate ${slide.name}`}
+        aria-label={`Duplicate ${slide.name || "untitled slide"}`}
         className="thumb-duplicate"
         onClick={onDuplicate}
         title="Duplicate slide"

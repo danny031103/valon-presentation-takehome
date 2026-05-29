@@ -42,7 +42,7 @@ const STORAGE_KEY = "valon-presentation-takehome-v2";
 function makeSlide(index: number): Slide {
   return {
     id: crypto.randomUUID(),
-    name: `Slide ${index + 1}`,
+    name: "",
     prompt:
       index === 0
         ? "An opening slide for a mortgage startup presentation with a bold hero image, a giant title, and extremely eager sales vibes"
