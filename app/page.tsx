@@ -2,6 +2,7 @@
 
 import { EditorTopBar } from "./components/EditorTopBar";
 import { NotesPanel } from "./components/NotesPanel";
+import { Onboarding } from "./components/Onboarding";
 import { PromptPanel } from "./components/PromptPanel";
 import { Sidebar } from "./components/Sidebar";
 import { SlideCanvas } from "./components/SlideCanvas";
@@ -130,6 +131,8 @@ export default function Home() {
 
         <StatusBar message={message} />
       </section>
+
+      <Onboarding />
     </main>
   );
 }
