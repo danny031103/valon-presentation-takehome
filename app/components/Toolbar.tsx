@@ -5,6 +5,10 @@ type ToolbarProps = {
   onChange: (formatting: SlideFormatting) => void;
   body?: string;
   onBodyChange?: (body: string) => void;
+  onUndo?: () => void;
+  canUndo?: boolean;
+  onRedo?: () => void;
+  canRedo?: boolean;
 };
 
 const FONT_SIZES: NonNullable<SlideFormatting["fontSize"]>[] = ["S", "M", "L", "XL"];
@@ -27,7 +31,7 @@ const ALIGN_GLYPH: Record<NonNullable<SlideFormatting["align"]>, string> = {
   right: "M2 4h14M7 8h9M2 12h14"
 };
 
-export function Toolbar({ formatting, onChange, body, onBodyChange }: ToolbarProps) {
+export function Toolbar({ formatting, onChange, body, onBodyChange, onUndo, canUndo, onRedo, canRedo }: ToolbarProps) {
   const current = formatting ?? {};
 
   function update(patch: SlideFormatting) {
@@ -49,6 +53,34 @@ export function Toolbar({ formatting, onChange, body, onBodyChange }: ToolbarPro
 
   return (
     <div className="toolbar" role="group" aria-label="Text formatting">
+      {(onUndo || onRedo) && (
+        <div className="toolbar-group">
+          <button
+            aria-label="Undo"
+            className="toolbar-btn"
+            disabled={!canUndo}
+            onClick={onUndo}
+            title="Undo"
+            type="button"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+            </svg>
+          </button>
+          <button
+            aria-label="Redo"
+            className="toolbar-btn"
+            disabled={!canRedo}
+            onClick={onRedo}
+            title="Redo"
+            type="button"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{transform: 'scaleX(-1)'}}>
+              <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+            </svg>
+          </button>
+        </div>
+      )}
       <div className="toolbar-group">
         <button
           aria-label="Bold"

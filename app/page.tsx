@@ -64,10 +64,6 @@ export default function Home() {
           onLayoutChange={(layout) => selectedSlide && patchSlide(selectedSlide.id, { layout })}
           onRename={(name) => selectedSlide && patchSlide(selectedSlide.id, { name })}
           onDelete={() => selectedSlide && killSlide(selectedSlide.id)}
-          onUndo={undo}
-          canUndo={canUndo}
-          onRedo={redo}
-          canRedo={canRedo}
           deckTitle={deckTitle}
           onDeckTitleChange={setDeckTitle}
           onExport={exportDeck}
@@ -132,6 +128,10 @@ export default function Home() {
                 }
                 body={selectedSlide?.body}
                 onBodyChange={(body) => selectedSlide && patchSlide(selectedSlide.id, { body })}
+                onUndo={undo}
+                canUndo={canUndo}
+                onRedo={redo}
+                canRedo={canRedo}
               />
               <NotesPanel
                 note={selectedSlide?.note ?? ""}
