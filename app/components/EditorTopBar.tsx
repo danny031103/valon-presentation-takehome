@@ -95,20 +95,28 @@ export function EditorTopBar({
 
       <div className="top-actions">
         <button
-          className="quiet-button"
+          className="quiet-button icon-button"
           disabled={!canUndo}
           onClick={onUndo}
           type="button"
+          title="Undo"
+          aria-label="Undo"
         >
-          Undo
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+          </svg>
         </button>
         <button
-          className="quiet-button"
+          className="quiet-button icon-button"
           disabled={!canRedo}
           onClick={onRedo}
           type="button"
+          title="Redo"
+          aria-label="Redo"
         >
-          Redo
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{transform: 'scaleX(-1)'}}>
+            <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+          </svg>
         </button>
         <button className="quiet-button" onClick={onDelete} type="button">
           Delete

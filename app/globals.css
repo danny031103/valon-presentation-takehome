@@ -900,6 +900,13 @@ textarea:focus {
   opacity: 0.5;
 }
 
+.quiet-button.icon-button {
+  padding: 4px 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ---------- Overflow menu ---------- */
 
 .overflow-menu {
