@@ -25,6 +25,8 @@ export default function Home() {
     setImageModel,
     message,
     exporting,
+    saving,
+    lastSavedAt,
     patchSlide,
     addSlide,
     reorderSlides,
@@ -34,7 +36,9 @@ export default function Home() {
     canUndo,
     generateSlide,
     importImage,
-    exportDeck
+    exportDeck,
+    exportJson,
+    importJson
   } = useDeck();
 
   return (
@@ -63,6 +67,8 @@ export default function Home() {
           deckTitle={deckTitle}
           onDeckTitleChange={setDeckTitle}
           onExport={exportDeck}
+          onExportJson={exportJson}
+          onImportJson={importJson}
         />
 
         <SlideCanvas
@@ -129,7 +135,7 @@ export default function Home() {
           )}
         </div>
 
-        <StatusBar message={message} />
+        <StatusBar message={message} saving={saving} lastSavedAt={lastSavedAt} />
       </section>
 
       <Onboarding />

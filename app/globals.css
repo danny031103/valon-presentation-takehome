@@ -900,11 +900,55 @@ textarea:focus {
   opacity: 0.5;
 }
 
+/* ---------- Overflow menu ---------- */
+
+.overflow-menu {
+  position: relative;
+}
+
+.overflow-trigger {
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  padding: 0 8px;
+}
+
+.overflow-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  min-width: 160px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.overflow-item {
+  width: 100%;
+  padding: 7px 12px;
+  text-align: left;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) - 0.25rem);
+  transition: background-color 120ms ease;
+}
+
+.overflow-item:hover {
+  background: var(--surface-raised);
+}
+
 /* ---------- Status bar — lowest visual priority ---------- */
 
 .status-bar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 28px;
   padding: 0 24px;
   border-top: 1px solid var(--border);
@@ -912,9 +956,34 @@ textarea:focus {
   font-size: 0.78rem;
   color: var(--foreground);
   opacity: 0.6;
+  overflow: hidden;
+}
+
+.status-message {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.save-indicator {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 16px;
+  white-space: nowrap;
+}
+
+.save-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  flex: none;
+}
+
+.save-dot--saving {
+  background: var(--brand-soft);
 }
 
 /* ---------- Onboarding modal ---------- */

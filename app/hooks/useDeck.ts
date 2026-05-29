@@ -57,12 +57,12 @@ function starterSlides(): Slide[] {
 
 // Turn a deck title into a safe download filename: strip filesystem-unsafe
 // characters, collapse whitespace, fall back to "untitled-deck".
-function toFileName(title: string): string {
+function toFileName(title: string, ext = "pptx"): string {
   const cleaned = title
     .replace(/[/\\:*?"<>|]/g, "")
     .replace(/\s+/g, " ")
     .trim();
-  return `${cleaned || "untitled-deck"}.pptx`;
+  return `${cleaned || "untitled-deck"}.${ext}`;
 }
 
 export function useDeck() {
@@ -74,6 +74,8 @@ export function useDeck() {
   const [imageModel, setImageModel] = useState<string>("");
   const [message, setMessage] = useState("Saved locally in your browser.");
   const [exporting, setExporting] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [history, setHistory] = useState<Slide[][]>([]);
   // Tracks the target of the last coalesced edit (`${id}:${fields}`) so a run of
   // edits to the same field on the same slide collapses into one undo entry.
@@ -132,15 +134,19 @@ export function useDeck() {
       return;
     }
 
+    setSaving(true);
     try {
       window.localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode, deckTitle, imageStyle, imageModel })
       );
+      setLastSavedAt(new Date());
     } catch {
       // Most likely QuotaExceededError from a large imported image. Keep the
       // deck working in memory this session; just warn that it won't persist.
       setMessage("Deck too large to save locally — recent changes won't persist.");
+    } finally {
+      setSaving(false);
     }
   }, [slides, selectedId, editorMode, deckTitle, imageStyle, imageModel]);
 
@@ -396,6 +402,82 @@ export function useDeck() {
     reader.readAsDataURL(file);
   }
 
+  function importJson(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const raw = typeof reader.result === "string" ? reader.result : "";
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        setMessage("Import failed: file is not valid JSON.");
+        return;
+      }
+
+      if (
+        typeof parsed !== "object" ||
+        parsed === null ||
+        (parsed as Record<string, unknown>).version !== 1 ||
+        !Array.isArray((parsed as Record<string, unknown>).slides) ||
+        ((parsed as Record<string, unknown>).slides as unknown[]).length === 0
+      ) {
+        setMessage("Import failed: unrecognised file format.");
+        return;
+      }
+
+      const data = parsed as {
+        version: 1;
+        deckTitle?: string;
+        editorMode?: EditorMode;
+        slides: Slide[];
+      };
+
+      const hasContent = slides.some(
+        (s) => s.prompt || s.imageData || s.title || s.body
+      );
+      if (
+        hasContent &&
+        !window.confirm("Replace the current deck with the imported one?")
+      ) {
+        return;
+      }
+
+      const incoming = data.slides.filter(
+        (s) => typeof s.id === "string" && typeof s.name === "string"
+      );
+      if (!incoming.length) {
+        setMessage("Import failed: no valid slides found.");
+        return;
+      }
+
+      setSlides(incoming);
+      setSelectedId(incoming[0].id);
+      if (typeof data.deckTitle === "string" && data.deckTitle) {
+        setDeckTitle(data.deckTitle);
+      }
+      if (data.editorMode === "edit" || data.editorMode === "ai") {
+        setEditorMode(data.editorMode);
+      }
+      setHistory([]);
+      lastEditKeyRef.current = null;
+      setMessage("Deck imported.");
+    };
+    reader.onerror = () => setMessage("Import failed: couldn't read that file.");
+    reader.readAsText(file);
+  }
+
+  function exportJson() {
+    const payload = JSON.stringify({ version: 1, deckTitle, editorMode, slides }, null, 2);
+    const blob = new Blob([payload], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = toFileName(deckTitle, "json");
+    anchor.click();
+    URL.revokeObjectURL(url);
+    setMessage("Deck exported as JSON.");
+  }
+
   async function exportDeck() {
     if (!slides.length) {
       return;
@@ -451,6 +533,8 @@ export function useDeck() {
     setImageModel,
     message,
     exporting,
+    saving,
+    lastSavedAt,
     patchSlide,
     addSlide,
     reorderSlides,
@@ -460,6 +544,8 @@ export function useDeck() {
     canUndo: history.length > 0,
     generateSlide,
     importImage,
-    exportDeck
+    exportDeck,
+    exportJson,
+    importJson
   };
 }
