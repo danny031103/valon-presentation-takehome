@@ -117,7 +117,7 @@ New `app/components/Toolbar.tsx`. Visible in edit mode only. No new dependencies
 - First-time visitors see onboarding with prompt examples; returning visitors do not.
 ---
  
-## Phase 4 — Persistence
+## Phase 4 — Persistence ✅ Complete
  
 **Goal:** Make saving visible, and let users move decks between machines via JSON backup.
  
