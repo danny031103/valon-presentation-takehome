@@ -36,11 +36,45 @@ const STATUS_LABEL: Record<SlideStatus, string> = {
   error: "Error"
 };
 
+type ErrorKind = "api-key" | "quota" | "safety" | "generic";
+
+function getErrorKind(feedback: string): ErrorKind {
+  if (feedback.includes("GOOGLE_API_KEY")) return "api-key";
+  const lower = feedback.toLowerCase();
+  if (lower.includes("quota") || lower.includes("429") || lower.includes("exhausted") || lower.includes("resource_exhausted")) return "quota";
+  if (lower.includes("safety") || lower.includes("blocked") || lower.includes("recitation") || lower.includes("harm")) return "safety";
+  return "generic";
+}
+
+const ERROR_COPY: Record<ErrorKind, { title: string; body: string; canRetry: boolean }> = {
+  "api-key": {
+    title: "API key missing",
+    body: "Add GOOGLE_API_KEY to .env.local and restart the dev server.",
+    canRetry: false
+  },
+  quota: {
+    title: "Quota exceeded",
+    body: "Your Google AI quota is exhausted. Try again later or check your usage limits.",
+    canRetry: true
+  },
+  safety: {
+    title: "Blocked by safety filter",
+    body: "The model blocked this request. Try rephrasing your prompt.",
+    canRetry: true
+  },
+  generic: {
+    title: "Generation failed",
+    body: "",
+    canRetry: true
+  }
+};
+
 type SlideCanvasProps = {
   slide: Slide | undefined;
   editorMode: EditorMode;
   onPatch: (patch: Partial<Slide>) => void;
   onUploadImage: (file: File) => void;
+  onRetry: () => void;
 };
 
 function SlideImage({ slide }: { slide: Slide }) {
@@ -146,7 +180,7 @@ function CanvasBody({
   }
 }
 
-export function SlideCanvas({ slide, editorMode, onPatch, onUploadImage }: SlideCanvasProps) {
+export function SlideCanvas({ slide, editorMode, onPatch, onUploadImage, onRetry }: SlideCanvasProps) {
   const layout: SlideLayout = slide?.layout ?? "full-bleed";
   const canUpload = Boolean(slide) && editorMode === "edit" && LAYOUTS_WITH_IMAGE.includes(layout);
 
@@ -159,6 +193,24 @@ export function SlideCanvas({ slide, editorMode, onPatch, onUploadImage }: Slide
             <p className="skeleton-hint">Generating image — usually 10–20s</p>
           </div>
         ) : null}
+        {slide?.status === "error" ? (() => {
+          const kind = getErrorKind(slide.feedback ?? "");
+          const copy = ERROR_COPY[kind];
+          return (
+            <div className="canvas-error">
+              <div className="canvas-error-inner">
+                <span className="error-icon">⚠</span>
+                <p className="error-title">{copy.title}</p>
+                <p className="error-body">{copy.body || slide.feedback}</p>
+                {copy.canRetry ? (
+                  <button className="ghost-button button-sm" onClick={onRetry} type="button">
+                    Retry
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          );
+        })() : null}
       </div>
 
       {canUpload ? (
@@ -169,7 +221,7 @@ export function SlideCanvas({ slide, editorMode, onPatch, onUploadImage }: Slide
         />
       ) : null}
 
-      {slide?.status !== "working" ? (
+      {slide?.status !== "working" && slide?.status !== "error" ? (
         <div className="floating-chip">
           <span>{STATUS_LABEL[slide?.status ?? "idle"]}</span>
           {slide?.status !== "done" && slide?.feedback ? <span>{slide.feedback}</span> : null}

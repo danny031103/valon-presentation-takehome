@@ -69,6 +69,7 @@ export default function Home() {
           editorMode={editorMode}
           onPatch={(patch) => selectedSlide && patchSlide(selectedSlide.id, patch)}
           onUploadImage={importImage}
+          onRetry={() => generateSlide("fresh")}
         />
 
         <div className="bottom-panel">
