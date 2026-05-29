@@ -92,10 +92,14 @@ New `app/components/Toolbar.tsx`. Visible in edit mode only. No new dependencies
 - `npm run typecheck` and `npm run build` pass.
 ---
  
-## Phase 3 — AI Quality
- 
+## Phase 3 — AI Quality ✅ Complete
+
 **Goal:** Replace the hardcoded chaotic style with user-controlled style/tone and model selection; make loading and error states honest and actionable.
- 
+
+> **Status:** Complete. Removed `HOUSE_STYLE_APPENDIX` and replaced it with a named style system (6 options: professional, minimal, editorial, illustrative, photographic, none); added Style and Model dropdowns to `PromptPanel.tsx` (AI mode only); both persisted to localStorage via `useDeck`. Added an animated `--brand-soft` shimmer skeleton on the canvas while `status === "working"` with a progress hint. Added an inline error card overlay with four categorised error types (api-key, quota, safety, generic) and a Retry button where applicable. Added a one-time onboarding modal on first load with three before/after prompt examples, dismissed via `valon-onboarding-dismissed` localStorage key.
+>
+> **Deviation from plan:** Model list ships with "Default model" + "Gemini 3 Pro Image" + "Gemini 2.0 Flash (faster)" — Imagen 3 was removed because it uses a different API endpoint incompatible with `generateContent`. Per-slide style override was omitted (deck-level only) as none of the acceptance criteria required it.
+
 ### Changes
 - **Remove `HOUSE_STYLE_APPENDIX`** from `app/api/generate/route.ts`. Accept a `style` field on the request body and map it to a named prompt fragment (`professional`, `minimal`, `editorial`, `illustrative`, `photographic`, `none`). Append the chosen fragment server-side. **(M)**
 - **Style selector UI** — Dropdown in `PromptPanel.tsx` (AI mode only, deck-level default in `useDeck.ts`, with per-slide override). Persist to localStorage. Send `style` in the `/api/generate` request body. **(S)**
