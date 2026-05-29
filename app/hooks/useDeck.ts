@@ -4,6 +4,14 @@ export type SlideStatus = "idle" | "working" | "done" | "error";
 
 export type EditorMode = "edit" | "ai";
 
+export type ImageStyle =
+  | "professional"
+  | "minimal"
+  | "editorial"
+  | "illustrative"
+  | "photographic"
+  | "none";
+
 export type SlideLayout = "title" | "image-text" | "text-only" | "full-bleed";
 
 export type SlideFormatting = {
@@ -62,6 +70,8 @@ export function useDeck() {
   const [selectedId, setSelectedId] = useState<string>("");
   const [editorMode, setEditorMode] = useState<EditorMode>("ai");
   const [deckTitle, setDeckTitle] = useState("Untitled deck");
+  const [imageStyle, setImageStyle] = useState<ImageStyle>("professional");
+  const [imageModel, setImageModel] = useState<string>("");
   const [message, setMessage] = useState("Saved locally in your browser.");
   const [exporting, setExporting] = useState(false);
   const [history, setHistory] = useState<Slide[][]>([]);
@@ -85,6 +95,8 @@ export function useDeck() {
         selectedId: string;
         editorMode?: EditorMode;
         deckTitle?: string;
+        imageStyle?: ImageStyle;
+        imageModel?: string;
       };
 
       if (parsed.slides?.length) {
@@ -95,6 +107,17 @@ export function useDeck() {
         }
         if (typeof parsed.deckTitle === "string" && parsed.deckTitle) {
           setDeckTitle(parsed.deckTitle);
+        }
+        if (
+          parsed.imageStyle &&
+          ["professional", "minimal", "editorial", "illustrative", "photographic", "none"].includes(
+            parsed.imageStyle
+          )
+        ) {
+          setImageStyle(parsed.imageStyle);
+        }
+        if (typeof parsed.imageModel === "string") {
+          setImageModel(parsed.imageModel);
         }
       }
     } catch {
@@ -112,14 +135,14 @@ export function useDeck() {
     try {
       window.localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode, deckTitle })
+        JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode, deckTitle, imageStyle, imageModel })
       );
     } catch {
       // Most likely QuotaExceededError from a large imported image. Keep the
       // deck working in memory this session; just warn that it won't persist.
       setMessage("Deck too large to save locally — recent changes won't persist.");
     }
-  }, [slides, selectedId, editorMode, deckTitle]);
+  }, [slides, selectedId, editorMode, deckTitle, imageStyle, imageModel]);
 
   const selectedSlide = slides.find((slide) => slide.id === selectedId) ?? slides[0];
 
@@ -301,7 +324,9 @@ export function useDeck() {
         prompt:
           mode === "again"
             ? `${selectedSlide.prompt}\n\nTry a noticeably different composition from the last version.`
-            : selectedSlide.prompt
+            : selectedSlide.prompt,
+        style: imageStyle,
+        model: imageModel || undefined
       })
     });
 
@@ -420,6 +445,10 @@ export function useDeck() {
     setEditorMode,
     deckTitle,
     setDeckTitle,
+    imageStyle,
+    setImageStyle,
+    imageModel,
+    setImageModel,
     message,
     exporting,
     patchSlide,

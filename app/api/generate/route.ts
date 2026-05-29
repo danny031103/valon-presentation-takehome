@@ -2,14 +2,20 @@ import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
 const DEFAULT_MODEL = "gemini-3-pro-image-preview";
-const HOUSE_STYLE_APPENDIX = `
-Create the image like an overconfident bad presentation designer made it.
-Always include large visible slide text inside the image itself.
-Render that text in an obvious Comic Sans or Comic Sans-like playful font.
-Use cheesy business-presentation energy, bright primary colors, clashing accents, and slightly awkward composition.
-Prefer corny iconography, stock-art vibes, and unnecessary decorative shapes.
-Do not make it subtle, elegant, or restrained.
-`.trim();
+
+const STYLE_FRAGMENTS: Record<string, string> = {
+  professional:
+    "Create a clean, modern, corporate presentation image. Use a clear composition, professional color palette, and minimal decorative elements. Polished and restrained.",
+  minimal:
+    "Create a stark, minimal image. Monochromatic or very limited palette. Generous negative space. No decorative elements. Austere and precise.",
+  editorial:
+    "Create a magazine-quality editorial image. Dramatic lighting, bold composition, high visual impact. Photography or design-forward aesthetic.",
+  illustrative:
+    "Create a hand-crafted illustration. Artistic, colorful, distinctive visual language. Not photorealistic — clearly illustrated.",
+  photographic:
+    "Create a photorealistic image with natural lighting and high-quality photography aesthetics. Realistic and grounded.",
+  none: ""
+};
 
 export async function POST(request: Request) {
   try {
@@ -22,18 +28,21 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = (await request.json()) as { prompt?: string };
+    const body = (await request.json()) as { prompt?: string; style?: string; model?: string };
     const prompt = body.prompt?.trim();
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt is required." }, { status: 400 });
     }
 
-    const effectivePrompt = `${prompt}\n\n${HOUSE_STYLE_APPENDIX}`;
+    const styleKey = body.style && body.style in STYLE_FRAGMENTS ? body.style : "professional";
+    const fragment = STYLE_FRAGMENTS[styleKey];
+    const effectivePrompt = fragment ? `${prompt}\n\n${fragment}` : prompt;
+    const resolvedModel = body.model || process.env.GOOGLE_IMAGE_MODEL || DEFAULT_MODEL;
 
     const client = new GoogleGenAI({ apiKey });
     const response = await client.models.generateContent({
-      model: process.env.GOOGLE_IMAGE_MODEL || DEFAULT_MODEL,
+      model: resolvedModel,
       contents: effectivePrompt,
       config: {
         responseModalities: ["TEXT", "IMAGE"]

@@ -275,7 +275,7 @@ button {
 
 .editor {
   display: grid;
-  grid-template-rows: 56px 1fr 180px 28px;
+  grid-template-rows: 56px 1fr 280px 28px;
   height: 100vh;
   overflow: hidden;
 }
@@ -362,7 +362,7 @@ textarea:focus {
 
 /* Center canvas */
 .canvas-wrap {
-  --canvas-h: calc(100vh - 56px - 180px - 28px - 64px);
+  --canvas-h: calc(100vh - 56px - 280px - 28px - 64px);
   position: relative;
   display: grid;
   place-items: center;
@@ -373,12 +373,41 @@ textarea:focus {
 }
 
 .canvas-card {
+  position: relative;
   width: min(100%, calc(var(--canvas-h) * 16 / 9));
   aspect-ratio: 16 / 9;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
   overflow: hidden;
+}
+
+.canvas-skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--brand-soft) 0%,
+    hsl(33, 60%, 92%) 50%,
+    var(--brand-soft) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+}
+
+.skeleton-hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--foreground);
+  opacity: 0.6;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .empty-state {
@@ -695,6 +724,39 @@ textarea:focus {
 .prompt-card textarea {
   flex: 1;
   min-height: 0;
+}
+
+.prompt-selects {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.prompt-select-group {
+  flex: 1;
+  display: grid;
+  gap: 4px;
+}
+
+.prompt-select-group .field-label {
+  margin-bottom: 0;
+}
+
+.style-select {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 120ms ease;
+}
+
+.style-select:focus {
+  border-color: var(--brand);
 }
 
 .side-controls {

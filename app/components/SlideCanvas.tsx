@@ -154,6 +154,11 @@ export function SlideCanvas({ slide, editorMode, onPatch, onUploadImage }: Slide
     <div className="canvas-wrap">
       <div className={`canvas-card canvas-layout-${layout}`}>
         {slide ? <CanvasBody layout={layout} slide={slide} onPatch={onPatch} /> : null}
+        {slide?.status === "working" ? (
+          <div className="canvas-skeleton">
+            <p className="skeleton-hint">Generating image — usually 10–20s</p>
+          </div>
+        ) : null}
       </div>
 
       {canUpload ? (
@@ -164,10 +169,12 @@ export function SlideCanvas({ slide, editorMode, onPatch, onUploadImage }: Slide
         />
       ) : null}
 
-      <div className="floating-chip">
-        <span>{STATUS_LABEL[slide?.status ?? "idle"]}</span>
-        {slide?.status !== "done" && slide?.feedback ? <span>{slide.feedback}</span> : null}
-      </div>
+      {slide?.status !== "working" ? (
+        <div className="floating-chip">
+          <span>{STATUS_LABEL[slide?.status ?? "idle"]}</span>
+          {slide?.status !== "done" && slide?.feedback ? <span>{slide.feedback}</span> : null}
+        </div>
+      ) : null}
     </div>
   );
 }

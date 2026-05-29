@@ -18,6 +18,10 @@ export default function Home() {
     setEditorMode,
     deckTitle,
     setDeckTitle,
+    imageStyle,
+    setImageStyle,
+    imageModel,
+    setImageModel,
     message,
     exporting,
     patchSlide,
@@ -74,6 +78,10 @@ export default function Home() {
                 prompt={selectedSlide?.prompt ?? ""}
                 onChange={(value) => selectedSlide && patchSlide(selectedSlide.id, { prompt: value })}
                 onUploadImage={importImage}
+                imageStyle={imageStyle}
+                onStyleChange={setImageStyle}
+                imageModel={imageModel}
+                onModelChange={setImageModel}
               />
 
               <div className="side-controls">
