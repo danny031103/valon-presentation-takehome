@@ -3,6 +3,8 @@ import type { SlideFormatting } from "../hooks/useDeck";
 type ToolbarProps = {
   formatting: SlideFormatting | undefined;
   onChange: (formatting: SlideFormatting) => void;
+  body?: string;
+  onBodyChange?: (body: string) => void;
 };
 
 const FONT_SIZES: NonNullable<SlideFormatting["fontSize"]>[] = ["S", "M", "L", "XL"];
@@ -25,11 +27,24 @@ const ALIGN_GLYPH: Record<NonNullable<SlideFormatting["align"]>, string> = {
   right: "M2 4h14M7 8h9M2 12h14"
 };
 
-export function Toolbar({ formatting, onChange }: ToolbarProps) {
+export function Toolbar({ formatting, onChange, body, onBodyChange }: ToolbarProps) {
   const current = formatting ?? {};
 
   function update(patch: SlideFormatting) {
     onChange({ ...current, ...patch });
+  }
+
+  function toggleBullets() {
+    const next = !current.bullets;
+    update({ bullets: next });
+    if (onBodyChange && body !== undefined) {
+      const lines = body.split("\n");
+      if (next) {
+        onBodyChange(lines.map((l) => (l ? `• ${l}` : l)).join("\n"));
+      } else {
+        onBodyChange(lines.map((l) => (l.startsWith("• ") ? l.slice(2) : l)).join("\n"));
+      }
+    }
   }
 
   return (
@@ -52,6 +67,20 @@ export function Toolbar({ formatting, onChange }: ToolbarProps) {
           type="button"
         >
           <em>I</em>
+        </button>
+        <button
+          aria-label="Bullet list"
+          aria-pressed={Boolean(current.bullets)}
+          className={`toolbar-btn ${current.bullets ? "active" : ""}`}
+          onClick={toggleBullets}
+          type="button"
+        >
+          <svg viewBox="0 0 18 16" aria-hidden="true">
+            <circle cx="2.5" cy="4" r="1.2" fill="currentColor" stroke="none" />
+            <circle cx="2.5" cy="8" r="1.2" fill="currentColor" stroke="none" />
+            <circle cx="2.5" cy="12" r="1.2" fill="currentColor" stroke="none" />
+            <path d="M6 4h10M6 8h10M6 12h10" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
         </button>
       </div>
 

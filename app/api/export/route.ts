@@ -6,6 +6,7 @@ type SlideLayout = "title" | "image-text" | "text-only" | "full-bleed";
 type SlideFormatting = {
   bold?: boolean;
   italic?: boolean;
+  bullets?: boolean;
   fontSize?: "S" | "M" | "L" | "XL";
   color?: string;
   align?: "left" | "center" | "right";
@@ -58,6 +59,23 @@ function textOptions(
     valign: "middle" as const,
     margin: 0
   };
+}
+
+// Build the text value for addText — plain string normally, bullet array when
+// formatting.bullets is set. Strips the leading "• " the canvas inserts so
+// pptxgenjs can apply its own native bullet rendering.
+function bodyText(
+  text: string,
+  formatting: SlideFormatting | undefined
+): string | { text: string; options: { bullet: boolean } }[] {
+  if (!formatting?.bullets) return text;
+  return text
+    .split("\n")
+    .filter((line) => line.trim())
+    .map((line) => ({
+      text: line.startsWith("• ") ? line.slice(2) : line,
+      options: { bullet: true }
+    }));
 }
 
 export async function POST(request: Request) {
@@ -138,7 +156,7 @@ export async function POST(request: Request) {
         }
         if (body) {
           slide.addText(
-            body,
+            bodyText(body, slideData.formatting),
             { x: 7.0, y: 2.6, w: 5.8, h: 3.8, ...textOptions(slideData.formatting, { fontFace: "Aptos", fontSize: 18, align: "left" }) }
           );
         }
@@ -151,7 +169,7 @@ export async function POST(request: Request) {
         }
         if (body) {
           slide.addText(
-            body,
+            bodyText(body, slideData.formatting),
             { x: 1.0, y: 2.9, w: 11.333, h: 3.5, ...textOptions(slideData.formatting, { fontFace: "Aptos", fontSize: 18, align: "left" }) }
           );
         }
