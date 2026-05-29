@@ -13,7 +13,7 @@ export function NotesPanel({ note, onChange }: NotesPanelProps) {
         id="note-box"
         onChange={(event) => onChange(event.target.value)}
         placeholder="Add speaker notes for this slide."
-        rows={3}
+        rows={2}
         value={note}
       />
     </div>
