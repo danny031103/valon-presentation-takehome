@@ -25,13 +25,6 @@ function formattingStyle(formatting: SlideFormatting | undefined): CSSProperties
   };
 }
 
-const STATUS_LABEL: Record<SlideStatus, string> = {
-  idle: "Ready",
-  working: "Generating…",
-  done: "Done",
-  error: "Error"
-};
-
 type ErrorKind = "api-key" | "quota" | "safety" | "generic";
 
 function getErrorKind(feedback: string): ErrorKind {
@@ -207,12 +200,6 @@ export function SlideCanvas({ slide, editorMode, onPatch, onRetry }: SlideCanvas
         })() : null}
       </div>
 
-      {slide?.status !== "working" && slide?.status !== "error" ? (
-        <div className="floating-chip">
-          <span>{STATUS_LABEL[slide?.status ?? "idle"]}</span>
-          {slide?.status !== "done" && slide?.feedback ? <span>{slide.feedback}</span> : null}
-        </div>
-      ) : null}
     </div>
   );
 }
