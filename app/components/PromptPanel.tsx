@@ -13,7 +13,7 @@ const STYLE_OPTIONS: { value: ImageStyle; label: string }[] = [
 const MODEL_OPTIONS: { value: string; label: string }[] = [
   { value: "", label: "Default model" },
   { value: "gemini-3-pro-image-preview", label: "Gemini 3 Pro Image" },
-  { value: "imagen-3.0-generate-002", label: "Imagen 3" }
+  { value: "gemini-2.0-flash-preview-image-generation", label: "Gemini 2.0 Flash (faster)" }
 ];
 
 type PromptPanelProps = {
