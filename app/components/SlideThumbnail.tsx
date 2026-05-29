@@ -106,7 +106,6 @@ export function SlideThumbnail({
           <strong>
             {index + 1}. {slide.name}
           </strong>
-          <span>{slide.status}</span>
         </div>
       </button>
       <button
