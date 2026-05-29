@@ -60,9 +60,7 @@ export default function Home() {
           name={selectedSlide?.name ?? ""}
           exporting={exporting}
           editorMode={editorMode}
-          layout={selectedSlide?.layout ?? "full-bleed"}
           onModeChange={setEditorMode}
-          onLayoutChange={(layout) => selectedSlide && patchSlide(selectedSlide.id, { layout })}
           onRename={(name) => selectedSlide && patchSlide(selectedSlide.id, { name })}
           deckTitle={deckTitle}
           onDeckTitleChange={setDeckTitle}
@@ -75,7 +73,6 @@ export default function Home() {
           slide={selectedSlide}
           editorMode={editorMode}
           onPatch={(patch) => selectedSlide && patchSlide(selectedSlide.id, patch)}
-          onUploadImage={importImage}
           onRetry={() => generateSlide("fresh")}
         />
 
@@ -132,6 +129,10 @@ export default function Home() {
                 canUndo={canUndo}
                 onRedo={redo}
                 canRedo={canRedo}
+                layout={selectedSlide?.layout ?? "full-bleed"}
+                onLayoutChange={(layout) => selectedSlide && patchSlide(selectedSlide.id, { layout })}
+                onUploadImage={importImage}
+                hasImage={Boolean(selectedSlide?.imageData)}
               />
               <NotesPanel
                 note={selectedSlide?.note ?? ""}

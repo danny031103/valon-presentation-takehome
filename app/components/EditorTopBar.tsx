@@ -1,14 +1,32 @@
 import { useEffect, useRef, useState } from "react";
-import type { EditorMode, SlideLayout } from "../hooks/useDeck";
-import { LayoutPicker } from "./LayoutPicker";
+import type { EditorMode } from "../hooks/useDeck";
+
+function ShareIcon({ spinning }: { spinning: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="16"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.75"
+      style={{ opacity: spinning ? 0.5 : 1 }}
+      viewBox="0 0 24 24"
+      width="16"
+    >
+      <polyline points="12 3 12 15" />
+      <polyline points="8 7 12 3 16 7" />
+      <path d="M20 16v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4" />
+    </svg>
+  );
+}
 
 type EditorTopBarProps = {
   name: string;
   exporting: boolean;
   editorMode: EditorMode;
-  layout: SlideLayout;
   onModeChange: (mode: EditorMode) => void;
-  onLayoutChange: (layout: SlideLayout) => void;
   onRename: (name: string) => void;
   deckTitle: string;
   onDeckTitleChange: (title: string) => void;
@@ -21,9 +39,7 @@ export function EditorTopBar({
   name,
   exporting,
   editorMode,
-  layout,
   onModeChange,
-  onLayoutChange,
   onRename,
   deckTitle,
   onDeckTitleChange,
@@ -79,10 +95,6 @@ export function EditorTopBar({
         </button>
       </div>
 
-      {editorMode === "edit" ? (
-        <LayoutPicker layout={layout} onChange={onLayoutChange} />
-      ) : null}
-
       <div className="top-actions">
         {naming ? (
           <>
@@ -106,17 +118,18 @@ export function EditorTopBar({
               onClick={confirmExport}
               type="button"
             >
-              {exporting ? "Exporting…" : "Export"}
+              <ShareIcon spinning={exporting} />
             </button>
           </>
         ) : (
           <button
+            aria-label="Export to PowerPoint"
             className="loud-button"
             disabled={exporting}
             onClick={() => setNaming(true)}
             type="button"
           >
-            {exporting ? "Exporting…" : "Export to PowerPoint"}
+            <ShareIcon spinning={exporting} />
           </button>
         )}
         <div className="overflow-menu" ref={overflowRef}>
