@@ -33,6 +33,7 @@ type EditorTopBarProps = {
   onExport: () => void;
   onExportJson: () => void;
   onImportJson: (file: File) => void;
+  onNewDeck: () => void;
 };
 
 export function EditorTopBar({
@@ -45,7 +46,8 @@ export function EditorTopBar({
   onDeckTitleChange,
   onExport,
   onExportJson,
-  onImportJson
+  onImportJson,
+  onNewDeck
 }: EditorTopBarProps) {
   const [naming, setNaming] = useState(false);
   const [overflowOpen, setOverflowOpen] = useState(false);
@@ -155,6 +157,14 @@ export function EditorTopBar({
           />
           {overflowOpen && (
             <div className="overflow-dropdown">
+              <button
+                className="overflow-item"
+                onClick={() => { onNewDeck(); setOverflowOpen(false); }}
+                type="button"
+              >
+                New deck
+              </button>
+              <div className="overflow-divider" />
               <button
                 className="overflow-item"
                 onClick={() => { onExportJson(); setOverflowOpen(false); }}

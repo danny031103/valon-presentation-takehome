@@ -1,6 +1,7 @@
 "use client";
 
 import { EditorTopBar } from "./components/EditorTopBar";
+import { NewDeckScreen } from "./components/NewDeckScreen";
 import { NotesPanel } from "./components/NotesPanel";
 import { Onboarding } from "./components/Onboarding";
 import { PromptPanel } from "./components/PromptPanel";
@@ -38,12 +39,24 @@ export default function Home() {
     canRedo,
     context,
     setContext,
+    showNewDeckScreen,
+    startBlankDeck,
+    triggerNewDeck,
     generateSlide,
     importImage,
     exportDeck,
     exportJson,
     importJson
   } = useDeck();
+
+  if (showNewDeckScreen) {
+    return (
+      <NewDeckScreen
+        onStartBlank={startBlankDeck}
+        defaultStyle={imageStyle}
+      />
+    );
+  }
 
   return (
     <main className="shell">
@@ -71,6 +84,7 @@ export default function Home() {
           onExport={exportDeck}
           onExportJson={exportJson}
           onImportJson={importJson}
+          onNewDeck={triggerNewDeck}
         />
 
         <SlideCanvas

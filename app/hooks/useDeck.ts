@@ -80,6 +80,7 @@ export function useDeck() {
   const [imageStyle, setImageStyle] = useState<ImageStyle>("professional");
   const [imageModel, setImageModel] = useState<string>("");
   const [context, setContext] = useState<DeckContext | null>(null);
+  const [showNewDeckScreen, setShowNewDeckScreen] = useState(false);
   const [message, setMessage] = useState("Saved locally in your browser.");
   const [exporting, setExporting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -97,6 +98,7 @@ export function useDeck() {
       const fresh = starterSlides();
       setSlides(fresh);
       setSelectedId(fresh[0]?.id ?? "");
+      setShowNewDeckScreen(true);
       return;
     }
 
@@ -284,6 +286,30 @@ export function useDeck() {
     }
     lastEditKeyRef.current = null;
     setMessage("Redid last change.");
+  }
+
+  function startBlankDeck() {
+    const fresh = starterSlides();
+    setSlides(fresh);
+    setSelectedId(fresh[0]?.id ?? "");
+    setContext(null);
+    setHistory([]);
+    setFuture([]);
+    lastEditKeyRef.current = null;
+    setShowNewDeckScreen(false);
+  }
+
+  function triggerNewDeck() {
+    const hasContent = slides.some(
+      (s) => s.prompt || s.imageData || s.title || s.body
+    );
+    if (
+      hasContent &&
+      !window.confirm("Start a new deck? Your current deck will be replaced.")
+    ) {
+      return;
+    }
+    setShowNewDeckScreen(true);
   }
 
   // Keep refs to the latest undo/redo so the keydown listener can stay
@@ -580,6 +606,9 @@ export function useDeck() {
     setImageModel,
     context,
     setContext,
+    showNewDeckScreen,
+    startBlankDeck,
+    triggerNewDeck,
     message,
     exporting,
     saving,
