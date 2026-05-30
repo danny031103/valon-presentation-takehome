@@ -100,9 +100,15 @@ export function useDeck() {
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [history, setHistory] = useState<Slide[][]>([]);
   const [future, setFuture] = useState<Slide[][]>([]);
+  const [generationProgress, setGenerationProgress] = useState<{
+    current: number;
+    total: number;
+  } | null>(null);
   // Tracks the target of the last coalesced edit (`${id}:${fields}`) so a run of
   // edits to the same field on the same slide collapses into one undo entry.
   const lastEditKeyRef = useRef<string | null>(null);
+  // Set to true by cancelGeneration(); checked between slides in generateDeck loop.
+  const cancelGenerationRef = useRef(false);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -323,6 +329,86 @@ export function useDeck() {
       return;
     }
     setShowNewDeckScreen(true);
+  }
+
+  async function generateDeck(plan: DeckPlan, style: ImageStyle) {
+    const newSlides: Slide[] = plan.slides.map((ps) => ({
+      id: crypto.randomUUID(),
+      name: ps.name,
+      title: ps.title,
+      body: ps.body,
+      layout: ps.layout,
+      prompt: ps.imagePrompt,
+      status: "idle" as SlideStatus,
+      note: ""
+    }));
+
+    setSlides(newSlides);
+    setDeckTitle(plan.deckTitle);
+    setSelectedId(newSlides[0]?.id ?? "");
+    setImageStyle(style);
+    setHistory([]);
+    setFuture([]);
+    lastEditKeyRef.current = null;
+    setShowNewDeckScreen(false);
+
+    cancelGenerationRef.current = false;
+    setGenerationProgress({ current: 1, total: newSlides.length });
+
+    for (let i = 0; i < newSlides.length; i++) {
+      if (cancelGenerationRef.current) break;
+
+      const slide = newSlides[i];
+      setGenerationProgress({ current: i + 1, total: newSlides.length });
+      applyPatch(slide.id, { status: "working" });
+
+      try {
+        const response = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt: slide.prompt,
+            style,
+            model: imageModel || undefined
+          })
+        });
+
+        const payload = (await response.json()) as {
+          imageData?: string;
+          error?: string;
+          text?: string;
+        };
+
+        if (!response.ok || !payload.imageData) {
+          applyPatch(slide.id, {
+            status: "error",
+            feedback: payload.error ?? "Image generation failed."
+          });
+        } else {
+          applyPatch(slide.id, {
+            imageData: payload.imageData,
+            status: "done",
+            feedback: payload.text || "Done."
+          });
+        }
+      } catch {
+        applyPatch(slide.id, {
+          status: "error",
+          feedback: "Image generation failed."
+        });
+      }
+    }
+
+    setGenerationProgress(null);
+    setMessage(
+      cancelGenerationRef.current
+        ? "Generation cancelled."
+        : "Deck generated."
+    );
+  }
+
+  function cancelGeneration() {
+    cancelGenerationRef.current = true;
   }
 
   // Keep refs to the latest undo/redo so the keydown listener can stay
@@ -635,6 +721,9 @@ export function useDeck() {
     canUndo: history.length > 0,
     redo,
     canRedo: future.length > 0,
+    generationProgress,
+    generateDeck,
+    cancelGeneration,
     generateSlide,
     importImage,
     exportDeck,

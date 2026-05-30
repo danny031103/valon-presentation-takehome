@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import type { ImageStyle } from "../hooks/useDeck";
+import type { DeckPlan, ImageStyle } from "../hooks/useDeck";
 import { DeckBuilder } from "./DeckBuilder";
 
 type NewDeckScreenProps = {
   onStartBlank: () => void;
   defaultStyle: ImageStyle;
+  onGenerateDeck: (plan: DeckPlan, style: ImageStyle) => void;
 };
 
-export function NewDeckScreen({ onStartBlank, defaultStyle }: NewDeckScreenProps) {
+export function NewDeckScreen({ onStartBlank, defaultStyle, onGenerateDeck }: NewDeckScreenProps) {
   const [view, setView] = useState<"choice" | "builder">("choice");
 
   if (view === "builder") {
@@ -17,10 +18,7 @@ export function NewDeckScreen({ onStartBlank, defaultStyle }: NewDeckScreenProps
       <DeckBuilder
         defaultStyle={defaultStyle}
         onBack={() => setView("choice")}
-        onSubmit={() => {
-          // Placeholder — Change 4 wires the real /api/plan call here.
-          console.log("DeckBuilder submitted");
-        }}
+        onGenerateDeck={onGenerateDeck}
       />
     );
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type { ImageStyle } from "../hooks/useDeck";
+import type { DeckPlan, ImageStyle } from "../hooks/useDeck";
 import type { ExtractedContext } from "../hooks/useDocumentExtract";
 import { useDocumentExtract } from "../hooks/useDocumentExtract";
 
@@ -26,16 +26,18 @@ export type DeckBuilderFormData = {
 type DeckBuilderProps = {
   defaultStyle: ImageStyle;
   onBack: () => void;
-  onSubmit: (data: DeckBuilderFormData) => void;
+  onGenerateDeck: (plan: DeckPlan, style: ImageStyle) => void;
 };
 
-export function DeckBuilder({ defaultStyle, onBack, onSubmit }: DeckBuilderProps) {
+export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilderProps) {
   const [brief, setBrief] = useState("");
   const [slideCount, setSlideCount] = useState<number | null>(null);
   const [style, setStyle] = useState<ImageStyle>(defaultStyle);
   const [context, setContext] = useState<ExtractedContext | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [errors, setErrors] = useState<{ brief?: string; slideCount?: string }>({});
+  const [planning, setPlanning] = useState(false);
+  const [planError, setPlanError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { extract, loading: extracting, error: extractError } = useDocumentExtract();
@@ -53,10 +55,41 @@ export function DeckBuilder({ defaultStyle, onBack, onSubmit }: DeckBuilderProps
     return Object.keys(next).length === 0;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
-    onSubmit({ brief: brief.trim(), slideCount: slideCount!, style, context });
+
+    setPlanning(true);
+    setPlanError(null);
+
+    try {
+      const response = await fetch("/api/plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brief: brief.trim(),
+          slideCount: slideCount!,
+          style,
+          context: context?.text ?? undefined
+        })
+      });
+
+      const payload = (await response.json()) as {
+        plan?: DeckPlan;
+        error?: string;
+      };
+
+      if (!response.ok || !payload.plan) {
+        setPlanError(payload.error ?? "Failed to generate plan. Please try again.");
+        return;
+      }
+
+      onGenerateDeck(payload.plan, style);
+    } catch {
+      setPlanError("Network error. Please try again.");
+    } finally {
+      setPlanning(false);
+    }
   }
 
   return (
@@ -195,9 +228,19 @@ export function DeckBuilder({ defaultStyle, onBack, onSubmit }: DeckBuilderProps
             </select>
           </div>
 
-          <button className="loud-button deck-builder-submit" type="submit">
-            Generate deck
+          <button
+            className="loud-button deck-builder-submit"
+            disabled={planning}
+            type="submit"
+          >
+            {planning ? "Planning…" : "Generate deck"}
           </button>
+
+          {planError && (
+            <p className="deck-builder-field-error deck-builder-plan-error">
+              {planError}
+            </p>
+          )}
         </form>
       </div>
     </div>

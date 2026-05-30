@@ -1,6 +1,7 @@
 "use client";
 
 import { EditorTopBar } from "./components/EditorTopBar";
+import { GenerationProgress } from "./components/GenerationProgress";
 import { NewDeckScreen } from "./components/NewDeckScreen";
 import { NotesPanel } from "./components/NotesPanel";
 import { Onboarding } from "./components/Onboarding";
@@ -42,6 +43,9 @@ export default function Home() {
     showNewDeckScreen,
     startBlankDeck,
     triggerNewDeck,
+    generationProgress,
+    generateDeck,
+    cancelGeneration,
     generateSlide,
     importImage,
     exportDeck,
@@ -54,6 +58,7 @@ export default function Home() {
       <NewDeckScreen
         onStartBlank={startBlankDeck}
         defaultStyle={imageStyle}
+        onGenerateDeck={generateDeck}
       />
     );
   }
@@ -162,6 +167,14 @@ export default function Home() {
 
         <StatusBar message={message} saving={saving} lastSavedAt={lastSavedAt} />
       </section>
+
+      {generationProgress && (
+        <GenerationProgress
+          current={generationProgress.current}
+          total={generationProgress.total}
+          onCancel={cancelGeneration}
+        />
+      )}
 
       <Onboarding />
     </main>
