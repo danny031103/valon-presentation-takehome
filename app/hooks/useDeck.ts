@@ -43,6 +43,19 @@ export type DeckContext = {
   truncated: boolean;
 };
 
+export type DeckPlanSlide = {
+  name: string;
+  title: string;
+  body: string;
+  imagePrompt: string;
+  layout: SlideLayout;
+};
+
+export type DeckPlan = {
+  deckTitle: string;
+  slides: DeckPlanSlide[];
+};
+
 const STORAGE_KEY = "valon-presentation-takehome-v2";
 
 function makeSlide(index: number): Slide {

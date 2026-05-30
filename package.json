@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.1",
     "@google/genai": "1.50.1",
     "next": "16.2.4",
     "pdfjs-dist": "^5.7.284",
