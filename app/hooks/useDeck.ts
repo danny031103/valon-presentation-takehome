@@ -37,6 +37,12 @@ export type Slide = {
   body?: string;
 };
 
+export type DeckContext = {
+  text: string;
+  fileName: string;
+  truncated: boolean;
+};
+
 const STORAGE_KEY = "valon-presentation-takehome-v2";
 
 function makeSlide(index: number): Slide {
@@ -73,6 +79,7 @@ export function useDeck() {
   const [deckTitle, setDeckTitle] = useState("Untitled deck");
   const [imageStyle, setImageStyle] = useState<ImageStyle>("professional");
   const [imageModel, setImageModel] = useState<string>("");
+  const [context, setContext] = useState<DeckContext | null>(null);
   const [message, setMessage] = useState("Saved locally in your browser.");
   const [exporting, setExporting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -101,6 +108,7 @@ export function useDeck() {
         deckTitle?: string;
         imageStyle?: ImageStyle;
         imageModel?: string;
+        context?: DeckContext;
       };
 
       if (parsed.slides?.length) {
@@ -123,6 +131,13 @@ export function useDeck() {
         if (typeof parsed.imageModel === "string") {
           setImageModel(parsed.imageModel);
         }
+        if (
+          parsed.context &&
+          typeof parsed.context.text === "string" &&
+          typeof parsed.context.fileName === "string"
+        ) {
+          setContext(parsed.context);
+        }
       }
     } catch {
       const fresh = starterSlides();
@@ -140,7 +155,7 @@ export function useDeck() {
     try {
       window.localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode, deckTitle, imageStyle, imageModel })
+        JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode, deckTitle, imageStyle, imageModel, context })
       );
       setLastSavedAt(new Date());
     } catch {
@@ -150,7 +165,7 @@ export function useDeck() {
     } finally {
       setSaving(false);
     }
-  }, [slides, selectedId, editorMode, deckTitle, imageStyle, imageModel]);
+  }, [slides, selectedId, editorMode, deckTitle, imageStyle, imageModel, context]);
 
   const selectedSlide = slides.find((slide) => slide.id === selectedId) ?? slides[0];
 
@@ -563,6 +578,8 @@ export function useDeck() {
     setImageStyle,
     imageModel,
     setImageModel,
+    context,
+    setContext,
     message,
     exporting,
     saving,

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import type { DragEvent } from "react";
 
-import type { Slide } from "../hooks/useDeck";
+import type { DeckContext, Slide } from "../hooks/useDeck";
+import { ContextPanel } from "./ContextPanel";
 import { SlideThumbnail } from "./SlideThumbnail";
 
 type SidebarProps = {
@@ -12,6 +13,8 @@ type SidebarProps = {
   onDeleteSlide: () => void;
   onReorder: (from: number, to: number) => void;
   onDuplicate: (id: string) => void;
+  context: DeckContext | null;
+  onContextChange: (context: DeckContext | null) => void;
 };
 
 export function Sidebar({
@@ -21,7 +24,9 @@ export function Sidebar({
   onAddSlide,
   onDeleteSlide,
   onReorder,
-  onDuplicate
+  onDuplicate,
+  context,
+  onContextChange
 }: SidebarProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
@@ -71,6 +76,8 @@ export function Sidebar({
           />
         ))}
       </div>
+
+      <ContextPanel context={context} onContextChange={onContextChange} />
     </aside>
   );
 }

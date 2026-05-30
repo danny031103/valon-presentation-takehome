@@ -1161,3 +1161,145 @@ textarea:focus {
     width: 100%;
   }
 }
+
+/* ---------- Context panel ---------- */
+
+.context-panel {
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.context-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: 0;
+  color: var(--foreground);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 120ms ease;
+}
+
+.context-panel-header:hover {
+  background: var(--surface-raised);
+}
+
+.context-panel-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.context-toggle-icon {
+  opacity: 0.5;
+  font-size: 0.7rem;
+}
+
+.context-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+  border-radius: 99px;
+  padding: 1px 6px;
+}
+
+.context-panel-body {
+  padding: 0 12px 12px;
+}
+
+.context-drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 14px 10px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+  text-align: center;
+}
+
+.context-drop-zone:hover,
+.context-drop-zone:focus-visible,
+.context-drop-zone.drag-over {
+  border-color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 5%, var(--surface));
+  outline: none;
+}
+
+.context-drop-hint {
+  font-size: 0.78rem;
+  color: var(--foreground);
+  opacity: 0.75;
+}
+
+.context-drop-sub {
+  font-size: 0.7rem;
+  opacity: 0.45;
+}
+
+.context-active {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.context-file-name {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--foreground);
+}
+
+.context-char-count {
+  margin: 0;
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+.context-warning {
+  margin: 4px 0 0;
+  font-size: 0.7rem;
+  color: var(--brand);
+  line-height: 1.4;
+}
+
+.context-clear-btn {
+  margin-top: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 0.35rem);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  align-self: flex-start;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+
+.context-clear-btn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.context-error {
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  color: var(--danger);
+  line-height: 1.4;
+}

@@ -36,6 +36,8 @@ export default function Home() {
     canUndo,
     redo,
     canRedo,
+    context,
+    setContext,
     generateSlide,
     importImage,
     exportDeck,
@@ -53,6 +55,8 @@ export default function Home() {
         onDeleteSlide={() => selectedSlide && killSlide(selectedSlide.id)}
         onReorder={reorderSlides}
         onDuplicate={duplicateSlide}
+        context={context}
+        onContextChange={setContext}
       />
 
       <section className="editor">
