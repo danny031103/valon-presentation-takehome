@@ -504,7 +504,8 @@ export function useDeck() {
             ? `${selectedSlide.prompt}\n\nTry a noticeably different composition from the last version.`
             : selectedSlide.prompt,
         style: imageStyle,
-        model: imageModel || undefined
+        model: imageModel || undefined,
+        context: context?.text ?? undefined
       })
     });
 

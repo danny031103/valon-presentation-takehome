@@ -28,7 +28,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = (await request.json()) as { prompt?: string; style?: string; model?: string };
+    const body = (await request.json()) as {
+      prompt?: string;
+      style?: string;
+      model?: string;
+      context?: string;
+    };
     const prompt = body.prompt?.trim();
 
     if (!prompt) {
@@ -37,7 +42,13 @@ export async function POST(request: Request) {
 
     const styleKey = body.style && body.style in STYLE_FRAGMENTS ? body.style : "professional";
     const fragment = STYLE_FRAGMENTS[styleKey];
-    const effectivePrompt = fragment ? `${prompt}\n\n${fragment}` : prompt;
+    const contextSnippet = body.context ? body.context.slice(0, 2000) : null;
+    const contextNote = contextSnippet
+      ? `Context from user's documents (use this to inform the visual):\n${contextSnippet}`
+      : null;
+    const effectivePrompt = [prompt, fragment || null, contextNote]
+      .filter(Boolean)
+      .join("\n\n");
     const resolvedModel = body.model || process.env.GOOGLE_IMAGE_MODEL || DEFAULT_MODEL;
 
     const client = new GoogleGenAI({ apiKey });
