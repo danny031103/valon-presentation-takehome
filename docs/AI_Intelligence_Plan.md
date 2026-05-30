@@ -1,5 +1,7 @@
 # AI Intelligence Plan
 
+> **Status: COMPLETE** — All 5 changes implemented and merged to main.
+
 This plan adds a context-aware AI layer to Valon Presentations — transforming it from a slide-by-slide image generator into a tool that can build entire decks from a brief, informed by real documents the user provides.
 
 Phases 1–4 of the original implementation plan are complete. This plan picks up from that stable foundation.
@@ -42,7 +44,7 @@ Two paths:
 
 ---
 
-## Change 1 — Document context panel
+## Change 1 — Document context panel ✓ COMPLETE
 
 **What it does:**
 Lets users upload reference documents that inform all AI generation in the deck. Context is deck-level — it applies to every slide.
@@ -75,7 +77,7 @@ Lets users upload reference documents that inform all AI generation in the deck.
 
 ---
 
-## Change 2 — Context-aware image generation
+## Change 2 — Context-aware image generation ✓ COMPLETE
 
 **What it does:**
 When context is loaded, the image generation API uses it to produce outputs relevant to the user's actual content rather than generic imagery.
@@ -100,7 +102,7 @@ Context from user's documents (use this to inform the visual):
 
 ---
 
-## Change 3 — "Build with AI" deck builder UI
+## Change 3 — "Build with AI" deck builder UI ✓ COMPLETE
 
 **What it does:**
 A focused UI for users who want to generate a full deck upfront. Shown when user selects "Build with AI" from the new deck screen.
@@ -126,7 +128,7 @@ A focused UI for users who want to generate a full deck upfront. Shown when user
 
 ---
 
-## Change 4 — `/api/plan` route
+## Change 4 — `/api/plan` route ✓ COMPLETE
 
 **What it does:**
 Calls Claude to generate a structured deck plan from the user's brief and context documents.
@@ -190,7 +192,7 @@ Rules:
 
 ---
 
-## Change 5 — Deck generation execution
+## Change 5 — Deck generation execution ✓ COMPLETE
 
 **What it does:**
 Client receives the plan from `/api/plan`, creates slides from it, then fires image generation for each slide sequentially. User sees progress in real time.
