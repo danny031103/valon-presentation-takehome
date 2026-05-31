@@ -318,6 +318,21 @@ export function useDeck() {
     setShowNewDeckScreen(false);
   }
 
+  function startOver() {
+    window.localStorage.removeItem(STORAGE_KEY);
+    const fresh = starterSlides();
+    setSlides(fresh);
+    setSelectedId(fresh[0]?.id ?? "");
+    setDeckTitle("Untitled deck");
+    setImageStyle("professional");
+    setImageModel("");
+    setContext(null);
+    setHistory([]);
+    setFuture([]);
+    lastEditKeyRef.current = null;
+    setShowNewDeckScreen(true);
+  }
+
   function triggerNewDeck() {
     const hasContent = slides.some(
       (s) => s.prompt || s.imageData || s.title || s.body
@@ -729,6 +744,7 @@ export function useDeck() {
     importImage,
     exportDeck,
     exportJson,
-    importJson
+    importJson,
+    startOver
   };
 }

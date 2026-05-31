@@ -34,6 +34,7 @@ type EditorTopBarProps = {
   onExportJson: () => void;
   onImportJson: (file: File) => void;
   onNewDeck: () => void;
+  onStartOver: () => void;
 };
 
 export function EditorTopBar({
@@ -47,7 +48,8 @@ export function EditorTopBar({
   onExport,
   onExportJson,
   onImportJson,
-  onNewDeck
+  onNewDeck,
+  onStartOver
 }: EditorTopBarProps) {
   const [naming, setNaming] = useState(false);
   const [overflowOpen, setOverflowOpen] = useState(false);
@@ -178,6 +180,19 @@ export function EditorTopBar({
                 type="button"
               >
                 Import deck JSON
+              </button>
+              <div className="overflow-divider" />
+              <button
+                className="overflow-item"
+                onClick={() => {
+                  setOverflowOpen(false);
+                  if (window.confirm("Start over? Your current deck will be deleted.")) {
+                    onStartOver();
+                  }
+                }}
+                type="button"
+              >
+                Start over
               </button>
             </div>
           )}

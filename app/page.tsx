@@ -43,6 +43,7 @@ export default function Home() {
     showNewDeckScreen,
     startBlankDeck,
     triggerNewDeck,
+    startOver,
     generationProgress,
     generateDeck,
     cancelGeneration,
@@ -90,6 +91,7 @@ export default function Home() {
           onExportJson={exportJson}
           onImportJson={importJson}
           onNewDeck={triggerNewDeck}
+          onStartOver={startOver}
         />
 
         <SlideCanvas
