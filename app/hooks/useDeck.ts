@@ -320,6 +320,7 @@ export function useDeck() {
 
   function startOver() {
     window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem("valon-onboarding-dismissed");
     const fresh = starterSlides();
     setSlides(fresh);
     setSelectedId(fresh[0]?.id ?? "");
