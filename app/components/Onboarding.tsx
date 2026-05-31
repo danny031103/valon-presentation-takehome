@@ -6,22 +6,18 @@ const STORAGE_KEY = "valon-onboarding-dismissed";
 
 const TIPS = [
   {
-    heading: "Add context and mood",
+    heading: "Upload context for better images",
+    body: "Drop a PDF or document into the Context panel in the sidebar. The AI uses it to generate images relevant to your actual content — not generic stock imagery."
+  },
+  {
+    heading: "Write scenes, not topics",
+    body: "Specific prompts produce better images.",
     before: "A house",
-    after:
-      "A welcoming suburban home at golden hour with warm interior lighting — for an opening homeownership slide"
+    after: "A welcoming suburban home at golden hour with warm interior lighting"
   },
   {
-    heading: "Describe layout and data",
-    before: "Interest rates",
-    after:
-      "A minimal line chart showing mortgage rates falling from 7% to 5% over 12 months, white background, single teal accent line"
-  },
-  {
-    heading: "Match your layout choice",
-    before: "Our team",
-    after:
-      "Four professionals collaborating in a bright modern office, candid editorial style — pair with the Image + Text layout"
+    heading: "Edit and Generate are separate modes",
+    body: "Use the toggle in the top bar to switch between Edit mode (text, layouts, formatting) and Generate mode (AI image prompts). You can use both on the same slide."
   }
 ];
 
@@ -56,28 +52,32 @@ export function Onboarding() {
         </button>
 
         <div>
-          <h2 className="onboarding-heading">Welcome to Valon Presentations</h2>
-          <p className="onboarding-sub">Describe what you want — Gemini generates the image.</p>
+          <h2 className="onboarding-heading">A few things worth knowing</h2>
         </div>
 
         <div className="onboarding-tips">
           {TIPS.map((tip) => (
             <div className="tip-card" key={tip.heading}>
               <p className="tip-heading">{tip.heading}</p>
-              <div className="tip-example">
-                <span className="tip-label">Before</span>
-                <p className="tip-before">{tip.before}</p>
-              </div>
-              <div className="tip-example">
-                <span className="tip-label">After</span>
-                <p className="tip-after">{tip.after}</p>
-              </div>
+              {tip.body && <p className="onboarding-sub">{tip.body}</p>}
+              {tip.before && (
+                <div className="tip-example">
+                  <span className="tip-label">Before</span>
+                  <p className="tip-before">{tip.before}</p>
+                </div>
+              )}
+              {tip.after && (
+                <div className="tip-example">
+                  <span className="tip-label">After</span>
+                  <p className="tip-after">{tip.after}</p>
+                </div>
+              )}
             </div>
           ))}
         </div>
 
         <button className="loud-button" onClick={dismiss} type="button">
-          Get started →
+          Got it
         </button>
       </div>
     </div>
