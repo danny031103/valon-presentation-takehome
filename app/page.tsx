@@ -213,6 +213,7 @@ export default function Home() {
                 layout={selectedSlide?.layout ?? "full-bleed"}
                 onLayoutChange={(layout) => selectedSlide && patchSlide(selectedSlide.id, { layout })}
                 onUploadImage={handleEditUpload}
+                onRecropImage={selectedSlide?.imageData ? () => setCropSource(selectedSlide.imageData!) : undefined}
                 hasImage={Boolean(selectedSlide?.imageData)}
               />
               <NotesPanel

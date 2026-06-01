@@ -19,6 +19,7 @@ type ToolbarProps = {
   layout?: SlideLayout;
   onLayoutChange?: (layout: SlideLayout) => void;
   onUploadImage?: (file: File) => void;
+  onRecropImage?: () => void;
   hasImage?: boolean;
 };
 
@@ -42,7 +43,7 @@ const ALIGN_GLYPH: Record<NonNullable<SlideFormatting["align"]>, string> = {
   right: "M2 4h14M7 8h9M2 12h14"
 };
 
-export function Toolbar({ focusedField, titleFormatting, bodyFormatting, onTitleFormattingChange, onBodyFormattingChange, body, onBodyChange, onUndo, canUndo, onRedo, canRedo, layout, onLayoutChange, onUploadImage, hasImage }: ToolbarProps) {
+export function Toolbar({ focusedField, titleFormatting, bodyFormatting, onTitleFormattingChange, onBodyFormattingChange, body, onBodyChange, onUndo, canUndo, onRedo, canRedo, layout, onLayoutChange, onUploadImage, onRecropImage, hasImage }: ToolbarProps) {
   const current = focusedField === "title" ? (titleFormatting ?? {}) :
                   focusedField === "body"  ? (bodyFormatting  ?? {}) :
                   {};
@@ -192,6 +193,21 @@ export function Toolbar({ focusedField, titleFormatting, bodyFormatting, onTitle
           label={hasImage ? "Replace image" : "Upload image"}
           onSelect={onUploadImage}
         />
+      )}
+
+      {onRecropImage && hasImage && layout !== undefined && LAYOUTS_WITH_IMAGE.includes(layout) && (
+        <button
+          aria-label="Recrop image"
+          className="ghost-button button-sm"
+          onClick={onRecropImage}
+          title="Recrop image"
+          type="button"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M6 2v14a2 2 0 0 0 2 2h14" />
+            <path d="M18 22V8a2 2 0 0 0-2-2H2" />
+          </svg>
+        </button>
       )}
 
       {(onUndo || onRedo) && (
