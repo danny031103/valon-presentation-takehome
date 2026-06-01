@@ -21,6 +21,8 @@ type SlidePayload = {
   title?: string;
   body?: string;
   formatting?: SlideFormatting;
+  titleFormatting?: SlideFormatting;
+  bodyFormatting?: SlideFormatting;
 };
 
 // Turn a deck title into a safe download filename: strip filesystem-unsafe
@@ -140,37 +142,40 @@ export async function POST(request: Request) {
       const title = slideData.title?.trim() ? slideData.title : "";
       const body = slideData.body?.trim() ? slideData.body : "";
 
+      const titleFmt = slideData.titleFormatting ?? slideData.formatting;
+      const bodyFmt = slideData.bodyFormatting ?? slideData.formatting;
+
       if (layout === "title") {
         if (title) {
           slide.addText(
             title,
-            { x: 0.8, y: 2.6, w: 11.733, h: 2.3, ...textOptions(slideData.formatting, { fontFace: "Aptos Display", fontSize: 40, align: "center" }) }
+            { x: 0.8, y: 2.6, w: 11.733, h: 2.3, ...textOptions(titleFmt, { fontFace: "Aptos Display", fontSize: 40, align: "center" }) }
           );
         }
       } else if (layout === "image-text") {
         if (title) {
           slide.addText(
             title,
-            { x: 7.0, y: 1.0, w: 5.8, h: 1.5, ...textOptions(slideData.formatting, { fontFace: "Aptos Display", fontSize: 28, align: "left" }) }
+            { x: 7.0, y: 1.0, w: 5.8, h: 1.5, ...textOptions(titleFmt, { fontFace: "Aptos Display", fontSize: 28, align: "left" }) }
           );
         }
         if (body) {
           slide.addText(
-            bodyText(body, slideData.formatting),
-            { x: 7.0, y: 2.6, w: 5.8, h: 3.8, ...textOptions(slideData.formatting, { fontFace: "Aptos", fontSize: 18, align: "left" }) }
+            bodyText(body, bodyFmt),
+            { x: 7.0, y: 2.6, w: 5.8, h: 3.8, ...textOptions(bodyFmt, { fontFace: "Aptos", fontSize: 18, align: "left" }) }
           );
         }
       } else if (layout === "text-only") {
         if (title) {
           slide.addText(
             title,
-            { x: 1.0, y: 1.2, w: 11.333, h: 1.5, ...textOptions(slideData.formatting, { fontFace: "Aptos Display", fontSize: 32, align: "center" }) }
+            { x: 1.0, y: 1.2, w: 11.333, h: 1.5, ...textOptions(titleFmt, { fontFace: "Aptos Display", fontSize: 32, align: "center" }) }
           );
         }
         if (body) {
           slide.addText(
-            bodyText(body, slideData.formatting),
-            { x: 1.0, y: 2.9, w: 11.333, h: 3.5, ...textOptions(slideData.formatting, { fontFace: "Aptos", fontSize: 18, align: "left" }) }
+            bodyText(body, bodyFmt),
+            { x: 1.0, y: 2.9, w: 11.333, h: 3.5, ...textOptions(bodyFmt, { fontFace: "Aptos", fontSize: 18, align: "left" }) }
           );
         }
       }

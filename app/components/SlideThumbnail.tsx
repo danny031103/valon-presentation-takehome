@@ -21,7 +21,6 @@ function thumbTextStyle(formatting: SlideFormatting | undefined): CSSProperties 
 }
 
 function ThumbPreview({ slide }: { slide: Slide }) {
-  const formatting = slide.formatting;
   const title = slide.title?.trim() ?? "";
   const body = slide.body?.trim() ?? "";
 
@@ -29,18 +28,20 @@ function ThumbPreview({ slide }: { slide: Slide }) {
     return <div aria-hidden className="thumb-preview thumb-preview-empty" />;
   }
 
-  const shared = thumbTextStyle(formatting);
-  const override = formatting?.fontSize ? FONT_SIZE_CQW[formatting.fontSize] : undefined;
+  const titleStyle = thumbTextStyle(slide.titleFormatting);
+  const bodyStyle = thumbTextStyle(slide.bodyFormatting);
+  const titleSize = slide.titleFormatting?.fontSize ? FONT_SIZE_CQW[slide.titleFormatting.fontSize] : undefined;
+  const bodySize = slide.bodyFormatting?.fontSize ? FONT_SIZE_CQW[slide.bodyFormatting.fontSize] : undefined;
 
   return (
     <div className="thumb-preview">
       {title ? (
-        <p className="thumb-preview-title" style={{ ...shared, fontSize: override ?? "7cqw" }}>
+        <p className="thumb-preview-title" style={{ ...titleStyle, fontSize: titleSize ?? "7cqw" }}>
           {title}
         </p>
       ) : null}
       {body ? (
-        <p className="thumb-preview-body" style={{ ...shared, fontSize: override ?? "4cqw" }}>
+        <p className="thumb-preview-body" style={{ ...bodyStyle, fontSize: bodySize ?? "4cqw" }}>
           {body}
         </p>
       ) : null}
@@ -53,7 +54,7 @@ function ThumbPreviewTitleOnly({ slide }: { slide: Slide }) {
   const title = slide.title?.trim() ?? "";
   if (!title) return null;
 
-  const formatting = slide.formatting;
+  const formatting = slide.titleFormatting;
   const override = formatting?.fontSize ? FONT_SIZE_CQW[formatting.fontSize] : undefined;
   const style: CSSProperties = {
     ...thumbTextStyle(formatting),

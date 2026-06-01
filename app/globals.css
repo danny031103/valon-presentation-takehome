@@ -812,6 +812,14 @@ textarea:focus {
   border-color: var(--brand);
 }
 
+.toolbar-field-label {
+  font-size: 0.75rem;
+  opacity: 0.5;
+  white-space: nowrap;
+  user-select: none;
+  padding: 0 4px;
+}
+
 .toolbar-btn svg {
   width: 18px;
   height: 16px;

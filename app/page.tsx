@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { EditorTopBar } from "./components/EditorTopBar";
 import { GenerationProgress } from "./components/GenerationProgress";
 import { NewDeckScreen } from "./components/NewDeckScreen";
@@ -54,6 +56,8 @@ export default function Home() {
     importJson
   } = useDeck();
 
+  const [focusedField, setFocusedField] = useState<"title" | "body" | null>(null);
+
   if (showNewDeckScreen) {
     return (
       <NewDeckScreen
@@ -99,6 +103,7 @@ export default function Home() {
           editorMode={editorMode}
           onPatch={(patch) => selectedSlide && patchSlide(selectedSlide.id, patch)}
           onRetry={() => generateSlide("fresh")}
+          onFocusField={setFocusedField}
         />
 
         <div className="bottom-panel">
@@ -144,9 +149,14 @@ export default function Home() {
           ) : (
             <div className="edit-panel">
               <Toolbar
-                formatting={selectedSlide?.formatting}
-                onChange={(formatting) =>
-                  selectedSlide && patchSlide(selectedSlide.id, { formatting })
+                focusedField={focusedField}
+                titleFormatting={selectedSlide?.titleFormatting}
+                bodyFormatting={selectedSlide?.bodyFormatting}
+                onTitleFormattingChange={(titleFormatting) =>
+                  selectedSlide && patchSlide(selectedSlide.id, { titleFormatting })
+                }
+                onBodyFormattingChange={(bodyFormatting) =>
+                  selectedSlide && patchSlide(selectedSlide.id, { bodyFormatting })
                 }
                 body={selectedSlide?.body}
                 onBodyChange={(body) => selectedSlide && patchSlide(selectedSlide.id, { body })}

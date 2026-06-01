@@ -63,6 +63,7 @@ type SlideCanvasProps = {
   editorMode: EditorMode;
   onPatch: (patch: Partial<Slide>) => void;
   onRetry: () => void;
+  onFocusField: (field: "title" | "body" | null) => void;
 };
 
 function SlideImage({ slide }: { slide: Slide }) {
@@ -88,11 +89,15 @@ function autoResize(el: HTMLTextAreaElement) {
 function TitleField({
   value,
   style,
-  onChange
+  onChange,
+  onFocus,
+  onBlur
 }: {
   value: string;
   style: CSSProperties;
   onChange: (value: string) => void;
+  onFocus: () => void;
+  onBlur: () => void;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => { if (ref.current) autoResize(ref.current); }, [value]);
@@ -101,7 +106,9 @@ function TitleField({
       ref={ref}
       aria-label="Slide title"
       className="layout-text-field layout-text-field-title"
+      onBlur={onBlur}
       onChange={(event) => onChange(event.target.value)}
+      onFocus={onFocus}
       placeholder="Title"
       rows={1}
       style={style}
@@ -113,11 +120,15 @@ function TitleField({
 function BodyField({
   value,
   style,
-  onChange
+  onChange,
+  onFocus,
+  onBlur
 }: {
   value: string;
   style: CSSProperties;
   onChange: (value: string) => void;
+  onFocus: () => void;
+  onBlur: () => void;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => { if (ref.current) autoResize(ref.current); }, [value]);
@@ -126,7 +137,9 @@ function BodyField({
       ref={ref}
       aria-label="Slide body"
       className="layout-text-field"
+      onBlur={onBlur}
       onChange={(event) => onChange(event.target.value)}
+      onFocus={onFocus}
       placeholder="Body text"
       rows={2}
       style={style}
@@ -139,14 +152,17 @@ function CanvasBody({
   layout,
   slide,
   editorMode,
-  onPatch
+  onPatch,
+  onFocusField
 }: {
   layout: SlideLayout;
   slide: Slide;
   editorMode: EditorMode;
   onPatch: (patch: Partial<Slide>) => void;
+  onFocusField: (field: "title" | "body" | null) => void;
 }) {
-  const style = formattingStyle(slide.formatting);
+  const titleStyle = formattingStyle(slide.titleFormatting);
+  const bodyStyle = formattingStyle(slide.bodyFormatting);
   const title = slide.title ?? "";
   const body = slide.body ?? "";
 
@@ -154,7 +170,13 @@ function CanvasBody({
     case "title":
       return (
         <div className="layout-region layout-title">
-          <TitleField value={title} style={style} onChange={(value) => onPatch({ title: value })} />
+          <TitleField
+            value={title}
+            style={titleStyle}
+            onChange={(value) => onPatch({ title: value })}
+            onFocus={() => onFocusField("title")}
+            onBlur={() => onFocusField(null)}
+          />
         </div>
       );
     case "image-text":
@@ -164,16 +186,40 @@ function CanvasBody({
             <SlideImage slide={slide} />
           </div>
           <div className="layout-text-pane">
-            <TitleField value={title} style={style} onChange={(value) => onPatch({ title: value })} />
-            <BodyField value={body} style={style} onChange={(value) => onPatch({ body: value })} />
+            <TitleField
+              value={title}
+              style={titleStyle}
+              onChange={(value) => onPatch({ title: value })}
+              onFocus={() => onFocusField("title")}
+              onBlur={() => onFocusField(null)}
+            />
+            <BodyField
+              value={body}
+              style={bodyStyle}
+              onChange={(value) => onPatch({ body: value })}
+              onFocus={() => onFocusField("body")}
+              onBlur={() => onFocusField(null)}
+            />
           </div>
         </div>
       );
     case "text-only":
       return (
         <div className="layout-region layout-text-only">
-          <TitleField value={title} style={style} onChange={(value) => onPatch({ title: value })} />
-          <BodyField value={body} style={style} onChange={(value) => onPatch({ body: value })} />
+          <TitleField
+            value={title}
+            style={titleStyle}
+            onChange={(value) => onPatch({ title: value })}
+            onFocus={() => onFocusField("title")}
+            onBlur={() => onFocusField(null)}
+          />
+          <BodyField
+            value={body}
+            style={bodyStyle}
+            onChange={(value) => onPatch({ body: value })}
+            onFocus={() => onFocusField("body")}
+            onBlur={() => onFocusField(null)}
+          />
         </div>
       );
     case "full-bleed":
@@ -187,13 +233,25 @@ function CanvasBody({
         <div className="canvas-full-bleed-overlay">
           {editorMode === "edit" ? (
             <>
-              <TitleField value={title} style={style} onChange={(value) => onPatch({ title: value })} />
-              <BodyField value={body} style={style} onChange={(value) => onPatch({ body: value })} />
+              <TitleField
+                value={title}
+                style={titleStyle}
+                onChange={(value) => onPatch({ title: value })}
+                onFocus={() => onFocusField("title")}
+                onBlur={() => onFocusField(null)}
+              />
+              <BodyField
+                value={body}
+                style={bodyStyle}
+                onChange={(value) => onPatch({ body: value })}
+                onFocus={() => onFocusField("body")}
+                onBlur={() => onFocusField(null)}
+              />
             </>
           ) : (
             <>
-              {title ? <p className="canvas-overlay-title" style={style}>{title}</p> : null}
-              {body ? <p className="canvas-overlay-body" style={style}>{body}</p> : null}
+              {title ? <p className="canvas-overlay-title" style={titleStyle}>{title}</p> : null}
+              {body ? <p className="canvas-overlay-body" style={bodyStyle}>{body}</p> : null}
             </>
           )}
         </div>
@@ -202,13 +260,13 @@ function CanvasBody({
   }
 }
 
-export function SlideCanvas({ slide, editorMode, onPatch, onRetry }: SlideCanvasProps) {
+export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField }: SlideCanvasProps) {
   const layout: SlideLayout = slide?.layout ?? "full-bleed";
 
   return (
     <div className="canvas-wrap">
       <div className={`canvas-card canvas-layout-${layout}`}>
-        {slide ? <CanvasBody layout={layout} slide={slide} editorMode={editorMode} onPatch={onPatch} /> : null}
+        {slide ? <CanvasBody layout={layout} slide={slide} editorMode={editorMode} onPatch={onPatch} onFocusField={onFocusField} /> : null}
         {slide?.status === "working" ? (
           <div className="canvas-skeleton">
             <p className="skeleton-hint">Generating image — usually 10–20s</p>

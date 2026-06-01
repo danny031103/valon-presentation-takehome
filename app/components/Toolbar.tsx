@@ -5,8 +5,11 @@ import { UploadImageButton } from "./UploadImageButton";
 const LAYOUTS_WITH_IMAGE: SlideLayout[] = ["image-text", "full-bleed"];
 
 type ToolbarProps = {
-  formatting: SlideFormatting | undefined;
-  onChange: (formatting: SlideFormatting) => void;
+  focusedField: "title" | "body" | null;
+  titleFormatting: SlideFormatting | undefined;
+  bodyFormatting: SlideFormatting | undefined;
+  onTitleFormattingChange: (formatting: SlideFormatting) => void;
+  onBodyFormattingChange: (formatting: SlideFormatting) => void;
   body?: string;
   onBodyChange?: (body: string) => void;
   onUndo?: () => void;
@@ -39,14 +42,22 @@ const ALIGN_GLYPH: Record<NonNullable<SlideFormatting["align"]>, string> = {
   right: "M2 4h14M7 8h9M2 12h14"
 };
 
-export function Toolbar({ formatting, onChange, body, onBodyChange, onUndo, canUndo, onRedo, canRedo, layout, onLayoutChange, onUploadImage, hasImage }: ToolbarProps) {
-  const current = formatting ?? {};
+export function Toolbar({ focusedField, titleFormatting, bodyFormatting, onTitleFormattingChange, onBodyFormattingChange, body, onBodyChange, onUndo, canUndo, onRedo, canRedo, layout, onLayoutChange, onUploadImage, hasImage }: ToolbarProps) {
+  const current = focusedField === "title" ? (titleFormatting ?? {}) :
+                  focusedField === "body"  ? (bodyFormatting  ?? {}) :
+                  {};
+  const isDisabled = focusedField === null;
 
   function update(patch: SlideFormatting) {
-    onChange({ ...current, ...patch });
+    if (focusedField === "title") {
+      onTitleFormattingChange({ ...(titleFormatting ?? {}), ...patch });
+    } else if (focusedField === "body") {
+      onBodyFormattingChange({ ...(bodyFormatting ?? {}), ...patch });
+    }
   }
 
   function toggleBullets() {
+    if (focusedField !== "body") return;
     const next = !current.bullets;
     update({ bullets: next });
     if (onBodyChange && body !== undefined) {
@@ -59,14 +70,22 @@ export function Toolbar({ formatting, onChange, body, onBodyChange, onUndo, canU
     }
   }
 
+  const fieldLabel = focusedField === "title" ? "Title" :
+                     focusedField === "body"  ? "Body"  :
+                     "Click a field to format";
+
   return (
     <div className="toolbar" role="group" aria-label="Text formatting">
+      <span className="toolbar-field-label" aria-live="polite">{fieldLabel}</span>
+
       <div className="toolbar-group">
         <button
           aria-label="Bold"
           aria-pressed={Boolean(current.bold)}
           className={`toolbar-btn ${current.bold ? "active" : ""}`}
+          disabled={isDisabled}
           onClick={() => update({ bold: !current.bold })}
+          onMouseDown={(e) => e.preventDefault()}
           type="button"
         >
           <strong>B</strong>
@@ -75,7 +94,9 @@ export function Toolbar({ formatting, onChange, body, onBodyChange, onUndo, canU
           aria-label="Italic"
           aria-pressed={Boolean(current.italic)}
           className={`toolbar-btn ${current.italic ? "active" : ""}`}
+          disabled={isDisabled}
           onClick={() => update({ italic: !current.italic })}
+          onMouseDown={(e) => e.preventDefault()}
           type="button"
         >
           <em>I</em>
@@ -84,7 +105,9 @@ export function Toolbar({ formatting, onChange, body, onBodyChange, onUndo, canU
           aria-label="Bullet list"
           aria-pressed={Boolean(current.bullets)}
           className={`toolbar-btn ${current.bullets ? "active" : ""}`}
+          disabled={isDisabled || focusedField === "title"}
           onClick={toggleBullets}
+          onMouseDown={(e) => e.preventDefault()}
           type="button"
         >
           <svg viewBox="0 0 18 16" aria-hidden="true">
@@ -103,7 +126,9 @@ export function Toolbar({ formatting, onChange, body, onBodyChange, onUndo, canU
             aria-label={`Font size ${size}`}
             aria-pressed={current.fontSize === size}
             className={`toolbar-btn ${current.fontSize === size ? "active" : ""}`}
+            disabled={isDisabled}
             onClick={() => update({ fontSize: size })}
+            onMouseDown={(e) => e.preventDefault()}
             type="button"
           >
             {size}
@@ -118,7 +143,9 @@ export function Toolbar({ formatting, onChange, body, onBodyChange, onUndo, canU
             aria-label={swatch.name}
             aria-pressed={current.color === swatch.hex}
             className={`toolbar-swatch ${current.color === swatch.hex ? "active" : ""}`}
+            disabled={isDisabled}
             onClick={() => update({ color: swatch.hex })}
+            onMouseDown={(e) => e.preventDefault()}
             style={{ background: swatch.hex }}
             title={swatch.name}
             type="button"
@@ -127,7 +154,9 @@ export function Toolbar({ formatting, onChange, body, onBodyChange, onUndo, canU
         <label className="toolbar-color-pick" title="Custom color">
           <input
             aria-label="Custom color"
+            disabled={isDisabled}
             onChange={(event) => update({ color: event.target.value })}
+            onMouseDown={(e) => e.preventDefault()}
             type="color"
             value={current.color ?? "#241A14"}
           />
@@ -141,7 +170,9 @@ export function Toolbar({ formatting, onChange, body, onBodyChange, onUndo, canU
             aria-label={`Align ${align}`}
             aria-pressed={current.align === align}
             className={`toolbar-btn ${current.align === align ? "active" : ""}`}
+            disabled={isDisabled}
             onClick={() => update({ align })}
+            onMouseDown={(e) => e.preventDefault()}
             type="button"
           >
             <svg viewBox="0 0 18 16" aria-hidden="true">

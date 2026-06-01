@@ -32,7 +32,8 @@ export type Slide = {
   note: string;
   feedback?: string;
   layout?: SlideLayout;
-  formatting?: SlideFormatting;
+  titleFormatting?: SlideFormatting;
+  bodyFormatting?: SlideFormatting;
   title?: string;
   body?: string;
 };
@@ -133,8 +134,18 @@ export function useDeck() {
       };
 
       if (parsed.slides?.length) {
-        setSlides(parsed.slides);
-        setSelectedId(parsed.selectedId || parsed.slides[0].id);
+        const migrated = (parsed.slides as Array<Slide & { formatting?: SlideFormatting }>).map(
+          (s): Slide => {
+            const { formatting, ...rest } = s;
+            return {
+              ...rest,
+              titleFormatting: rest.titleFormatting ?? formatting,
+              bodyFormatting: rest.bodyFormatting ?? formatting,
+            };
+          }
+        );
+        setSlides(migrated);
+        setSelectedId(parsed.selectedId || migrated[0].id);
         if (parsed.editorMode === "edit" || parsed.editorMode === "ai") {
           setEditorMode(parsed.editorMode);
         }
@@ -478,7 +489,8 @@ export function useDeck() {
       ...source,
       id: crypto.randomUUID(),
       name: `${source.name} copy`,
-      formatting: source.formatting ? { ...source.formatting } : undefined
+      titleFormatting: source.titleFormatting ? { ...source.titleFormatting } : undefined,
+      bodyFormatting: source.bodyFormatting ? { ...source.bodyFormatting } : undefined,
     };
 
     pushHistory();
