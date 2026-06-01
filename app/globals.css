@@ -413,8 +413,10 @@ textarea:focus {
 .canvas-wrap {
   --canvas-h: calc(100vh - 56px - 240px - 28px - 64px);
   position: relative;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   min-height: 0;
   padding: 32px;
   background: var(--background);
@@ -430,6 +432,15 @@ textarea:focus {
   background: var(--surface);
   overflow: hidden;
   container-type: inline-size;
+}
+
+.canvas-layout-hint {
+  margin: 6px 0 0;
+  width: min(100%, calc(var(--canvas-h) * 16 / 9));
+  font-size: 0.78rem;
+  color: var(--foreground);
+  opacity: 0.45;
+  text-align: center;
 }
 
 .canvas-skeleton {

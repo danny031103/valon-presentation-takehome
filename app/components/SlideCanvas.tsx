@@ -68,7 +68,8 @@ type SlideCanvasProps = {
 
 function SlideImage({ slide }: { slide: Slide }) {
   if (slide.imageData) {
-    return <img alt={slide.name} className="slide-image" src={slide.imageData} />;
+    const objectPosition = slide.generatedForLayout === "image-text" ? "left center" : "center center";
+    return <img alt={slide.name} className="slide-image" src={slide.imageData} style={{ objectPosition }} />;
   }
 
   return (
@@ -225,7 +226,8 @@ function CanvasBody({
     case "full-bleed":
     default: {
       if (slide.imageData) {
-        return <img alt={slide.name} className="slide-image" src={slide.imageData} />;
+        const objectPosition = slide.generatedForLayout === "image-text" ? "left center" : "center center";
+        return <img alt={slide.name} className="slide-image" src={slide.imageData} style={{ objectPosition }} />;
       }
       const hasText = title.trim() || body.trim();
       if (!hasText) return null;
@@ -262,6 +264,10 @@ function CanvasBody({
 
 export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField }: SlideCanvasProps) {
   const layout: SlideLayout = slide?.layout ?? "full-bleed";
+  const showLayoutHint =
+    !!slide?.imageData &&
+    !!slide.generatedForLayout &&
+    slide.generatedForLayout !== slide.layout;
 
   return (
     <div className="canvas-wrap">
@@ -291,7 +297,11 @@ export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField 
           );
         })() : null}
       </div>
-
+      {showLayoutHint ? (
+        <p className="canvas-layout-hint">
+          Image was generated for a different layout — regenerate for best results.
+        </p>
+      ) : null}
     </div>
   );
 }

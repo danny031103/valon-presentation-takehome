@@ -36,6 +36,7 @@ export type Slide = {
   bodyFormatting?: SlideFormatting;
   title?: string;
   body?: string;
+  generatedForLayout?: SlideLayout;
 };
 
 export type DeckContext = {
@@ -416,7 +417,8 @@ export function useDeck() {
           applyPatch(slide.id, {
             imageData: payload.imageData,
             status: "done",
-            feedback: payload.text || "Done."
+            feedback: payload.text || "Done.",
+            generatedForLayout: slide.layout
           });
         }
       } catch {
@@ -557,7 +559,8 @@ export function useDeck() {
     applyPatch(selectedSlide.id, {
       imageData: payload.imageData,
       status: "done",
-      feedback: payload.text || "Done."
+      feedback: payload.text || "Done.",
+      generatedForLayout: selectedSlide.layout
     });
     setMessage("Image added to slide.");
   }
