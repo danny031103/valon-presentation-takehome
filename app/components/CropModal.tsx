@@ -64,6 +64,7 @@ export function CropModal({ src, onApply, onCancel }: CropModalProps) {
   const scaleRef = useRef(1);
   const cropRectRef = useRef<CropRect>({ x: 0, y: 0, w: 0, h: 0 });
   const dragging = useRef(false);
+  const draggingCrop = useRef(false);
   const resizingCorner = useRef<Corner | null>(null);
   const lastPointer = useRef({ x: 0, y: 0 });
   const lastTouchDist = useRef<number | null>(null);
@@ -132,7 +133,19 @@ export function CropModal({ src, onApply, onCancel }: CropModalProps) {
 
   function handleFrameMouseDown(e: React.MouseEvent) {
     if (resizingCorner.current) return;
-    dragging.current = true;
+    if (frameRef.current) {
+      const rect = frameRef.current.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const { x, y, w, h } = cropRectRef.current;
+      if (mx >= x && mx <= x + w && my >= y && my <= y + h) {
+        draggingCrop.current = true;
+      } else {
+        dragging.current = true;
+      }
+    } else {
+      dragging.current = true;
+    }
     lastPointer.current = { x: e.clientX, y: e.clientY };
     tick();
   }
@@ -147,6 +160,19 @@ export function CropModal({ src, onApply, onCancel }: CropModalProps) {
   function handleMouseMove(e: React.MouseEvent) {
     if (resizingCorner.current) {
       handleResizeMove(e.clientX);
+    } else if (draggingCrop.current) {
+      const dx = e.clientX - lastPointer.current.x;
+      const dy = e.clientY - lastPointer.current.y;
+      lastPointer.current = { x: e.clientX, y: e.clientY };
+      const { x, y, w, h } = cropRectRef.current;
+      const { w: fw, h: fh } = frameDims;
+      cropRectRef.current = {
+        x: Math.max(0, Math.min(fw - w, x + dx)),
+        y: Math.max(0, Math.min(fh - h, y + dy)),
+        w,
+        h,
+      };
+      tick();
     } else if (dragging.current && img) {
       const dx = e.clientX - lastPointer.current.x;
       const dy = e.clientY - lastPointer.current.y;
@@ -203,8 +229,9 @@ export function CropModal({ src, onApply, onCancel }: CropModalProps) {
   }
 
   function handleMouseUp() {
-    const wasActive = dragging.current || resizingCorner.current !== null;
+    const wasActive = dragging.current || draggingCrop.current || resizingCorner.current !== null;
     dragging.current = false;
+    draggingCrop.current = false;
     resizingCorner.current = null;
     if (wasActive) tick();
   }
@@ -253,7 +280,8 @@ export function CropModal({ src, onApply, onCancel }: CropModalProps) {
   const scale    = scaleRef.current;
   const cropRect = cropRectRef.current;
   const isResizing = resizingCorner.current !== null;
-  const showGrid   = dragging.current || isResizing;
+  const isDraggingCrop = draggingCrop.current;
+  const showGrid   = dragging.current || isResizing || isDraggingCrop;
 
   const backdropCursor = isResizing
     ? cornerCursor(resizingCorner.current!)
@@ -272,7 +300,7 @@ export function CropModal({ src, onApply, onCancel }: CropModalProps) {
     <div
       className="crop-backdrop"
       style={{ cursor: backdropCursor }}
-      onMouseMove={(e) => { if (resizingCorner.current) handleResizeMove(e.clientX); }}
+      onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
@@ -280,10 +308,10 @@ export function CropModal({ src, onApply, onCancel }: CropModalProps) {
         <div
           ref={frameRef}
           className="crop-frame"
-          style={{ cursor: dragging.current ? "grabbing" : "grab" }}
+          style={{ cursor: dragging.current ? "grabbing" : isDraggingCrop ? "move" : "grab" }}
           onMouseDown={handleFrameMouseDown}
           onMouseMove={handleMouseMove}
-          onMouseLeave={() => { if (dragging.current) { dragging.current = false; tick(); } }}
+          onMouseLeave={() => { if (dragging.current || draggingCrop.current) { dragging.current = false; draggingCrop.current = false; tick(); } }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -354,7 +382,7 @@ export function CropModal({ src, onApply, onCancel }: CropModalProps) {
           </div>
         )}
 
-        <p className="crop-hint">Drag to reposition · Scroll to zoom · Drag corners to resize</p>
+        <p className="crop-hint">Drag inside rect to move it · Drag outside to pan image · Scroll to zoom · Drag corners to resize</p>
 
         <div className="crop-actions">
           <button className="ghost-button" onClick={onCancel} type="button">
