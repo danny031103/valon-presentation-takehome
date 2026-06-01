@@ -1128,7 +1128,7 @@ textarea:focus {
 .onboarding-card {
   position: relative;
   width: 100%;
-  max-width: 540px;
+  max-width: 760px;
   max-height: 90vh;
   overflow-y: auto;
   background: var(--surface);
@@ -1137,7 +1137,7 @@ textarea:focus {
   padding: 40px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
 .onboarding-close {
@@ -1172,65 +1172,88 @@ textarea:focus {
 
 .onboarding-sub {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
   opacity: 0.6;
 }
 
 .onboarding-tips {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
 }
 
 .tip-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px;
+  gap: 6px;
+  padding: 18px 20px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--background);
 }
 
+.tip-num {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: var(--brand);
+  opacity: 0.5;
+  margin-bottom: 2px;
+}
+
 .tip-heading {
   margin: 0;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  opacity: 0.55;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--foreground);
 }
 
-.tip-example {
+.tip-inline-comparison {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
 }
 
-.tip-label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0.45;
-}
-
-.tip-before,
-.tip-after {
-  margin: 0;
-  font-size: 0.85rem;
-  line-height: 1.45;
-  padding: 6px 10px;
+.tip-inline-before {
+  font-size: 0.75rem;
+  padding: 2px 8px;
   border-radius: calc(var(--radius) - 0.35rem);
-}
-
-.tip-before {
   background: var(--surface-raised);
-  opacity: 0.75;
+  color: var(--foreground);
+  opacity: 0.65;
+  font-style: italic;
 }
 
-.tip-after {
+.tip-inline-arrow {
+  font-size: 0.7rem;
+  color: var(--brand);
+  opacity: 0.45;
+  flex-shrink: 0;
+}
+
+.tip-inline-after {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: calc(var(--radius) - 0.35rem);
   background: var(--brand-soft);
-  opacity: 1;
+  color: var(--foreground);
+  font-style: italic;
+}
+
+.onboarding-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.onboarding-footer .loud-button {
+  height: 42px;
+  padding: 0 32px;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 1024px) {

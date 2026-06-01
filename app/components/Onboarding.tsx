@@ -6,19 +6,22 @@ const STORAGE_KEY = "valon-onboarding-dismissed";
 
 const TIPS = [
   {
+    num: "01",
     heading: "Upload context for better images",
-    body: "Drop a PDF or document into the Context panel in the sidebar. The AI uses it to generate images relevant to your actual content — not generic stock imagery."
+    body: "Drop a PDF into the Context panel. The AI uses it to generate images tied to your actual content — not stock imagery.",
   },
   {
+    num: "02",
     heading: "Write scenes, not topics",
-    body: "Specific prompts produce better images.",
+    body: "Specific prompts produce sharper images.",
     before: "A house",
-    after: "A welcoming suburban home at golden hour with warm interior lighting"
+    after: "A welcoming home at golden hour",
   },
   {
+    num: "03",
     heading: "Edit and Generate are separate modes",
-    body: "Use the toggle in the top bar to switch between Edit mode (text, layouts, formatting) and Generate mode (AI image prompts). You can use both on the same slide."
-  }
+    body: "Toggle in the top bar — Edit for text and layout, Generate for AI image prompts. Use both on the same slide.",
+  },
 ];
 
 export function Onboarding() {
@@ -58,27 +61,25 @@ export function Onboarding() {
         <div className="onboarding-tips">
           {TIPS.map((tip) => (
             <div className="tip-card" key={tip.heading}>
+              <span className="tip-num">{tip.num}</span>
               <p className="tip-heading">{tip.heading}</p>
               {tip.body && <p className="onboarding-sub">{tip.body}</p>}
-              {tip.before && (
-                <div className="tip-example">
-                  <span className="tip-label">Before</span>
-                  <p className="tip-before">{tip.before}</p>
-                </div>
-              )}
-              {tip.after && (
-                <div className="tip-example">
-                  <span className="tip-label">After</span>
-                  <p className="tip-after">{tip.after}</p>
+              {tip.before && tip.after && (
+                <div className="tip-inline-comparison">
+                  <span className="tip-inline-before">{tip.before}</span>
+                  <span className="tip-inline-arrow">→</span>
+                  <span className="tip-inline-after">{tip.after}</span>
                 </div>
               )}
             </div>
           ))}
         </div>
 
-        <button className="loud-button" onClick={dismiss} type="button">
-          Got it
-        </button>
+        <div className="onboarding-footer">
+          <button className="loud-button" onClick={dismiss} type="button">
+            Got it
+          </button>
+        </div>
       </div>
     </div>
   );
