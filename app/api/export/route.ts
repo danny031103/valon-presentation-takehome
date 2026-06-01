@@ -59,26 +59,10 @@ function textOptions(
     color: (formatting?.color ?? "#141414").replace(/^#/, ""),
     align: formatting?.align ?? defaults.align,
     valign: "middle" as const,
-    margin: 0
+    margin: 0,
   };
 }
 
-// Build the text value for addText — plain string normally, bullet array when
-// formatting.bullets is set. Strips the leading "• " the canvas inserts so
-// pptxgenjs can apply its own native bullet rendering.
-function bodyText(
-  text: string,
-  formatting: SlideFormatting | undefined
-): string | { text: string; options: { bullet: boolean } }[] {
-  if (!formatting?.bullets) return text;
-  return text
-    .split("\n")
-    .filter((line) => line.trim())
-    .map((line) => ({
-      text: line.startsWith("• ") ? line.slice(2) : line,
-      options: { bullet: true }
-    }));
-}
 
 export async function POST(request: Request) {
   try {
@@ -160,10 +144,14 @@ export async function POST(request: Request) {
           );
         }
         if (body) {
-          slide.addText(
-            bodyText(body, bodyFmt),
-            { x: 7.0, y: 2.6, w: 5.8, h: 3.8, ...textOptions(bodyFmt, { fontFace: "Aptos", fontSize: 18, align: "left" }) }
-          );
+          body.split("\n").filter((line) => line.trim()).forEach((line, i) => {
+            const hasBullet = line.startsWith("• ");
+            slide.addText(hasBullet ? line.slice(2) : line, {
+              x: 7.0, y: 2.6 + i * 0.55, w: 5.8, h: 0.55,
+              bullet: hasBullet,
+              ...textOptions(bodyFmt, { fontFace: "Aptos", fontSize: 18, align: "left" })
+            });
+          });
         }
       } else if (layout === "text-only") {
         if (title) {
@@ -173,35 +161,16 @@ export async function POST(request: Request) {
           );
         }
         if (body) {
-          slide.addText(
-            bodyText(body, bodyFmt),
-            { x: 1.0, y: 2.9, w: 11.333, h: 3.5, ...textOptions(bodyFmt, { fontFace: "Aptos", fontSize: 18, align: "left" }) }
-          );
+          body.split("\n").filter((line) => line.trim()).forEach((line, i) => {
+            const hasBullet = line.startsWith("• ");
+            slide.addText(hasBullet ? line.slice(2) : line, {
+              x: 1.0, y: 2.9 + i * 0.55, w: 11.333, h: 0.55,
+              bullet: hasBullet,
+              ...textOptions(bodyFmt, { fontFace: "Aptos", fontSize: 18, align: "left" })
+            });
+          });
         }
       }
-
-      slide.addText(slideData.name || "Untitled slide", {
-        x: 0.4,
-        y: 0.25,
-        w: 7.6,
-        h: 0.4,
-        fontFace: "Aptos Display",
-        fontSize: 18,
-        bold: true,
-        color: "141414",
-        margin: 0
-      });
-
-      slide.addText(slideData.prompt || "", {
-        x: 0.4,
-        y: 6.95,
-        w: 8.3,
-        h: 0.3,
-        fontFace: "Aptos",
-        fontSize: 8,
-        color: "141414",
-        margin: 0
-      });
 
       slide.addText(slideData.note || "", {
         x: 8.95,
