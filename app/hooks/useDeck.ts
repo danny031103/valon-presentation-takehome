@@ -132,6 +132,7 @@ export function useDeck() {
         imageStyle?: ImageStyle;
         imageModel?: string;
         context?: DeckContext;
+        showNewDeckScreen?: boolean;
       };
 
       if (parsed.slides?.length) {
@@ -171,6 +172,9 @@ export function useDeck() {
         ) {
           setContext(parsed.context);
         }
+        if (parsed.showNewDeckScreen === true) {
+          setShowNewDeckScreen(true);
+        }
       }
     } catch {
       const fresh = starterSlides();
@@ -188,7 +192,7 @@ export function useDeck() {
     try {
       window.localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode, deckTitle, imageStyle, imageModel, context })
+        JSON.stringify({ slides, selectedId: selectedId || slides[0].id, editorMode, deckTitle, imageStyle, imageModel, context, showNewDeckScreen })
       );
       setLastSavedAt(new Date());
     } catch {
