@@ -58,6 +58,7 @@ export default function Home() {
   } = useDeck();
 
   const [focusedField, setFocusedField] = useState<"title" | "body" | null>(null);
+  const [referenceImageUrl, setReferenceImageUrl] = useState<string | null>(null);
   const [presenting, setPresenting] = useState(false);
   const [currentPresentationIndex, setCurrentPresentationIndex] = useState(0);
   const canvasCardRef = useRef<HTMLDivElement>(null);
@@ -140,7 +141,8 @@ export default function Home() {
               <PromptPanel
                 prompt={selectedSlide?.prompt ?? ""}
                 onChange={(value) => selectedSlide && patchSlide(selectedSlide.id, { prompt: value })}
-                onUploadImage={importImage}
+                referenceImageUrl={referenceImageUrl}
+                onReferenceImage={setReferenceImageUrl}
                 imageStyle={imageStyle}
                 onStyleChange={setImageStyle}
                 imageModel={imageModel}
@@ -152,7 +154,9 @@ export default function Home() {
                   className="loud-button"
                   disabled={selectedSlide?.status === "working"}
                   onClick={() => {
-                    void generateSlide("fresh");
+                    void generateSlide("fresh", referenceImageUrl ?? undefined).then(() =>
+                      setReferenceImageUrl(null)
+                    );
                   }}
                   type="button"
                 >
@@ -162,7 +166,9 @@ export default function Home() {
                   className="ghost-button"
                   disabled={selectedSlide?.status === "working"}
                   onClick={() => {
-                    void generateSlide("again");
+                    void generateSlide("again", referenceImageUrl ?? undefined).then(() =>
+                      setReferenceImageUrl(null)
+                    );
                   }}
                   type="button"
                 >

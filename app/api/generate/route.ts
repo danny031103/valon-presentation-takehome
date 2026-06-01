@@ -37,6 +37,7 @@ export async function POST(request: Request) {
       model?: string;
       context?: string;
       layout?: string;
+      referenceImage?: string;
     };
     const prompt = body.prompt?.trim();
 
@@ -59,10 +60,24 @@ export async function POST(request: Request) {
       .join("\n\n");
     const resolvedModel = body.model || process.env.GOOGLE_IMAGE_MODEL || DEFAULT_MODEL;
 
+    // Build contents: multimodal when a reference image is provided, plain text otherwise.
+    let contents: string | Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = effectivePrompt;
+    if (body.referenceImage) {
+      const match = body.referenceImage.match(/^data:([^;]+);base64,(.+)$/);
+      const mimeType = match?.[1] ?? "image/jpeg";
+      const data = match ? match[2] : body.referenceImage;
+      const referenceInstruction =
+        "Use the provided reference image as visual inspiration and context. Generate a complete, fully-composed image where all elements are contained within the frame — nothing cropped or cut off at the edges. The output should be a complete scene.";
+      contents = [
+        { text: `${effectivePrompt}\n\n${referenceInstruction}` },
+        { inlineData: { mimeType, data } }
+      ];
+    }
+
     const client = new GoogleGenAI({ apiKey });
     const response = await client.models.generateContent({
       model: resolvedModel,
-      contents: effectivePrompt,
+      contents,
       config: {
         responseModalities: ["TEXT", "IMAGE"]
       }

@@ -738,6 +738,38 @@ textarea:focus {
   align-self: flex-start;
 }
 
+.prompt-reference {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.prompt-reference-thumb {
+  width: 56px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: calc(var(--radius) - 0.35rem);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.prompt-reference-remove {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-size: 0.8rem;
+  color: var(--foreground);
+  opacity: 0.55;
+  cursor: pointer;
+  transition: opacity 120ms ease, color 120ms ease;
+}
+
+.prompt-reference-remove:hover {
+  opacity: 1;
+  color: var(--danger);
+}
+
 .floating-chip {
   position: absolute;
   bottom: 12px;

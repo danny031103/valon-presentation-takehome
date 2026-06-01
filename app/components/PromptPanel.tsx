@@ -19,7 +19,8 @@ const MODEL_OPTIONS: { value: string; label: string }[] = [
 type PromptPanelProps = {
   prompt: string;
   onChange: (value: string) => void;
-  onUploadImage: (file: File) => void;
+  referenceImageUrl: string | null;
+  onReferenceImage: (dataUrl: string | null) => void;
   imageStyle: ImageStyle;
   onStyleChange: (style: ImageStyle) => void;
   imageModel: string;
@@ -29,12 +30,23 @@ type PromptPanelProps = {
 export function PromptPanel({
   prompt,
   onChange,
-  onUploadImage,
+  referenceImageUrl,
+  onReferenceImage,
   imageStyle,
   onStyleChange,
   imageModel,
   onModelChange
 }: PromptPanelProps) {
+  function handleFileSelect(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        onReferenceImage(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
   return (
     <div className="prompt-card">
       <label className="field-label" htmlFor="prompt-box">
@@ -83,7 +95,24 @@ export function PromptPanel({
           </select>
         </div>
       </div>
-      <UploadImageButton className="ghost-button prompt-upload" onSelect={onUploadImage} />
+      {referenceImageUrl ? (
+        <div className="prompt-reference">
+          <img alt="Reference" className="prompt-reference-thumb" src={referenceImageUrl} />
+          <button
+            className="prompt-reference-remove"
+            onClick={() => onReferenceImage(null)}
+            type="button"
+          >
+            × Remove
+          </button>
+        </div>
+      ) : (
+        <UploadImageButton
+          className="ghost-button prompt-upload"
+          label="Add reference image"
+          onSelect={handleFileSelect}
+        />
+      )}
     </div>
   );
 }

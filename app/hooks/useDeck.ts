@@ -511,7 +511,7 @@ export function useDeck() {
     setMessage("Slide duplicated.");
   }
 
-  async function generateSlide(mode: "fresh" | "again") {
+  async function generateSlide(mode: "fresh" | "again", referenceImage?: string) {
     if (!selectedSlide) {
       return;
     }
@@ -541,7 +541,8 @@ export function useDeck() {
         style: imageStyle,
         model: imageModel || undefined,
         context: context?.text ?? undefined,
-        layout: selectedSlide.layout
+        layout: selectedSlide.layout,
+        referenceImage: referenceImage || undefined
       })
     });
 
