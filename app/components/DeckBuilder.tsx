@@ -7,16 +7,38 @@ import { useDocumentExtract } from "../hooks/useDocumentExtract";
 
 const SLIDE_COUNTS = [3, 5, 7, 10] as const;
 
-const STYLE_OPTIONS: { value: ImageStyle; label: string }[] = [
-  { value: "professional", label: "Professional" },
-  { value: "minimal", label: "Minimal" },
-  { value: "editorial", label: "Editorial" },
-  { value: "illustrative", label: "Illustrative" },
-  { value: "photographic", label: "Photographic" },
-  { value: "none", label: "No style" },
+const PURPOSE_OPTIONS = [
+  "Sales pitch",
+  "Internal update",
+  "Educational / training",
+  "Conference talk",
+  "Client proposal",
+  "Other",
+] as const;
+
+const AUDIENCE_OPTIONS = [
+  "Executive / leadership",
+  "Potential customers",
+  "Technical team",
+  "General audience",
+] as const;
+
+type StyleOption = {
+  value: ImageStyle;
+  label: string;
+  variant: string;
+};
+
+const STYLE_OPTIONS: StyleOption[] = [
+  { value: "professional", label: "Professional", variant: "professional" },
+  { value: "minimal", label: "Minimal", variant: "minimal" },
+  { value: "editorial", label: "Editorial", variant: "editorial" },
+  { value: "illustrative", label: "Illustrative", variant: "illustrative" },
 ];
 
 export type DeckBuilderFormData = {
+  purpose: string;
+  audience: string;
   brief: string;
   slideCount: number;
   style: ImageStyle;
@@ -29,10 +51,29 @@ type DeckBuilderProps = {
   onGenerateDeck: (plan: DeckPlan, style: ImageStyle) => void;
 };
 
+function buildBriefStarter(purpose: string, audience: string): string {
+  const p = purpose === "Other" ? "presentation" : purpose.toLowerCase();
+  const a = audience.toLowerCase();
+  return `A ${p} presentation for ${a}.`;
+}
+
 export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilderProps) {
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+
+  // Step 1
+  const [purpose, setPurpose] = useState<string | null>(null);
+  const [purposeOther, setPurposeOther] = useState("");
+
+  // Step 2
+  const [audience, setAudience] = useState<string | null>(null);
+
+  // Step 3
+  const [style, setStyle] = useState<ImageStyle>(defaultStyle);
+  const [styleSelected, setStyleSelected] = useState(false);
+
+  // Step 4
   const [brief, setBrief] = useState("");
   const [slideCount, setSlideCount] = useState<number | null>(null);
-  const [style, setStyle] = useState<ImageStyle>(defaultStyle);
   const [context, setContext] = useState<ExtractedContext | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [errors, setErrors] = useState<{ brief?: string; slideCount?: string }>({});
@@ -45,6 +86,41 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
   async function handleFile(file: File) {
     const result = await extract(file);
     if (result) setContext(result);
+  }
+
+  function resolvedPurpose(): string {
+    return purpose === "Other" ? purposeOther.trim() || "Other" : (purpose ?? "");
+  }
+
+  function step1Valid(): boolean {
+    if (!purpose) return false;
+    if (purpose === "Other" && !purposeOther.trim()) return false;
+    return true;
+  }
+
+  function goToStep2() {
+    if (!step1Valid()) return;
+    setStep(2);
+  }
+
+  function goToStep3() {
+    if (!audience) return;
+    setStep(3);
+  }
+
+  function goToStep4() {
+    if (!styleSelected) return;
+    const starter = buildBriefStarter(resolvedPurpose(), audience ?? "");
+    if (!brief) setBrief(starter);
+    setStep(4);
+  }
+
+  function handleBack() {
+    if (step === 1) {
+      onBack();
+    } else {
+      setStep((prev) => (prev - 1) as 1 | 2 | 3 | 4);
+    }
   }
 
   function validate(): boolean {
@@ -67,11 +143,13 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          purpose: resolvedPurpose(),
+          audience: audience ?? "",
           brief: brief.trim(),
           slideCount: slideCount!,
           style,
-          context: context?.text ?? undefined
-        })
+          context: context?.text ?? undefined,
+        }),
       });
 
       const payload = (await response.json()) as {
@@ -95,153 +173,289 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
   return (
     <div className="new-deck-screen">
       <div className="new-deck-inner deck-builder-inner">
-        <button className="deck-builder-back" onClick={onBack} type="button">
+        <button className="deck-builder-back" onClick={handleBack} type="button">
           ← Back
         </button>
 
-        <h1 className="new-deck-heading">Build with AI</h1>
-        <p className="new-deck-sub">
-          Describe your deck and optionally upload reference docs.
-        </p>
+        {/* Step 1 — Purpose */}
+        {step === 1 && (
+          <>
+            <div className="deck-builder-step-header">
+              <h1 className="new-deck-heading">What&apos;s this deck for?</h1>
+              <span className="step-indicator">Step 1 of 4</span>
+            </div>
+            <p className="new-deck-sub">Pick the type that fits best.</p>
 
-        <form className="deck-builder-form" onSubmit={handleSubmit} noValidate>
-          {/* Context upload */}
-          <div className="deck-builder-field">
-            <label className="deck-builder-label">Reference document (optional)</label>
-            {context ? (
-              <div className="deck-builder-context-active">
-                <span className="deck-builder-context-name" title={context.fileName}>
-                  {context.fileName}
-                </span>
-                <span className="deck-builder-context-chars">
-                  {context.text.length.toLocaleString()} chars
-                </span>
-                {context.truncated && (
-                  <span className="deck-builder-context-truncated">Truncated to 30 KB</span>
-                )}
+            <div className="step-tiles">
+              {PURPOSE_OPTIONS.map((opt) => (
                 <button
-                  className="deck-builder-context-clear"
-                  onClick={() => setContext(null)}
+                  className={`step-tile${purpose === opt ? " selected" : ""}`}
+                  key={opt}
+                  onClick={() => setPurpose(opt)}
                   type="button"
                 >
-                  Remove
-                </button>
-              </div>
-            ) : (
-              <div
-                className={`deck-builder-drop-zone${dragOver ? " drag-over" : ""}`}
-                onClick={() => fileInputRef.current?.click()}
-                onDragLeave={() => setDragOver(false)}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setDragOver(false);
-                  const file = e.dataTransfer.files[0];
-                  if (file) void handleFile(file);
-                }}
-                onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
-                role="button"
-                tabIndex={0}
-              >
-                <input
-                  accept=".pdf,.txt,application/pdf,text/plain"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) void handleFile(file);
-                    e.target.value = "";
-                  }}
-                  ref={fileInputRef}
-                  style={{ display: "none" }}
-                  type="file"
-                />
-                {extracting ? (
-                  <span>Extracting text…</span>
-                ) : (
-                  <>
-                    <span className="deck-builder-drop-hint">Drop PDF or TXT</span>
-                    <span className="deck-builder-drop-sub">click to browse</span>
-                  </>
-                )}
-              </div>
-            )}
-            {extractError && <p className="deck-builder-field-error">{extractError}</p>}
-          </div>
-
-          {/* Brief */}
-          <div className="deck-builder-field">
-            <label className="deck-builder-label" htmlFor="deck-brief">
-              What is this presentation about?
-            </label>
-            <textarea
-              className={`deck-builder-textarea${errors.brief ? " field-error" : ""}`}
-              id="deck-brief"
-              onChange={(e) => {
-                setBrief(e.target.value);
-                if (errors.brief) setErrors((prev) => ({ ...prev, brief: undefined }));
-              }}
-              placeholder="e.g. A pitch deck for a Series A raise targeting fintech investors. Audience is familiar with SaaS metrics."
-              rows={4}
-              value={brief}
-            />
-            {errors.brief && <p className="deck-builder-field-error">{errors.brief}</p>}
-          </div>
-
-          {/* Slide count */}
-          <div className="deck-builder-field">
-            <label className="deck-builder-label">Number of slides</label>
-            <div className={`slide-count-selector${errors.slideCount ? " field-error-border" : ""}`}>
-              {SLIDE_COUNTS.map((n) => (
-                <button
-                  className={slideCount === n ? "active" : ""}
-                  key={n}
-                  onClick={() => {
-                    setSlideCount(n);
-                    if (errors.slideCount) setErrors((prev) => ({ ...prev, slideCount: undefined }));
-                  }}
-                  type="button"
-                >
-                  {n}
+                  {opt}
                 </button>
               ))}
             </div>
-            {errors.slideCount && (
-              <p className="deck-builder-field-error">{errors.slideCount}</p>
+
+            {purpose === "Other" && (
+              <input
+                autoFocus
+                className="step-tile-other-input"
+                onChange={(e) => setPurposeOther(e.target.value)}
+                placeholder="Describe the purpose…"
+                type="text"
+                value={purposeOther}
+              />
             )}
-          </div>
 
-          {/* Style */}
-          <div className="deck-builder-field">
-            <label className="deck-builder-label" htmlFor="deck-style">
-              Image style
-            </label>
-            <select
-              className="deck-builder-select"
-              id="deck-style"
-              onChange={(e) => setStyle(e.target.value as ImageStyle)}
-              value={style}
-            >
-              {STYLE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
+            <div className="step-nav">
+              <div className="step-nav-right">
+                <button
+                  className="loud-button"
+                  disabled={!step1Valid()}
+                  onClick={goToStep2}
+                  type="button"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Step 2 — Audience */}
+        {step === 2 && (
+          <>
+            <div className="deck-builder-step-header">
+              <h1 className="new-deck-heading">Who&apos;s the audience?</h1>
+              <span className="step-indicator">Step 2 of 4</span>
+            </div>
+            <p className="new-deck-sub">This shapes the tone and complexity.</p>
+
+            <div className="step-tiles">
+              {AUDIENCE_OPTIONS.map((opt) => (
+                <button
+                  className={`step-tile${audience === opt ? " selected" : ""}`}
+                  key={opt}
+                  onClick={() => setAudience(opt)}
+                  type="button"
+                >
+                  {opt}
+                </button>
               ))}
-            </select>
-          </div>
+            </div>
 
-          <button
-            className="loud-button deck-builder-submit"
-            disabled={planning}
-            type="submit"
-          >
-            {planning ? "Planning…" : "Generate deck"}
-          </button>
+            <div className="step-nav">
+              <div className="step-nav-right">
+                <button
+                  className="loud-button"
+                  disabled={!audience}
+                  onClick={goToStep3}
+                  type="button"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
+        )}
 
-          {planError && (
-            <p className="deck-builder-field-error deck-builder-plan-error">
-              {planError}
+        {/* Step 3 — Style */}
+        {step === 3 && (
+          <>
+            <div className="deck-builder-step-header">
+              <h1 className="new-deck-heading">What&apos;s the vibe?</h1>
+              <span className="step-indicator">Step 3 of 4</span>
+            </div>
+            <p className="new-deck-sub">Choose a visual style for generated images.</p>
+
+            <div className="style-tiles">
+              {STYLE_OPTIONS.map((opt) => (
+                <button
+                  className={`style-tile style-tile--${opt.variant}${style === opt.value && styleSelected ? " selected" : ""}`}
+                  key={opt.value}
+                  onClick={() => {
+                    setStyle(opt.value);
+                    setStyleSelected(true);
+                  }}
+                  type="button"
+                >
+                  {opt.value === "professional" && (
+                    <div className="style-tile-inner">
+                      <span className="style-tile-heading">Professional</span>
+                      <span className="style-tile-body">Clean · Corporate · Polished</span>
+                    </div>
+                  )}
+                  {opt.value === "minimal" && (
+                    <div className="style-tile-inner">
+                      <div className="style-tile-line" />
+                      <span className="style-tile-heading">Minimal</span>
+                    </div>
+                  )}
+                  {opt.value === "editorial" && (
+                    <div className="style-tile-inner">
+                      <span className="style-tile-heading">Editorial</span>
+                      <span className="style-tile-body">Bold · High contrast</span>
+                    </div>
+                  )}
+                  {opt.value === "illustrative" && (
+                    <div className="style-tile-inner">
+                      <span className="style-tile-heading">Illustrative</span>
+                      <span className="style-tile-body">Warm · Human · Friendly</span>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            <div className="step-nav">
+              <div className="step-nav-right">
+                <button
+                  className="loud-button"
+                  disabled={!styleSelected}
+                  onClick={goToStep4}
+                  type="button"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Step 4 — Brief + context */}
+        {step === 4 && (
+          <>
+            <div className="deck-builder-step-header">
+              <h1 className="new-deck-heading">Tell us about your deck</h1>
+              <span className="step-indicator">Step 4 of 4</span>
+            </div>
+            <p className="new-deck-sub">
+              Add detail and optionally upload reference docs.
             </p>
-          )}
-        </form>
+
+            <form className="deck-builder-form" onSubmit={handleSubmit} noValidate>
+              {/* Context upload */}
+              <div className="deck-builder-field">
+                <label className="deck-builder-label">Reference document (optional)</label>
+                {context ? (
+                  <div className="deck-builder-context-active">
+                    <span className="deck-builder-context-name" title={context.fileName}>
+                      {context.fileName}
+                    </span>
+                    <span className="deck-builder-context-chars">
+                      {context.text.length.toLocaleString()} chars
+                    </span>
+                    {context.truncated && (
+                      <span className="deck-builder-context-truncated">Truncated to 30 KB</span>
+                    )}
+                    <button
+                      className="deck-builder-context-clear"
+                      onClick={() => setContext(null)}
+                      type="button"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    className={`deck-builder-drop-zone${dragOver ? " drag-over" : ""}`}
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragLeave={() => setDragOver(false)}
+                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setDragOver(false);
+                      const file = e.dataTransfer.files[0];
+                      if (file) void handleFile(file);
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <input
+                      accept=".pdf,.txt,application/pdf,text/plain"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) void handleFile(file);
+                        e.target.value = "";
+                      }}
+                      ref={fileInputRef}
+                      style={{ display: "none" }}
+                      type="file"
+                    />
+                    {extracting ? (
+                      <span>Extracting text…</span>
+                    ) : (
+                      <>
+                        <span className="deck-builder-drop-hint">Drop PDF or TXT</span>
+                        <span className="deck-builder-drop-sub">click to browse</span>
+                      </>
+                    )}
+                  </div>
+                )}
+                {extractError && <p className="deck-builder-field-error">{extractError}</p>}
+              </div>
+
+              {/* Brief */}
+              <div className="deck-builder-field">
+                <label className="deck-builder-label" htmlFor="deck-brief">
+                  What is this presentation about?
+                </label>
+                <textarea
+                  className={`deck-builder-textarea${errors.brief ? " field-error" : ""}`}
+                  id="deck-brief"
+                  onChange={(e) => {
+                    setBrief(e.target.value);
+                    if (errors.brief) setErrors((prev) => ({ ...prev, brief: undefined }));
+                  }}
+                  rows={4}
+                  value={brief}
+                />
+                {errors.brief && <p className="deck-builder-field-error">{errors.brief}</p>}
+              </div>
+
+              {/* Slide count */}
+              <div className="deck-builder-field">
+                <label className="deck-builder-label">Number of slides</label>
+                <div className={`slide-count-selector${errors.slideCount ? " field-error-border" : ""}`}>
+                  {SLIDE_COUNTS.map((n) => (
+                    <button
+                      className={slideCount === n ? "active" : ""}
+                      key={n}
+                      onClick={() => {
+                        setSlideCount(n);
+                        if (errors.slideCount) setErrors((prev) => ({ ...prev, slideCount: undefined }));
+                      }}
+                      type="button"
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                {errors.slideCount && (
+                  <p className="deck-builder-field-error">{errors.slideCount}</p>
+                )}
+              </div>
+
+              <button
+                className="loud-button deck-builder-submit"
+                disabled={planning}
+                type="submit"
+              >
+                {planning ? "Planning…" : "Generate deck"}
+              </button>
+
+              {planError && (
+                <p className="deck-builder-field-error deck-builder-plan-error">
+                  {planError}
+                </p>
+              )}
+            </form>
+          </>
+        )}
       </div>
     </div>
   );

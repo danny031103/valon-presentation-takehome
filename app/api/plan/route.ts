@@ -14,9 +14,13 @@ function buildUserPrompt(
   brief: string,
   slideCount: number,
   style: string,
-  context: string | null
+  context: string | null,
+  purpose: string | null,
+  audience: string | null
 ): string {
   const parts = [
+    purpose ? `Purpose: ${purpose}` : null,
+    audience ? `Audience: ${audience}` : null,
     `Brief: ${brief}`,
     `Slide count: ${slideCount}`,
     `Style: ${style}`,
@@ -74,11 +78,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { brief, context, slideCount, style } = body as {
+  const { brief, context, slideCount, style, purpose, audience } = body as {
     brief?: string;
     context?: string;
     slideCount?: number;
     style?: string;
+    purpose?: string;
+    audience?: string;
   };
 
   if (!brief?.trim()) {
@@ -92,7 +98,9 @@ export async function POST(request: Request) {
     brief.trim(),
     slideCount ?? 5,
     style ?? "professional",
-    contextSnippet
+    contextSnippet,
+    purpose?.trim() || null,
+    audience?.trim() || null
   );
 
   const client = new Anthropic({ apiKey });
@@ -115,12 +123,10 @@ export async function POST(request: Request) {
 
   let parsed: unknown;
   try {
-    // Strip markdown code fences Claude may add despite instructions
-    const cleaned = rawText
-      .replace(/^```(?:json)?\s*\n?/, "")
-      .replace(/\n?```\s*$/, "")
-      .trim();
-    parsed = JSON.parse(cleaned);
+    // Extract the first {...} block — handles fences, preamble, trailing text
+    const match = rawText.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error("no JSON object found");
+    parsed = JSON.parse(match[0]);
   } catch {
     return NextResponse.json(
       { error: "Claude returned malformed JSON. Please try again." },
