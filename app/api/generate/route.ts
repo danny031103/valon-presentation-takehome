@@ -33,6 +33,7 @@ export async function POST(request: Request) {
       style?: string;
       model?: string;
       context?: string;
+      layout?: string;
     };
     const prompt = body.prompt?.trim();
 
@@ -46,7 +47,11 @@ export async function POST(request: Request) {
     const contextNote = contextSnippet
       ? `Context from user's documents (use this to inform the visual):\n${contextSnippet}`
       : null;
-    const effectivePrompt = [prompt, fragment || null, contextNote]
+    const imageTextComposition =
+      body.layout === "image-text"
+        ? "Compose this image for the left half of a presentation slide. Use a vertically-oriented composition. Keep the main subject left or center-left. The right portion of the scene should be less busy, as text will appear beside this image on the right side of the slide."
+        : null;
+    const effectivePrompt = [prompt, fragment || null, imageTextComposition, contextNote]
       .filter(Boolean)
       .join("\n\n");
     const resolvedModel = body.model || process.env.GOOGLE_IMAGE_MODEL || DEFAULT_MODEL;

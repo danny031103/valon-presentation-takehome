@@ -396,7 +396,8 @@ export function useDeck() {
           body: JSON.stringify({
             prompt: slide.prompt,
             style,
-            model: imageModel || undefined
+            model: imageModel || undefined,
+            layout: slide.layout
           })
         });
 
@@ -533,7 +534,8 @@ export function useDeck() {
             : selectedSlide.prompt,
         style: imageStyle,
         model: imageModel || undefined,
-        context: context?.text ?? undefined
+        context: context?.text ?? undefined,
+        layout: selectedSlide.layout
       })
     });
 
