@@ -35,6 +35,7 @@ type EditorTopBarProps = {
   onImportJson: (file: File) => void;
   onNewDeck: () => void;
   onStartOver: () => void;
+  onPresent: () => void;
 };
 
 export function EditorTopBar({
@@ -49,7 +50,8 @@ export function EditorTopBar({
   onExportJson,
   onImportJson,
   onNewDeck,
-  onStartOver
+  onStartOver,
+  onPresent,
 }: EditorTopBarProps) {
   const [naming, setNaming] = useState(false);
   const [overflowOpen, setOverflowOpen] = useState(false);
@@ -100,6 +102,13 @@ export function EditorTopBar({
       </div>
 
       <div className="top-actions">
+        <button
+          className="ghost-button"
+          onClick={onPresent}
+          type="button"
+        >
+          Present
+        </button>
         {naming ? (
           <>
             <input

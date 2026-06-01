@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { EditorTopBar } from "./components/EditorTopBar";
+import { PresentationMode } from "./components/PresentationMode";
 import { GenerationProgress } from "./components/GenerationProgress";
 import { NewDeckScreen } from "./components/NewDeckScreen";
 import { NotesPanel } from "./components/NotesPanel";
@@ -57,6 +58,38 @@ export default function Home() {
   } = useDeck();
 
   const [focusedField, setFocusedField] = useState<"title" | "body" | null>(null);
+  const [presenting, setPresenting] = useState(false);
+  const [currentPresentationIndex, setCurrentPresentationIndex] = useState(0);
+
+  function handlePresent() {
+    const idx = slides.findIndex((s) => s.id === selectedSlide?.id);
+    setCurrentPresentationIndex(idx >= 0 ? idx : 0);
+    setPresenting(true);
+  }
+
+  function handlePresentationNext() {
+    setCurrentPresentationIndex((i) => Math.min(i + 1, slides.length - 1));
+  }
+
+  function handlePresentationPrev() {
+    setCurrentPresentationIndex((i) => Math.max(i - 1, 0));
+  }
+
+  function handlePresentationExit() {
+    setPresenting(false);
+  }
+
+  if (presenting) {
+    return (
+      <PresentationMode
+        currentIndex={currentPresentationIndex}
+        onExit={handlePresentationExit}
+        onNext={handlePresentationNext}
+        onPrev={handlePresentationPrev}
+        slides={slides}
+      />
+    );
+  }
 
   if (showNewDeckScreen) {
     return (
@@ -96,6 +129,7 @@ export default function Home() {
           onImportJson={importJson}
           onNewDeck={triggerNewDeck}
           onStartOver={startOver}
+          onPresent={handlePresent}
         />
 
         <SlideCanvas

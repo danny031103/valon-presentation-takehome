@@ -149,7 +149,7 @@ function BodyField({
   );
 }
 
-function CanvasBody({
+export function CanvasBody({
   layout,
   slide,
   editorMode,
@@ -256,6 +256,59 @@ function CanvasBody({
               {body ? <p className="canvas-overlay-body" style={bodyStyle}>{body}</p> : null}
             </>
           )}
+        </div>
+      );
+    }
+  }
+}
+
+// Read-only slide renderer — reuses the same layout classes as CanvasBody
+// but renders <p> elements instead of editable textareas.
+export function SlideReadView({ slide }: { slide: Slide }) {
+  const layout: SlideLayout = slide.layout ?? "full-bleed";
+  const titleStyle = formattingStyle(slide.titleFormatting);
+  const bodyStyle = formattingStyle(slide.bodyFormatting);
+  const title = slide.title ?? "";
+  const body = slide.body ?? "";
+
+  switch (layout) {
+    case "title":
+      return (
+        <div className="layout-region layout-title">
+          {title && <p className="slide-read-title" style={titleStyle}>{title}</p>}
+        </div>
+      );
+    case "image-text":
+      return (
+        <div className="layout-region layout-image-text">
+          <div className="layout-image-pane">
+            <SlideImage slide={slide} />
+          </div>
+          <div className="layout-text-pane">
+            {title && <p className="slide-read-title" style={titleStyle}>{title}</p>}
+            {body && <p className="slide-read-body" style={bodyStyle}>{body}</p>}
+          </div>
+        </div>
+      );
+    case "text-only":
+      return (
+        <div className="layout-region layout-text-only">
+          {title && <p className="slide-read-title" style={titleStyle}>{title}</p>}
+          {body && <p className="slide-read-body" style={bodyStyle}>{body}</p>}
+        </div>
+      );
+    case "full-bleed":
+    default: {
+      if (slide.imageData) {
+        const objectPosition = slide.generatedForLayout === "image-text" ? "left center" : "center center";
+        return <img alt={slide.name} className="slide-image" src={slide.imageData} style={{ objectPosition }} />;
+      }
+      const hasText = title.trim() || body.trim();
+      if (!hasText) return null;
+      return (
+        <div className="canvas-full-bleed-overlay">
+          {title ? <p className="canvas-overlay-title" style={titleStyle}>{title}</p> : null}
+          {body ? <p className="canvas-overlay-body" style={bodyStyle}>{body}</p> : null}
         </div>
       );
     }
