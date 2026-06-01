@@ -1,9 +1,8 @@
 import { useEffect, useRef } from "react";
-import type { Slide, SlideLayout } from "../hooks/useDeck";
-import { CanvasBody } from "./SlideCanvas";
+import type React from "react";
 
 type PresentationModeProps = {
-  slides: Slide[];
+  canvasRef: React.RefObject<HTMLDivElement | null>;
   currentIndex: number;
   onNext: () => void;
   onPrev: () => void;
@@ -11,13 +10,13 @@ type PresentationModeProps = {
 };
 
 export function PresentationMode({
-  slides,
+  canvasRef,
   currentIndex,
   onNext,
   onPrev,
   onExit,
 }: PresentationModeProps) {
-  const slide = slides[currentIndex];
+  const hostRef = useRef<HTMLDivElement>(null);
 
   const onExitRef = useRef(onExit);
   onExitRef.current = onExit;
@@ -25,6 +24,21 @@ export function PresentationMode({
   onNextRef.current = onNext;
   const onPrevRef = useRef(onPrev);
   onPrevRef.current = onPrev;
+
+  // Clone the live editor canvas-card into the presentation host on every slide change.
+  useEffect(() => {
+    const host = hostRef.current;
+    const source = canvasRef.current;
+    if (!host || !source) return;
+
+    const { width: naturalWidth, height: naturalHeight } = source.getBoundingClientRect();
+    const scale = Math.min(window.innerWidth / naturalWidth, window.innerHeight / naturalHeight);
+
+    const clone = source.cloneNode(true) as HTMLDivElement;
+    clone.style.cssText = `width:${naturalWidth}px;height:${naturalHeight}px;border:none;border-radius:0;position:static;transform:scale(${scale});transform-origin:center center;`;
+    host.innerHTML = "";
+    host.appendChild(clone);
+  }, [currentIndex, canvasRef]);
 
   useEffect(() => {
     void document.documentElement.requestFullscreen().catch(() => {});
@@ -60,23 +74,9 @@ export function PresentationMode({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  if (!slide) {
-    return null;
-  }
-
-  const layout: SlideLayout = slide.layout ?? "full-bleed";
-
   return (
     <div className="presentation-viewport" onClick={onNext}>
-      <div className="presentation-canvas">
-        <CanvasBody
-          editorMode="ai"
-          layout={layout}
-          onFocusField={() => {}}
-          onPatch={() => {}}
-          slide={slide}
-        />
-      </div>
+      <div ref={hostRef} className="presentation-canvas" />
     </div>
   );
 }

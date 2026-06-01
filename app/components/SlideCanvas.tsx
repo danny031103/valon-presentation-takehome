@@ -1,4 +1,5 @@
 import { type CSSProperties, useEffect, useRef } from "react";
+import type React from "react";
 
 import type { EditorMode, Slide, SlideFormatting, SlideLayout, SlideStatus } from "../hooks/useDeck";
 
@@ -64,6 +65,7 @@ type SlideCanvasProps = {
   onPatch: (patch: Partial<Slide>) => void;
   onRetry: () => void;
   onFocusField: (field: "title" | "body" | null) => void;
+  canvasRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 function SlideImage({ slide }: { slide: Slide }) {
@@ -315,7 +317,7 @@ export function SlideReadView({ slide }: { slide: Slide }) {
   }
 }
 
-export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField }: SlideCanvasProps) {
+export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField, canvasRef }: SlideCanvasProps) {
   const layout: SlideLayout = slide?.layout ?? "full-bleed";
   const showLayoutHint =
     !!slide?.imageData &&
@@ -324,7 +326,7 @@ export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField 
 
   return (
     <div className="canvas-wrap">
-      <div className={`canvas-card canvas-layout-${layout}`}>
+      <div ref={canvasRef} className={`canvas-card canvas-layout-${layout}`}>
         {slide ? <CanvasBody layout={layout} slide={slide} editorMode={editorMode} onPatch={onPatch} onFocusField={onFocusField} /> : null}
         {slide?.status === "working" ? (
           <div className="canvas-skeleton">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { EditorTopBar } from "./components/EditorTopBar";
 import { PresentationMode } from "./components/PresentationMode";
@@ -60,6 +60,7 @@ export default function Home() {
   const [focusedField, setFocusedField] = useState<"title" | "body" | null>(null);
   const [presenting, setPresenting] = useState(false);
   const [currentPresentationIndex, setCurrentPresentationIndex] = useState(0);
+  const canvasCardRef = useRef<HTMLDivElement>(null);
 
   function handlePresent() {
     const idx = slides.findIndex((s) => s.id === selectedSlide?.id);
@@ -68,27 +69,19 @@ export default function Home() {
   }
 
   function handlePresentationNext() {
-    setCurrentPresentationIndex((i) => Math.min(i + 1, slides.length - 1));
+    const next = Math.min(currentPresentationIndex + 1, slides.length - 1);
+    setCurrentPresentationIndex(next);
+    setSelectedId(slides[next]?.id ?? null);
   }
 
   function handlePresentationPrev() {
-    setCurrentPresentationIndex((i) => Math.max(i - 1, 0));
+    const prev = Math.max(currentPresentationIndex - 1, 0);
+    setCurrentPresentationIndex(prev);
+    setSelectedId(slides[prev]?.id ?? null);
   }
 
   function handlePresentationExit() {
     setPresenting(false);
-  }
-
-  if (presenting) {
-    return (
-      <PresentationMode
-        currentIndex={currentPresentationIndex}
-        onExit={handlePresentationExit}
-        onNext={handlePresentationNext}
-        onPrev={handlePresentationPrev}
-        slides={slides}
-      />
-    );
   }
 
   if (showNewDeckScreen) {
@@ -133,6 +126,7 @@ export default function Home() {
         />
 
         <SlideCanvas
+          canvasRef={canvasCardRef}
           slide={selectedSlide}
           editorMode={editorMode}
           onPatch={(patch) => selectedSlide && patchSlide(selectedSlide.id, patch)}
@@ -223,6 +217,16 @@ export default function Home() {
       )}
 
       <Onboarding />
+
+      {presenting && (
+        <PresentationMode
+          canvasRef={canvasCardRef}
+          currentIndex={currentPresentationIndex}
+          onExit={handlePresentationExit}
+          onNext={handlePresentationNext}
+          onPrev={handlePresentationPrev}
+        />
+      )}
     </main>
   );
 }
