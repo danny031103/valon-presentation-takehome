@@ -213,7 +213,7 @@ export default function Home() {
                 layout={selectedSlide?.layout ?? "full-bleed"}
                 onLayoutChange={(layout) => selectedSlide && patchSlide(selectedSlide.id, { layout })}
                 onUploadImage={handleEditUpload}
-                onRecropImage={selectedSlide?.imageData ? () => setCropSource(selectedSlide.imageData!) : undefined}
+                onRecropImage={selectedSlide?.imageData ? () => setCropSource(selectedSlide.originalImageData ?? selectedSlide.imageData!) : undefined}
                 hasImage={Boolean(selectedSlide?.imageData)}
               />
               <NotesPanel
@@ -241,7 +241,9 @@ export default function Home() {
         <CropModal
           src={cropSource}
           onApply={(dataUrl) => {
-            patchSlide(selectedSlide.id, { imageData: dataUrl, status: "done", feedback: "Image uploaded." });
+            const patch: Parameters<typeof patchSlide>[1] = { imageData: dataUrl, status: "done", feedback: "Image uploaded." };
+            if (!selectedSlide.originalImageData) patch.originalImageData = cropSource!;
+            patchSlide(selectedSlide.id, patch);
             setCropSource(null);
           }}
           onCancel={() => setCropSource(null)}

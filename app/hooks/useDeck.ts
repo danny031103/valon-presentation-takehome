@@ -28,6 +28,7 @@ export type Slide = {
   name: string;
   prompt: string;
   imageData?: string;
+  originalImageData?: string;
   status: SlideStatus;
   note: string;
   feedback?: string;
