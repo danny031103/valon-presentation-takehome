@@ -914,8 +914,115 @@ textarea:focus {
 }
 
 .prompt-card textarea {
-  flex: 1;
-  min-height: 0;
+  overflow-y: auto;
+  resize: none;
+}
+
+.prompt-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.prompt-label-row .field-label {
+  margin-bottom: 0;
+}
+
+.prompt-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  border-radius: var(--radius);
+  cursor: pointer;
+  padding: 0;
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.prompt-expand-btn:hover {
+  color: var(--foreground);
+  background: var(--surface-raised);
+}
+
+/* ---------- Prompt expand modal ---------- */
+
+.prompt-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.prompt-modal-card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.prompt-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prompt-modal-header .field-label {
+  margin-bottom: 0;
+}
+
+.prompt-modal-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.prompt-modal-close:hover {
+  color: var(--foreground);
+  background: var(--surface-raised);
+}
+
+.prompt-modal-textarea {
+  width: 100%;
+  min-height: 260px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  color: var(--foreground);
+  padding: 10px 12px;
+  outline: none;
+  resize: vertical;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: 1.6;
+  transition: border-color 120ms ease;
+}
+
+.prompt-modal-textarea:focus {
+  border-color: var(--brand);
 }
 
 .prompt-selects {
