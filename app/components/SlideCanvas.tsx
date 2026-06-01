@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { type CSSProperties, useEffect, useRef } from "react";
 
 import type { EditorMode, Slide, SlideFormatting, SlideLayout, SlideStatus } from "../hooks/useDeck";
 
@@ -80,6 +80,11 @@ function SlideImage({ slide }: { slide: Slide }) {
 
 // Editable text regions. Formatting (2c) is slide-wide, so a controlled
 // textarea per field is enough — no per-character rich text needed.
+function autoResize(el: HTMLTextAreaElement) {
+  el.style.height = "auto";
+  el.style.height = `${el.scrollHeight}px`;
+}
+
 function TitleField({
   value,
   style,
@@ -89,8 +94,11 @@ function TitleField({
   style: CSSProperties;
   onChange: (value: string) => void;
 }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => { if (ref.current) autoResize(ref.current); }, [value]);
   return (
     <textarea
+      ref={ref}
       aria-label="Slide title"
       className="layout-text-field layout-text-field-title"
       onChange={(event) => onChange(event.target.value)}
@@ -111,12 +119,16 @@ function BodyField({
   style: CSSProperties;
   onChange: (value: string) => void;
 }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => { if (ref.current) autoResize(ref.current); }, [value]);
   return (
     <textarea
+      ref={ref}
       aria-label="Slide body"
       className="layout-text-field"
       onChange={(event) => onChange(event.target.value)}
       placeholder="Body text"
+      rows={2}
       style={style}
       value={value}
     />
