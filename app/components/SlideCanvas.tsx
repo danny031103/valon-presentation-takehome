@@ -126,10 +126,12 @@ function BodyField({
 function CanvasBody({
   layout,
   slide,
+  editorMode,
   onPatch
 }: {
   layout: SlideLayout;
   slide: Slide;
+  editorMode: EditorMode;
   onPatch: (patch: Partial<Slide>) => void;
 }) {
   const style = formattingStyle(slide.formatting);
@@ -163,8 +165,28 @@ function CanvasBody({
         </div>
       );
     case "full-bleed":
-    default:
-      return <SlideImage slide={slide} />;
+    default: {
+      if (slide.imageData) {
+        return <img alt={slide.name} className="slide-image" src={slide.imageData} />;
+      }
+      const hasText = title.trim() || body.trim();
+      if (!hasText) return null;
+      return (
+        <div className="canvas-full-bleed-overlay">
+          {editorMode === "edit" ? (
+            <>
+              <TitleField value={title} style={style} onChange={(value) => onPatch({ title: value })} />
+              <BodyField value={body} style={style} onChange={(value) => onPatch({ body: value })} />
+            </>
+          ) : (
+            <>
+              {title ? <p className="canvas-overlay-title" style={style}>{title}</p> : null}
+              {body ? <p className="canvas-overlay-body" style={style}>{body}</p> : null}
+            </>
+          )}
+        </div>
+      );
+    }
   }
 }
 
@@ -174,7 +196,7 @@ export function SlideCanvas({ slide, editorMode, onPatch, onRetry }: SlideCanvas
   return (
     <div className="canvas-wrap">
       <div className={`canvas-card canvas-layout-${layout}`}>
-        {slide ? <CanvasBody layout={layout} slide={slide} onPatch={onPatch} /> : null}
+        {slide ? <CanvasBody layout={layout} slide={slide} editorMode={editorMode} onPatch={onPatch} /> : null}
         {slide?.status === "working" ? (
           <div className="canvas-skeleton">
             <p className="skeleton-hint">Generating image — usually 10–20s</p>

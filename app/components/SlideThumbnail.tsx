@@ -11,8 +11,15 @@ const FONT_SIZE_CQW: Record<NonNullable<SlideFormatting["fontSize"]>, string> = 
   XL: "10cqw"
 };
 
-// Mini preview of a slide that has no AI image yet: render its actual title/body
-// text with the slide's formatting, so the sidebar shows what's on the slide.
+function thumbTextStyle(formatting: SlideFormatting | undefined): CSSProperties {
+  return {
+    fontWeight: formatting?.bold ? 700 : undefined,
+    fontStyle: formatting?.italic ? "italic" : undefined,
+    color: formatting?.color || undefined,
+    textAlign: formatting?.align || undefined
+  };
+}
+
 function ThumbPreview({ slide }: { slide: Slide }) {
   const formatting = slide.formatting;
   const title = slide.title?.trim() ?? "";
@@ -22,13 +29,7 @@ function ThumbPreview({ slide }: { slide: Slide }) {
     return <div aria-hidden className="thumb-preview thumb-preview-empty" />;
   }
 
-  const shared: CSSProperties = {
-    fontWeight: formatting?.bold ? 700 : undefined,
-    fontStyle: formatting?.italic ? "italic" : undefined,
-    color: formatting?.color || undefined,
-    textAlign: formatting?.align || undefined
-  };
-  // A slide-wide font size, when set, overrides both title and body (matches canvas).
+  const shared = thumbTextStyle(formatting);
   const override = formatting?.fontSize ? FONT_SIZE_CQW[formatting.fontSize] : undefined;
 
   return (
@@ -45,6 +46,63 @@ function ThumbPreview({ slide }: { slide: Slide }) {
       ) : null}
     </div>
   );
+}
+
+// Centered title-only preview for the "title" layout.
+function ThumbPreviewTitleOnly({ slide }: { slide: Slide }) {
+  const title = slide.title?.trim() ?? "";
+  if (!title) return null;
+
+  const formatting = slide.formatting;
+  const override = formatting?.fontSize ? FONT_SIZE_CQW[formatting.fontSize] : undefined;
+  const style: CSSProperties = {
+    ...thumbTextStyle(formatting),
+    textAlign: formatting?.align || "center",
+    fontSize: override ?? "7cqw"
+  };
+
+  return (
+    <div className="thumb-preview thumb-preview-centered">
+      <p className="thumb-preview-title" style={style}>
+        {title}
+      </p>
+    </div>
+  );
+}
+
+// Renders the interior of the thumbnail art box according to the slide layout,
+// mirroring what SlideCanvas shows for each layout.
+function ThumbArt({ slide }: { slide: Slide }) {
+  const layout = slide.layout ?? "full-bleed";
+
+  switch (layout) {
+    case "full-bleed":
+      if (slide.imageData) {
+        return <img alt={slide.name || "Slide image"} src={slide.imageData} />;
+      }
+      // No image, no text overlay — clean blank.
+      return null;
+
+    case "image-text":
+      return (
+        <div className="thumb-image-text">
+          <div className="thumb-image-pane">
+            {slide.imageData ? (
+              <img alt={slide.name || "Slide image"} src={slide.imageData} />
+            ) : null}
+          </div>
+          <div className="thumb-text-pane">
+            <ThumbPreview slide={slide} />
+          </div>
+        </div>
+      );
+
+    case "text-only":
+      return <ThumbPreview slide={slide} />;
+
+    case "title":
+      return <ThumbPreviewTitleOnly slide={slide} />;
+  }
 }
 
 type SlideThumbnailProps = {
@@ -89,18 +147,7 @@ export function SlideThumbnail({
         type="button"
       >
         <div className="thumb-art">
-          {slide.imageData ? (
-            <>
-              <img alt={slide.name || "Slide image"} src={slide.imageData} />
-              {(slide.title?.trim() || slide.body?.trim()) && (
-                <div className="thumb-art-overlay">
-                  <ThumbPreview slide={slide} />
-                </div>
-              )}
-            </>
-          ) : (
-            <ThumbPreview slide={slide} />
-          )}
+          <ThumbArt slide={slide} />
         </div>
         <div className="thumb-copy">
           <strong>
