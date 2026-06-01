@@ -39,6 +39,9 @@ export type Slide = {
   body?: string;
   generatedForLayout?: SlideLayout;
   imageDescription?: string;
+  regenerationCount?: number;
+  promptHistory?: PromptHistoryEntry[];
+  userRating?: "up" | "down" | null;
 };
 
 export type DeckContext = {
@@ -58,6 +61,13 @@ export type DeckPlanSlide = {
 export type DeckPlan = {
   deckTitle: string;
   slides: DeckPlanSlide[];
+};
+
+export type PromptHistoryEntry = {
+  prompt: string;
+  imageData: string;
+  timestamp: number;
+  kept: boolean;
 };
 
 export type SlideReview = {
@@ -253,7 +263,8 @@ export function useDeck() {
       pushHistory();
       lastEditKeyRef.current = editKey;
     }
-    applyPatch(id, patch);
+    const applied: Partial<Slide> = "prompt" in patch ? { ...patch, regenerationCount: 0 } : patch;
+    applyPatch(id, applied);
   }
 
   function reorderSlides(from: number, to: number) {
@@ -531,7 +542,7 @@ export function useDeck() {
     setMessage("Slide duplicated.");
   }
 
-  async function generateSlide(mode: "fresh" | "again", referenceImage?: string) {
+  async function generateSlide(_mode: "fresh" | "again", referenceImage?: string) {
     if (!selectedSlide) {
       return;
     }
@@ -541,6 +552,21 @@ export function useDeck() {
       applyPatch(selectedSlide.id, { status: "error", feedback: "No prompt yet." });
       return;
     }
+
+    const count = selectedSlide.regenerationCount ?? 0;
+    let modifier = "";
+    if (count === 1) {
+      modifier = "Try a noticeably different composition from the last version.";
+    } else if (count === 2) {
+      modifier =
+        "The previous two attempts were not satisfactory. Try a completely different visual style, angle, and composition. Be more creative and unexpected.";
+    } else if (count >= 3) {
+      modifier =
+        "Multiple attempts have not worked. Dramatically reimagine this prompt. Try abstract, minimal, or conceptual interpretations.";
+    }
+    const effectivePrompt = modifier
+      ? `${selectedSlide.prompt}\n\n${modifier}`
+      : selectedSlide.prompt;
 
     applyPatch(selectedSlide.id, {
       status: "working",
@@ -554,10 +580,7 @@ export function useDeck() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        prompt:
-          mode === "again"
-            ? `${selectedSlide.prompt}\n\nTry a noticeably different composition from the last version.`
-            : selectedSlide.prompt,
+        prompt: effectivePrompt,
         style: imageStyle,
         model: imageModel || undefined,
         context: context?.text ?? undefined,
@@ -581,12 +604,27 @@ export function useDeck() {
       return;
     }
 
+    const prevHistory: PromptHistoryEntry[] = selectedSlide.promptHistory ?? [];
+    const prevEntry: PromptHistoryEntry | null = selectedSlide.imageData
+      ? {
+          prompt: selectedSlide.prompt,
+          imageData: selectedSlide.imageData,
+          timestamp: Date.now(),
+          kept: false
+        }
+      : null;
+    const nextHistory = prevEntry
+      ? [prevEntry, ...prevHistory].slice(0, 5)
+      : prevHistory;
+
     applyPatch(selectedSlide.id, {
       imageData: payload.imageData,
       status: "done",
       feedback: payload.text || "Done.",
       generatedForLayout: selectedSlide.layout,
-      imageDescription: payload.text || undefined
+      imageDescription: payload.text || undefined,
+      regenerationCount: count + 1,
+      promptHistory: nextHistory
     });
     setMessage("Image added to slide.");
   }
@@ -763,7 +801,8 @@ export function useDeck() {
           prompt: s.prompt,
           note: s.note,
           layout: s.layout,
-          imageDescription: s.imageDescription
+          imageDescription: s.imageDescription,
+          userRating: s.userRating ?? null
         }))
       })
     });

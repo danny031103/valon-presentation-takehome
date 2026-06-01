@@ -149,6 +149,8 @@ export function SlideThumbnail({
       >
         <div className="thumb-art">
           <ThumbArt slide={slide} />
+          {slide.userRating === "up" && <span aria-hidden className="thumb-rating-dot up" />}
+          {slide.userRating === "down" && <span aria-hidden className="thumb-rating-dot down" />}
         </div>
         <div className="thumb-copy">
           <strong>

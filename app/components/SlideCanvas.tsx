@@ -66,6 +66,8 @@ type SlideCanvasProps = {
   onRetry: () => void;
   onFocusField: (field: "title" | "body" | null) => void;
   canvasRef?: React.RefObject<HTMLDivElement | null>;
+  userRating?: "up" | "down" | null;
+  onRating?: (rating: "up" | "down" | null) => void;
 };
 
 function SlideImage({ slide }: { slide: Slide }) {
@@ -317,7 +319,7 @@ export function SlideReadView({ slide }: { slide: Slide }) {
   }
 }
 
-export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField, canvasRef }: SlideCanvasProps) {
+export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField, canvasRef, userRating, onRating }: SlideCanvasProps) {
   const layout: SlideLayout = slide?.layout ?? "full-bleed";
   const showLayoutHint =
     !!slide?.imageData &&
@@ -352,6 +354,34 @@ export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField,
           );
         })() : null}
       </div>
+      {slide?.imageData && editorMode === "ai" && onRating ? (
+        <div className="canvas-rating">
+          <button
+            aria-label="Thumbs up"
+            className={`canvas-rating-btn${userRating === "up" ? " active-up" : ""}`}
+            onClick={() => onRating(userRating === "up" ? null : "up")}
+            title="Good image"
+            type="button"
+          >
+            <svg fill="none" height="14" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" viewBox="0 0 24 24" width="14">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+              <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+            </svg>
+          </button>
+          <button
+            aria-label="Thumbs down"
+            className={`canvas-rating-btn${userRating === "down" ? " active-down" : ""}`}
+            onClick={() => onRating(userRating === "down" ? null : "down")}
+            title="Needs work"
+            type="button"
+          >
+            <svg fill="none" height="14" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" viewBox="0 0 24 24" width="14">
+              <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z" />
+              <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
+            </svg>
+          </button>
+        </div>
+      ) : null}
       {showLayoutHint ? (
         <p className="canvas-layout-hint">
           Image was generated for a different layout — regenerate for best results.

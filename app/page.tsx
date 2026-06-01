@@ -160,6 +160,8 @@ export default function Home() {
           onPatch={(patch) => selectedSlide && patchSlide(selectedSlide.id, patch)}
           onRetry={() => generateSlide("fresh")}
           onFocusField={setFocusedField}
+          userRating={selectedSlide?.userRating}
+          onRating={(rating) => selectedSlide && patchSlide(selectedSlide.id, { userRating: rating })}
         />
 
         <div className="bottom-panel">
@@ -174,6 +176,17 @@ export default function Home() {
                 onStyleChange={setImageStyle}
                 imageModel={imageModel}
                 onModelChange={setImageModel}
+                deckTitle={deckTitle}
+                slideTitle={selectedSlide?.name}
+                promptHistory={selectedSlide?.promptHistory}
+                onRestoreHistory={(entry) =>
+                  selectedSlide &&
+                  patchSlide(selectedSlide.id, {
+                    imageData: entry.imageData,
+                    prompt: entry.prompt,
+                    status: "done"
+                  })
+                }
               />
 
               <div className="side-controls">

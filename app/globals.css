@@ -944,9 +944,14 @@ textarea:focus {
   transition: color 120ms ease, background 120ms ease;
 }
 
-.prompt-expand-btn:hover {
+.prompt-expand-btn:hover:not(:disabled) {
   color: var(--foreground);
   background: var(--surface-raised);
+}
+
+.prompt-expand-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
 }
 
 /* ---------- Prompt expand modal ---------- */
@@ -2548,4 +2553,157 @@ input.deck-builder-select.field-error {
   line-height: 1.45;
   color: var(--brand);
   font-style: italic;
+}
+
+.prompt-undo-enhance {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--foreground);
+  opacity: 0.5;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 120ms ease;
+}
+
+.prompt-undo-enhance:hover {
+  opacity: 1;
+}
+
+/* ---------- Prompt history ---------- */
+
+.prompt-history {
+  margin-top: 10px;
+}
+
+.prompt-history-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  font-size: 0.78rem;
+  color: var(--foreground);
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 120ms ease;
+}
+
+.prompt-history-toggle:hover {
+  opacity: 1;
+}
+
+.prompt-history-chevron {
+  font-size: 0.55rem;
+}
+
+.prompt-history-strip {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.prompt-history-thumb {
+  position: relative;
+  width: 64px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 0.35rem);
+  background: var(--surface-raised);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 120ms ease;
+}
+
+.prompt-history-thumb:hover {
+  border-color: var(--brand);
+}
+
+.prompt-history-thumb img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.prompt-history-time {
+  font-size: 0.55rem;
+  color: var(--foreground);
+  opacity: 0.6;
+  background: var(--surface);
+  text-align: center;
+  padding: 2px 3px;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Slide rating ---------- */
+
+.canvas-rating {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  gap: 4px;
+  z-index: 1;
+}
+
+.canvas-rating-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 0.25rem);
+  background: var(--surface);
+  font-size: 0.8rem;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity 120ms ease, border-color 120ms ease, background-color 120ms ease;
+}
+
+.canvas-rating-btn:hover {
+  opacity: 1;
+  border-color: var(--brand-soft);
+}
+
+.canvas-rating-btn.active-up {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
+  opacity: 1;
+}
+
+.canvas-rating-btn.active-down {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  opacity: 1;
+}
+
+.thumb-rating-dot {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.thumb-rating-dot.up {
+  background: var(--success);
+}
+
+.thumb-rating-dot.down {
+  background: var(--danger);
 }
