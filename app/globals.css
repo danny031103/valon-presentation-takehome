@@ -2069,51 +2069,76 @@ input.deck-builder-select.field-error {
 }
 
 .crop-grid-h {
-  left: 0;
-  right: 0;
   height: 1px;
 }
 
 .crop-grid-v {
-  top: 0;
-  bottom: 0;
   width: 1px;
 }
 
-/* Corner handles — always visible, indicate the crop boundary */
+/* Corner handles — positioned dynamically at crop rect corners via inline style */
 .crop-corner {
   position: absolute;
   width: 16px;
   height: 16px;
-  pointer-events: none;
+  z-index: 2;
 }
 
 .crop-corner--tl {
-  top: 8px;
-  left: 8px;
   border-top: 2px solid rgba(255, 255, 255, 0.85);
   border-left: 2px solid rgba(255, 255, 255, 0.85);
 }
 
 .crop-corner--tr {
-  top: 8px;
-  right: 8px;
   border-top: 2px solid rgba(255, 255, 255, 0.85);
   border-right: 2px solid rgba(255, 255, 255, 0.85);
 }
 
 .crop-corner--bl {
-  bottom: 8px;
-  left: 8px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.85);
   border-left: 2px solid rgba(255, 255, 255, 0.85);
 }
 
 .crop-corner--br {
-  bottom: 8px;
-  right: 8px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.85);
   border-right: 2px solid rgba(255, 255, 255, 0.85);
+}
+
+/* Mask — covers the area outside the crop rect */
+.crop-mask {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+/* Ratio toggle — shown for portrait images */
+.crop-ratio-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.crop-ratio-btn {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 0.78rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 0.35rem);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.crop-ratio-btn:hover {
+  border-color: var(--brand-soft);
+}
+
+.crop-ratio-btn.active {
+  background: var(--surface-raised);
+  border-color: var(--brand);
+  font-weight: 500;
 }
 
 /* ---------- Presentation mode ---------- */
