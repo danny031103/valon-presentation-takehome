@@ -5,17 +5,20 @@ const DEFAULT_MODEL = "gemini-3-pro-image-preview";
 
 const STYLE_FRAGMENTS: Record<string, string> = {
   professional:
-    "Create a clean, modern, corporate presentation image. Use a clear composition, professional color palette, and minimal decorative elements. Polished and restrained.",
+    "Professional corporate presentation image. Clean composition, authoritative color palette, modern aesthetic. Sharp focus, high production value. No text overlaid. No watermarks. No stock photo clichés. No cheesy business handshakes or generic office scenes.",
   minimal:
-    "Create a stark, minimal image. Monochromatic or very limited palette. Generous negative space. No decorative elements. Austere and precise.",
+    "Stark minimalist image. Monochromatic or extremely limited palette. Maximum negative space. Single clear focal point. Architectural or abstract feel. No clutter, no decorative elements, no text. Museum-quality simplicity.",
   editorial:
-    "Create a magazine-quality editorial image. Dramatic lighting, bold composition, high visual impact. Photography or design-forward aesthetic.",
+    "High-end editorial magazine photography. Dramatic lighting, bold composition, cinematic quality. Could appear in Bloomberg Businessweek or Wired. High contrast, dynamic angle. No text overlaid. No watermarks. No amateur composition.",
   illustrative:
-    "Create a hand-crafted illustration. Artistic, colorful, distinctive visual language. Not photorealistic — clearly illustrated.",
+    "Premium digital illustration. Distinctive artistic style, rich colors, hand-crafted feel. Could appear in a top-tier design publication. Not photorealistic. No AI artifacts. No generic clipart aesthetic.",
   photographic:
-    "Create a photorealistic image with natural lighting and high-quality photography aesthetics. Realistic and grounded.",
+    "Award-winning photography. Natural lighting, precise composition, shallow depth of field where appropriate. Could appear in National Geographic or a premium brand campaign. Hyper-realistic, sharp detail. No text overlaid. No watermarks. No stock photo feel.",
   none: ""
 };
+
+const QUALITY_SUFFIX =
+  "High resolution. Sharp focus. Professional presentation quality. No text, words, or typography embedded in the image unless explicitly requested in the prompt.";
 
 export async function POST(request: Request) {
   try {
@@ -51,7 +54,7 @@ export async function POST(request: Request) {
       body.layout === "image-text"
         ? "Compose this image for the left half of a presentation slide. Use a vertically-oriented composition. Keep the main subject left or center-left. The right portion of the scene should be less busy, as text will appear beside this image on the right side of the slide."
         : null;
-    const effectivePrompt = [prompt, fragment || null, imageTextComposition, contextNote]
+    const effectivePrompt = [prompt, fragment || null, imageTextComposition, contextNote, QUALITY_SUFFIX]
       .filter(Boolean)
       .join("\n\n");
     const resolvedModel = body.model || process.env.GOOGLE_IMAGE_MODEL || DEFAULT_MODEL;
