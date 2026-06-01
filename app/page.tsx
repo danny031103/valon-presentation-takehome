@@ -4,6 +4,8 @@ import { useRef, useState } from "react";
 
 import { CropModal } from "./components/CropModal";
 import { EditorTopBar } from "./components/EditorTopBar";
+import { ReviewPanel } from "./components/ReviewPanel";
+import type { ReviewState } from "./components/ReviewPanel";
 import { PresentationMode } from "./components/PresentationMode";
 import { GenerationProgress } from "./components/GenerationProgress";
 import { NewDeckScreen } from "./components/NewDeckScreen";
@@ -55,10 +57,12 @@ export default function Home() {
     importImage,
     exportDeck,
     exportJson,
-    importJson
+    importJson,
+    reviewDeck
   } = useDeck();
 
   const [focusedField, setFocusedField] = useState<"title" | "body" | null>(null);
+  const [review, setReview] = useState<ReviewState | null>(null);
   const [referenceImageUrl, setReferenceImageUrl] = useState<string | null>(null);
   const [cropSource, setCropSource] = useState<string | null>(null);
   const [presenting, setPresenting] = useState(false);
@@ -73,6 +77,16 @@ export default function Home() {
       if (dataUrl) setCropSource(dataUrl);
     };
     reader.readAsDataURL(file);
+  }
+
+  async function handleReview() {
+    setReview({ loading: true });
+    try {
+      const data = await reviewDeck();
+      setReview({ loading: false, data });
+    } catch (err) {
+      setReview({ loading: false, error: err instanceof Error ? err.message : "Review failed." });
+    }
   }
 
   function handlePresent() {
@@ -136,6 +150,7 @@ export default function Home() {
           onNewDeck={triggerNewDeck}
           onStartOver={startOver}
           onPresent={handlePresent}
+          onReview={() => { void handleReview(); }}
         />
 
         <SlideCanvas
@@ -248,6 +263,10 @@ export default function Home() {
           }}
           onCancel={() => setCropSource(null)}
         />
+      )}
+
+      {review && (
+        <ReviewPanel state={review} onClose={() => setReview(null)} />
       )}
 
       {presenting && (

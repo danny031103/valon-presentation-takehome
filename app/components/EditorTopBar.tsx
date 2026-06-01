@@ -36,6 +36,7 @@ type EditorTopBarProps = {
   onNewDeck: () => void;
   onStartOver: () => void;
   onPresent: () => void;
+  onReview: () => void;
 };
 
 export function EditorTopBar({
@@ -52,6 +53,7 @@ export function EditorTopBar({
   onNewDeck,
   onStartOver,
   onPresent,
+  onReview,
 }: EditorTopBarProps) {
   const [naming, setNaming] = useState(false);
   const [overflowOpen, setOverflowOpen] = useState(false);
@@ -174,6 +176,13 @@ export function EditorTopBar({
                 type="button"
               >
                 New deck
+              </button>
+              <button
+                className="overflow-item"
+                onClick={() => { onReview(); setOverflowOpen(false); }}
+                type="button"
+              >
+                Review my deck
               </button>
               <div className="overflow-divider" />
               <button

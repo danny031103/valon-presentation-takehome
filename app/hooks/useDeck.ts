@@ -38,6 +38,7 @@ export type Slide = {
   title?: string;
   body?: string;
   generatedForLayout?: SlideLayout;
+  imageDescription?: string;
 };
 
 export type DeckContext = {
@@ -57,6 +58,23 @@ export type DeckPlanSlide = {
 export type DeckPlan = {
   deckTitle: string;
   slides: DeckPlanSlide[];
+};
+
+export type SlideReview = {
+  index: number;
+  name: string;
+  rating: "good" | "okay" | "weak";
+  feedback: string;
+  suggestion: string | null;
+};
+
+export type DeckReview = {
+  overall: string;
+  score: number;
+  strengths: string[];
+  improvements: string[];
+  visualCohesion?: string;
+  slideReviews: SlideReview[];
 };
 
 const STORAGE_KEY = "valon-presentation-takehome-v2";
@@ -423,7 +441,8 @@ export function useDeck() {
             imageData: payload.imageData,
             status: "done",
             feedback: payload.text || "Done.",
-            generatedForLayout: slide.layout
+            generatedForLayout: slide.layout,
+            imageDescription: payload.text || undefined
           });
         }
       } catch {
@@ -566,7 +585,8 @@ export function useDeck() {
       imageData: payload.imageData,
       status: "done",
       feedback: payload.text || "Done.",
-      generatedForLayout: selectedSlide.layout
+      generatedForLayout: selectedSlide.layout,
+      imageDescription: payload.text || undefined
     });
     setMessage("Image added to slide.");
   }
@@ -730,6 +750,30 @@ export function useDeck() {
     }
   }
 
+  async function reviewDeck(): Promise<DeckReview> {
+    const response = await fetch("/api/review", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        deckTitle,
+        slides: slides.map((s) => ({
+          name: s.name,
+          title: s.title,
+          body: s.body,
+          prompt: s.prompt,
+          note: s.note,
+          layout: s.layout,
+          imageDescription: s.imageDescription
+        }))
+      })
+    });
+    const data = (await response.json()) as { review?: DeckReview; error?: string };
+    if (!response.ok || !data.review) {
+      throw new Error(data.error ?? "Review failed.");
+    }
+    return data.review;
+  }
+
   return {
     slides,
     selectedId,
@@ -769,6 +813,7 @@ export function useDeck() {
     exportDeck,
     exportJson,
     importJson,
-    startOver
+    startOver,
+    reviewDeck
   };
 }
