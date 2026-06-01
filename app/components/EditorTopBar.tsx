@@ -182,7 +182,7 @@ export function EditorTopBar({
                 onClick={() => { onReview(); setOverflowOpen(false); }}
                 type="button"
               >
-                Review my deck
+                AI Deck Review
               </button>
               <div className="overflow-divider" />
               <button
