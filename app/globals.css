@@ -1456,7 +1456,8 @@ textarea:focus {
   min-height: 96px;
 }
 
-.deck-builder-textarea.field-error {
+.deck-builder-textarea.field-error,
+input.deck-builder-select.field-error {
   border-color: var(--danger);
 }
 
@@ -1483,35 +1484,12 @@ textarea:focus {
   color: var(--danger);
 }
 
-/* Slide count selector — four-button pill */
-.slide-count-selector {
-  display: inline-flex;
-  padding: 2px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface-raised);
-}
-
-.slide-count-selector.field-error-border {
-  border-color: var(--danger);
-}
-
-.slide-count-selector button {
-  height: 32px;
-  width: 48px;
-  border: 0;
-  border-radius: calc(var(--radius) - 0.25rem);
-  background: transparent;
+.deck-builder-count-hint {
+  margin: 0;
+  font-size: 0.78rem;
   color: var(--foreground);
-  font-size: 0.875rem;
-  opacity: 0.6;
-  transition: background-color 120ms ease, opacity 120ms ease;
-}
-
-.slide-count-selector button.active {
-  background: var(--background);
-  opacity: 1;
-  font-weight: 600;
+  opacity: 0.5;
+  line-height: 1.4;
 }
 
 /* Context upload inside DeckBuilder */

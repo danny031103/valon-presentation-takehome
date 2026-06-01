@@ -5,8 +5,6 @@ import type { DeckPlan, ImageStyle } from "../hooks/useDeck";
 import type { ExtractedContext } from "../hooks/useDocumentExtract";
 import { useDocumentExtract } from "../hooks/useDocumentExtract";
 
-const SLIDE_COUNTS = [3, 5, 7, 10] as const;
-
 const PURPOSE_OPTIONS = [
   "Sales pitch",
   "Internal update",
@@ -73,7 +71,7 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
 
   // Step 4
   const [brief, setBrief] = useState("");
-  const [slideCount, setSlideCount] = useState<number | null>(null);
+  const [slideCount, setSlideCount] = useState<number>(5);
   const [context, setContext] = useState<ExtractedContext | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [errors, setErrors] = useState<{ brief?: string; slideCount?: string }>({});
@@ -126,7 +124,7 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
   function validate(): boolean {
     const next: typeof errors = {};
     if (!brief.trim()) next.brief = "A brief is required.";
-    if (!slideCount) next.slideCount = "Select a slide count.";
+    if (!slideCount || slideCount < 1) next.slideCount = "Enter at least 1 slide.";
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -146,7 +144,7 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
           purpose: resolvedPurpose(),
           audience: audience ?? "",
           brief: brief.trim(),
-          slideCount: slideCount!,
+          slideCount,
           style,
           context: context?.text ?? undefined,
         }),
@@ -419,30 +417,43 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
 
               {/* Slide count */}
               <div className="deck-builder-field">
-                <label className="deck-builder-label">Number of slides</label>
-                <div className={`slide-count-selector${errors.slideCount ? " field-error-border" : ""}`}>
-                  {SLIDE_COUNTS.map((n) => (
-                    <button
-                      className={slideCount === n ? "active" : ""}
-                      key={n}
-                      onClick={() => {
-                        setSlideCount(n);
-                        if (errors.slideCount) setErrors((prev) => ({ ...prev, slideCount: undefined }));
-                      }}
-                      type="button"
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
+                <label className="deck-builder-label" htmlFor="deck-slide-count">Number of slides</label>
+                <input
+                  className={`deck-builder-select${errors.slideCount ? " field-error" : ""}`}
+                  id="deck-slide-count"
+                  min={1}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setSlideCount(isNaN(val) ? 0 : val);
+                    if (errors.slideCount) setErrors((prev) => ({ ...prev, slideCount: undefined }));
+                  }}
+                  style={{ width: "100px" }}
+                  type="number"
+                  value={slideCount || ""}
+                />
                 {errors.slideCount && (
                   <p className="deck-builder-field-error">{errors.slideCount}</p>
+                )}
+                {slideCount >= 50 && (
+                  <p className="deck-builder-field-error">
+                    Sorry, too expensive! Keep it under 50 slides.
+                  </p>
+                )}
+                {slideCount >= 21 && slideCount <= 49 && (
+                  <p className="deck-builder-count-hint">
+                    This will take a while — each slide generates sequentially. Consider starting with fewer slides and adding more later.
+                  </p>
+                )}
+                {slideCount >= 11 && slideCount <= 20 && (
+                  <p className="deck-builder-count-hint">
+                    This may take a few minutes to generate.
+                  </p>
                 )}
               </div>
 
               <button
                 className="loud-button deck-builder-submit"
-                disabled={planning}
+                disabled={planning || slideCount > 49}
                 type="submit"
               >
                 {planning ? "Planning…" : "Generate deck"}
