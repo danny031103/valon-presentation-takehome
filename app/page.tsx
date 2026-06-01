@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 
+import { CropModal } from "./components/CropModal";
 import { EditorTopBar } from "./components/EditorTopBar";
 import { PresentationMode } from "./components/PresentationMode";
 import { GenerationProgress } from "./components/GenerationProgress";
@@ -59,9 +60,20 @@ export default function Home() {
 
   const [focusedField, setFocusedField] = useState<"title" | "body" | null>(null);
   const [referenceImageUrl, setReferenceImageUrl] = useState<string | null>(null);
+  const [cropSource, setCropSource] = useState<string | null>(null);
   const [presenting, setPresenting] = useState(false);
   const [currentPresentationIndex, setCurrentPresentationIndex] = useState(0);
   const canvasCardRef = useRef<HTMLDivElement>(null);
+
+  function handleEditUpload(file: File) {
+    if (!file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === "string" ? reader.result : null;
+      if (dataUrl) setCropSource(dataUrl);
+    };
+    reader.readAsDataURL(file);
+  }
 
   function handlePresent() {
     const idx = slides.findIndex((s) => s.id === selectedSlide?.id);
@@ -200,7 +212,7 @@ export default function Home() {
                 canRedo={canRedo}
                 layout={selectedSlide?.layout ?? "full-bleed"}
                 onLayoutChange={(layout) => selectedSlide && patchSlide(selectedSlide.id, { layout })}
-                onUploadImage={importImage}
+                onUploadImage={handleEditUpload}
                 hasImage={Boolean(selectedSlide?.imageData)}
               />
               <NotesPanel
@@ -223,6 +235,17 @@ export default function Home() {
       )}
 
       <Onboarding />
+
+      {cropSource && selectedSlide && (
+        <CropModal
+          src={cropSource}
+          onApply={(dataUrl) => {
+            patchSlide(selectedSlide.id, { imageData: dataUrl, status: "done", feedback: "Image uploaded." });
+            setCropSource(null);
+          }}
+          onCancel={() => setCropSource(null)}
+        />
+      )}
 
       {presenting && (
         <PresentationMode

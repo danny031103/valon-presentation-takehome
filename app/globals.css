@@ -1994,6 +1994,128 @@ input.deck-builder-select.field-error {
   margin-left: auto;
 }
 
+/* ---------- Crop modal ---------- */
+
+.crop-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.crop-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 90vw;
+}
+
+.crop-frame {
+  width: min(80vw, 840px);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  position: relative;
+  border-radius: calc(var(--radius) - 0.25rem);
+  border: 1px solid var(--border);
+  background: #111;
+  touch-action: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 0 28px rgba(0, 0, 0, 0.3);
+}
+
+.crop-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--foreground);
+  opacity: 0.5;
+  text-align: center;
+}
+
+.crop-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  color: var(--foreground);
+  opacity: 0.5;
+}
+
+.crop-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Rule-of-thirds grid — shown while dragging */
+.crop-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.crop-grid-h,
+.crop-grid-v {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+}
+
+.crop-grid-h {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.crop-grid-v {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+/* Corner handles — always visible, indicate the crop boundary */
+.crop-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+.crop-corner--tl {
+  top: 8px;
+  left: 8px;
+  border-top: 2px solid rgba(255, 255, 255, 0.85);
+  border-left: 2px solid rgba(255, 255, 255, 0.85);
+}
+
+.crop-corner--tr {
+  top: 8px;
+  right: 8px;
+  border-top: 2px solid rgba(255, 255, 255, 0.85);
+  border-right: 2px solid rgba(255, 255, 255, 0.85);
+}
+
+.crop-corner--bl {
+  bottom: 8px;
+  left: 8px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.85);
+  border-left: 2px solid rgba(255, 255, 255, 0.85);
+}
+
+.crop-corner--br {
+  bottom: 8px;
+  right: 8px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.85);
+  border-right: 2px solid rgba(255, 255, 255, 0.85);
+}
+
 /* ---------- Presentation mode ---------- */
 
 .presentation-viewport {
