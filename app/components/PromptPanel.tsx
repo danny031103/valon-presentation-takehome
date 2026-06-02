@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ImageStyle, PromptHistoryEntry } from "../hooks/useDeck";
 import { getPreferences } from "../hooks/useLearning";
 import { UploadImageButton } from "./UploadImageButton";
@@ -102,7 +102,10 @@ export function PromptPanel({
   }
 
   const hasHistory = (promptHistory?.length ?? 0) > 0;
-  const hasPreferences = getPreferences() !== null;
+  const [hasPreferences, setHasPreferences] = useState(false);
+  useEffect(() => {
+    setHasPreferences(getPreferences() !== null);
+  }, []);
 
   return (
     <>
