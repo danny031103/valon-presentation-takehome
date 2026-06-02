@@ -1421,8 +1421,6 @@ textarea:focus {
   position: relative;
   width: 100%;
   max-width: 760px;
-  max-height: 90vh;
-  overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);

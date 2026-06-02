@@ -22,6 +22,21 @@ const TIPS = [
     heading: "Edit and Generate are separate modes",
     body: "Toggle in the top bar — Edit for text and layout, Generate for AI image prompts. Use both on the same slide.",
   },
+  {
+    num: "04",
+    heading: "Review your deck",
+    body: "Use 'Review my deck' in the ••• menu to get feedback on your narrative, slide structure, and visual cohesion — powered by Claude.",
+  },
+  {
+    num: "05",
+    heading: "Enhance your prompts",
+    body: "Hit the wand button next to the prompt field in Generate mode. AI rewrites your rough idea into a specific scene description producing better images.",
+  },
+  {
+    num: "06",
+    heading: "Rate to personalize",
+    body: "Thumbs up images you like, thumbs down ones you don't. The app learns your preferences and improves future generations.",
+  },
 ];
 
 export function Onboarding() {
@@ -77,7 +92,9 @@ export function Onboarding() {
 
         <div className="onboarding-footer">
           <button className="loud-button" onClick={dismiss} type="button">
-            Got it
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 9 7 13 15 5" />
+            </svg>
           </button>
         </div>
       </div>

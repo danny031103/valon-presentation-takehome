@@ -461,7 +461,7 @@ export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField,
             <p className="skeleton-hint">Generating image — usually 10–20s</p>
           </div>
         ) : null}
-        {slide?.status === "error" ? (() => {
+        {slide?.status === "error" && ["full-bleed", "image-text", "text-image", "image-top", "image-bottom"].includes(slide.layout ?? "") ? (() => {
           const kind = getErrorKind(slide.feedback ?? "");
           const copy = ERROR_COPY[kind];
           return (

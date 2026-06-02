@@ -433,6 +433,11 @@ export function useDeck() {
 
       const slide = newSlides[i];
       setGenerationProgress({ current: i + 1, total: newSlides.length });
+      if (slide.layout === "big-quote" || slide.layout === "text-only" || !slide.prompt?.trim()) {
+        applyPatch(slide.id, { status: "done" });
+        continue;
+      }
+
       applyPatch(slide.id, { status: "working" });
 
       try {
@@ -555,6 +560,11 @@ export function useDeck() {
 
   async function generateSlide(_mode: "fresh" | "again", referenceImage?: string) {
     if (!selectedSlide) {
+      return;
+    }
+
+    if (selectedSlide.layout === "big-quote" || selectedSlide.layout === "text-only") {
+      setMessage("This layout doesn't use an image.");
       return;
     }
 
