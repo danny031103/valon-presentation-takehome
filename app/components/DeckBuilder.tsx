@@ -51,11 +51,6 @@ type DeckBuilderProps = {
   onGenerateDeck: (plan: DeckPlan, style: ImageStyle) => void;
 };
 
-function buildBriefStarter(purpose: string, audience: string): string {
-  const p = purpose === "Other" ? "presentation" : purpose.toLowerCase();
-  const a = audience.toLowerCase();
-  return `A ${p} presentation for ${a}.`;
-}
 
 export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilderProps) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -73,6 +68,7 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
 
   // Step 4
   const [brief, setBrief] = useState("");
+  const [briefExpanded, setBriefExpanded] = useState(false);
   const [slideCount, setSlideCount] = useState<number>(5);
   const [contexts, setContexts] = useState<ExtractedContext[]>([]);
   const [dragOver, setDragOver] = useState(false);
@@ -136,8 +132,6 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
 
   function goToStep4() {
     if (!styleSelected) return;
-    const starter = buildBriefStarter(resolvedPurpose(), audience ?? "");
-    if (!brief) setBrief(starter);
     setStep(4);
   }
 
@@ -365,7 +359,7 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
             <form className="deck-builder-form" onSubmit={handleSubmit} noValidate>
               {/* Context upload */}
               <div className="deck-builder-field">
-                <label className="deck-builder-label">Reference documents (optional)</label>
+                <label className="deck-builder-label">Reference documents (Recommended)</label>
                 {contexts.length > 0 && (
                   <div className="deck-builder-context-list">
                     {contexts.map((ctx) => (
@@ -433,9 +427,22 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
 
               {/* Brief */}
               <div className="deck-builder-field">
-                <label className="deck-builder-label" htmlFor="deck-brief">
-                  What is this presentation about?
-                </label>
+                <div className="prompt-label-row">
+                  <label className="deck-builder-label" htmlFor="deck-brief">
+                    What is this presentation about?
+                  </label>
+                  <button
+                    aria-label="Expand brief editor"
+                    className="prompt-expand-btn"
+                    onClick={() => setBriefExpanded(true)}
+                    title="Expand"
+                    type="button"
+                  >
+                    <svg fill="none" height="14" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 16 16" width="14">
+                      <path d="M10 2h4v4M6 14H2v-4M14 2l-5 5M2 14l5-5" />
+                    </svg>
+                  </button>
+                </div>
                 <textarea
                   className={`deck-builder-textarea${errors.brief ? " field-error" : ""}`}
                   id="deck-brief"
@@ -443,7 +450,8 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
                     setBrief(e.target.value);
                     if (errors.brief) setErrors((prev) => ({ ...prev, brief: undefined }));
                   }}
-                  rows={4}
+                  placeholder="Describe your presentation in as much detail as possible (topic, key messages, audience, desired outcome, and specific points). The more context you provide, the better your deck will be. Tip: use an AI model beforehand to help you write a detailed brief and paste it here!"
+                  rows={6}
                   value={brief}
                 />
                 {errors.brief && <p className="deck-builder-field-error">{errors.brief}</p>}
@@ -499,6 +507,34 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
                 </p>
               )}
             </form>
+
+            {briefExpanded && (
+              <div className="prompt-modal-backdrop" onClick={() => setBriefExpanded(false)}>
+                <div className="prompt-modal-card" onClick={(e) => e.stopPropagation()}>
+                  <div className="prompt-modal-header">
+                    <span className="field-label">What is this presentation about?</span>
+                    <button
+                      aria-label="Close brief editor"
+                      className="prompt-modal-close"
+                      onClick={() => setBriefExpanded(false)}
+                      type="button"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <textarea
+                    autoFocus
+                    className="prompt-modal-textarea"
+                    onChange={(e) => {
+                      setBrief(e.target.value);
+                      if (errors.brief) setErrors((prev) => ({ ...prev, brief: undefined }));
+                    }}
+                    placeholder="Describe your presentation in as much detail as possible (topic, key messages, audience, desired outcome, and specific points). The more context you provide, the better your deck will be. Tip: use an AI model beforehand to help you write a detailed brief and paste it here!"
+                    value={brief}
+                  />
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
