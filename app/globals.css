@@ -2875,3 +2875,57 @@ input.deck-builder-select.field-error {
 .thumb-rating-dot.down {
   background: var(--danger);
 }
+
+/* ---------- Print layer (hidden normally, shown for PDF export) ---------- */
+
+.print-layer {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 0;
+  }
+
+  /* Hide the entire editor shell */
+  .shell,
+  .new-deck-screen,
+  .generation-overlay,
+  .onboarding-backdrop,
+  .crop-backdrop,
+  .review-panel,
+  .presentation-viewport {
+    display: none !important;
+  }
+
+  /* Show the print layer */
+  .print-layer {
+    display: block !important;
+  }
+
+  /* Each slide occupies one full landscape page */
+  .print-slide {
+    width: 100vw;
+    height: 100vh;
+    page-break-after: always;
+    break-after: page;
+    overflow: hidden;
+    position: relative;
+    background: var(--surface);
+  }
+
+  .print-slide:last-child {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Canvas card fills the full page in print */
+  .print-slide .canvas-card {
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: unset !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+}

@@ -32,6 +32,7 @@ type EditorTopBarProps = {
   onDeckTitleChange: (title: string) => void;
   onExport: () => void;
   onExportJson: () => void;
+  onExportPdf: () => void;
   onImportJson: (file: File) => void;
   onNewDeck: () => void;
   onStartOver: () => void;
@@ -50,6 +51,7 @@ export function EditorTopBar({
   onDeckTitleChange,
   onExport,
   onExportJson,
+  onExportPdf,
   onImportJson,
   onNewDeck,
   onStartOver,
@@ -58,9 +60,29 @@ export function EditorTopBar({
   onResetLearning,
 }: EditorTopBarProps) {
   const [naming, setNaming] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const [overflowOpen, setOverflowOpen] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
   const overflowRef = useRef<HTMLDivElement>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!exportOpen) return;
+    function handleMouseDown(event: MouseEvent) {
+      if (exportRef.current && !exportRef.current.contains(event.target as Node)) {
+        setExportOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setExportOpen(false);
+    }
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [exportOpen]);
 
   useEffect(() => {
     if (!overflowOpen) return;
@@ -139,15 +161,36 @@ export function EditorTopBar({
             </button>
           </>
         ) : (
-          <button
-            aria-label="Export to PowerPoint"
-            className="loud-button"
-            disabled={exporting}
-            onClick={() => setNaming(true)}
-            type="button"
-          >
-            <ShareIcon spinning={exporting} />
-          </button>
+          <div className="overflow-menu" ref={exportRef}>
+            <button
+              aria-label="Export"
+              aria-expanded={exportOpen}
+              className="loud-button"
+              disabled={exporting}
+              onClick={() => setExportOpen((o) => !o)}
+              type="button"
+            >
+              <ShareIcon spinning={exporting} />
+            </button>
+            {exportOpen && (
+              <div className="overflow-dropdown">
+                <button
+                  className="overflow-item"
+                  onClick={() => { setExportOpen(false); setNaming(true); }}
+                  type="button"
+                >
+                  Export as PowerPoint
+                </button>
+                <button
+                  className="overflow-item"
+                  onClick={() => { setExportOpen(false); onExportPdf(); }}
+                  type="button"
+                >
+                  Export as PDF
+                </button>
+              </div>
+            )}
+          </div>
         )}
         <div className="overflow-menu" ref={overflowRef}>
           <button

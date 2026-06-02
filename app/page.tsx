@@ -57,6 +57,7 @@ export default function Home() {
     generateSlide,
     importImage,
     exportDeck,
+    exportPdf,
     exportJson,
     importJson,
     reviewDeck
@@ -147,6 +148,7 @@ export default function Home() {
           onDeckTitleChange={setDeckTitle}
           onExport={exportDeck}
           onExportJson={exportJson}
+          onExportPdf={exportPdf}
           onImportJson={importJson}
           onNewDeck={triggerNewDeck}
           onStartOver={startOver}
@@ -283,6 +285,77 @@ export default function Home() {
       {review && (
         <ReviewPanel state={review} onClose={() => setReview(null)} />
       )}
+
+      <div className="print-layer" aria-hidden="true">
+        {slides.map((slide) => {
+          const layout = slide.layout ?? "full-bleed";
+          const hasImage = Boolean(slide.imageData);
+
+          return (
+            <div key={slide.id} className="print-slide">
+              <div className="canvas-card">
+                {layout === "title" && (
+                  <div className="layout-region layout-title">
+                    {slide.title && <p className="slide-read-title">{slide.title}</p>}
+                    {slide.body && <p className="slide-read-body">{slide.body}</p>}
+                  </div>
+                )}
+                {layout === "text-only" && (
+                  <div className="layout-region layout-text-only">
+                    {slide.title && <p className="slide-read-title">{slide.title}</p>}
+                    {slide.body && <p className="slide-read-body">{slide.body}</p>}
+                  </div>
+                )}
+                {layout === "big-quote" && (
+                  <div className="layout-region layout-big-quote">
+                    {slide.title && <p className="slide-read-big-quote">{slide.title}</p>}
+                  </div>
+                )}
+                {layout === "full-bleed" && (
+                  <>
+                    {hasImage && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img alt="" className="slide-image" src={slide.imageData} />
+                    )}
+                    <div className="canvas-full-bleed-overlay">
+                      {slide.title && <p className="canvas-overlay-title">{slide.title}</p>}
+                      {slide.body && <p className="canvas-overlay-body">{slide.body}</p>}
+                    </div>
+                  </>
+                )}
+                {(layout === "image-text" || layout === "text-image") && (
+                  <div className={`layout-region layout-${layout}`}>
+                    <div className="layout-image-pane">
+                      {hasImage && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img alt="" className="slide-image" src={slide.imageData} />
+                      )}
+                    </div>
+                    <div className="layout-text-pane">
+                      {slide.title && <p className="slide-read-title">{slide.title}</p>}
+                      {slide.body && <p className="slide-read-body">{slide.body}</p>}
+                    </div>
+                  </div>
+                )}
+                {(layout === "image-top" || layout === "image-bottom") && (
+                  <div className={`layout-region layout-${layout}`}>
+                    <div className="layout-image-pane">
+                      {hasImage && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img alt="" className="slide-image" src={slide.imageData} />
+                      )}
+                    </div>
+                    <div className="layout-text-pane">
+                      {slide.title && <p className="slide-read-title">{slide.title}</p>}
+                      {slide.body && <p className="slide-read-body">{slide.body}</p>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       {presenting && (
         <PresentationMode

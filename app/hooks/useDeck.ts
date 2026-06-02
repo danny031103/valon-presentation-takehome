@@ -812,6 +812,10 @@ export function useDeck() {
     }
   }
 
+  function exportPdf() {
+    window.print();
+  }
+
   async function reviewDeck(): Promise<DeckReview> {
     const response = await fetch("/api/review", {
       method: "POST",
@@ -874,6 +878,7 @@ export function useDeck() {
     generateSlide,
     importImage,
     exportDeck,
+    exportPdf,
     exportJson,
     importJson,
     startOver,
