@@ -5,20 +5,20 @@ const DEFAULT_MODEL = "gemini-3-pro-image-preview";
 
 const STYLE_FRAGMENTS: Record<string, string> = {
   professional:
-    "Professional corporate presentation image. Clean composition, authoritative color palette, modern aesthetic. Sharp focus, high production value. No text overlaid. No watermarks. No stock photo clichés. No cheesy business handshakes or generic office scenes.",
+    "Editorial photography style as seen in Bloomberg Businessweek or Fast Company. Real environments, natural lighting, candid moments. Cinematic 35mm film aesthetic. No staged corporate scenes, no suits pointing at whiteboards, no handshakes, no generic office environments.",
   minimal:
-    "Stark minimalist image. Monochromatic or extremely limited palette. Maximum negative space. Single clear focal point. Architectural or abstract feel. No clutter, no decorative elements, no text. Museum-quality simplicity.",
+    "Architectural photography. Clean geometric forms, dramatic negative space, monochromatic or duotone palette. Think Wallpaper* magazine or MoMA exhibition catalog. No people, no clutter, pure form and light.",
   editorial:
-    "High-end editorial magazine photography. Dramatic lighting, bold composition, cinematic quality. Could appear in Bloomberg Businessweek or Wired. High contrast, dynamic angle. No text overlaid. No watermarks. No amateur composition.",
+    "Award-winning photojournalism meets high fashion editorial. Dramatic chiaroscuro lighting, unexpected angles, high contrast. Could appear in Vogue Business or Wired. Cinematic, bold, unforgettable composition.",
   illustrative:
-    "Premium digital illustration. Distinctive artistic style, rich colors, hand-crafted feel. Could appear in a top-tier design publication. Not photorealistic. No AI artifacts. No generic clipart aesthetic.",
+    "Contemporary digital illustration in the style of a premium tech company annual report. Sophisticated color palette, geometric abstraction, hand-crafted feel. Not clipart, not cartoon — premium and refined.",
   photographic:
-    "Award-winning photography. Natural lighting, precise composition, shallow depth of field where appropriate. Could appear in National Geographic or a premium brand campaign. Hyper-realistic, sharp detail. No text overlaid. No watermarks. No stock photo feel.",
+    "National Geographic quality nature or architectural photography. Perfect natural lighting, precise composition, shallow depth of field. Hyper-realistic, tactile textures, sense of place and atmosphere.",
   none: ""
 };
 
 const QUALITY_SUFFIX =
-  "High resolution. Sharp focus. Professional presentation quality. No text, words, or typography embedded in the image unless explicitly requested in the prompt.";
+  "Cinematic quality. No stock photography aesthetics. No staged scenes. No suits, handshakes, people at whiteboards, or generic office environments. Real lighting, real environments, genuine moments. Sharp focus. Professional presentation quality.";
 
 export async function POST(request: Request) {
   try {

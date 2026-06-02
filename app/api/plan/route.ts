@@ -52,6 +52,10 @@ Rules:
   - Use 'image-top' for scene-setting slides where the image establishes context and text below explains it
   - Use 'image-bottom' when leading with a statement or question at the top, then showing visual evidence below
   - Use 'big-quote' for impactful single statements, key statistics, or memorable moments — no image, just powerful text in the title field; leave body empty
+- imagePrompt must describe what the camera sees — lighting direction, angle, mood, color palette, specific environment. Never describe the slide topic abstractly.
+- Think cinematically: golden hour light through a window, aerial city view at dusk, close-up texture of materials, abstract geometric light patterns, architectural details — these beat generic office scenes every time.
+- Avoid: people in suits, laptops, handshakes, whiteboards, conference rooms, stock photo scenarios. Instead use: architecture, nature, abstract patterns, textures, cityscapes, technology in real environments, artistic compositions.
+- Each imagePrompt must be visually distinct from the others — vary angles, lighting, and subject matter to create visual rhythm across the deck.
 - body should be concise bullet points, one per line, each prefixed with •. Example:
   • First point under ten words
   • Second point under ten words
