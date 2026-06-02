@@ -39,6 +39,28 @@ export type ExtractedContext = {
   truncated: boolean;
 };
 
+export type ExtractedMultiContext = {
+  text: string;
+  fileNames: string[];
+  truncated: boolean;
+};
+
+async function extractText(file: File): Promise<string> {
+  if (
+    file.type === "application/pdf" ||
+    file.name.toLowerCase().endsWith(".pdf")
+  ) {
+    return extractPdf(file);
+  } else if (
+    file.type === "text/plain" ||
+    file.name.toLowerCase().endsWith(".txt")
+  ) {
+    return extractTxt(file);
+  } else {
+    throw new Error("Unsupported file type. Please upload a PDF or TXT file.");
+  }
+}
+
 export function useDocumentExtract() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,23 +71,7 @@ export function useDocumentExtract() {
       setError(null);
 
       try {
-        let text: string;
-
-        if (
-          file.type === "application/pdf" ||
-          file.name.toLowerCase().endsWith(".pdf")
-        ) {
-          text = await extractPdf(file);
-        } else if (
-          file.type === "text/plain" ||
-          file.name.toLowerCase().endsWith(".txt")
-        ) {
-          text = await extractTxt(file);
-        } else {
-          throw new Error(
-            "Unsupported file type. Please upload a PDF or TXT file."
-          );
-        }
+        let text = await extractText(file);
 
         const truncated = text.length > MAX_STORED_CHARS;
         if (truncated) {
@@ -85,5 +91,46 @@ export function useDocumentExtract() {
     []
   );
 
-  return { extract, loading, error };
+  const extractMultiple = useCallback(
+    async (files: File[]): Promise<ExtractedMultiContext | null> => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        let combined = "";
+        const fileNames: string[] = [];
+        let truncated = false;
+
+        for (const file of files) {
+          const text = await extractText(file);
+          const segment = `--- ${file.name} ---\n${text}\n`;
+
+          if (combined.length + segment.length > MAX_STORED_CHARS) {
+            const remaining = MAX_STORED_CHARS - combined.length;
+            if (remaining > 0) {
+              combined += segment.slice(0, remaining);
+            }
+            truncated = true;
+            fileNames.push(file.name);
+            break;
+          }
+
+          combined += segment;
+          fileNames.push(file.name);
+        }
+
+        return { text: combined, fileNames, truncated };
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to extract text.";
+        setError(message);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { extract, extractMultiple, loading, error };
 }

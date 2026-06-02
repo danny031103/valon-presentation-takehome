@@ -5,6 +5,8 @@ import type { DeckPlan, ImageStyle } from "../hooks/useDeck";
 import type { ExtractedContext } from "../hooks/useDocumentExtract";
 import { useDocumentExtract } from "../hooks/useDocumentExtract";
 
+const MAX_COMBINED_CHARS = 30 * 1024;
+
 const PURPOSE_OPTIONS = [
   "Sales pitch",
   "Internal update",
@@ -40,7 +42,7 @@ export type DeckBuilderFormData = {
   brief: string;
   slideCount: number;
   style: ImageStyle;
-  context: ExtractedContext | null;
+  contexts: ExtractedContext[];
 };
 
 type DeckBuilderProps = {
@@ -72,7 +74,7 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
   // Step 4
   const [brief, setBrief] = useState("");
   const [slideCount, setSlideCount] = useState<number>(5);
-  const [context, setContext] = useState<ExtractedContext | null>(null);
+  const [contexts, setContexts] = useState<ExtractedContext[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [errors, setErrors] = useState<{ brief?: string; slideCount?: string }>({});
   const [planning, setPlanning] = useState(false);
@@ -81,9 +83,35 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
 
   const { extract, loading: extracting, error: extractError } = useDocumentExtract();
 
-  async function handleFile(file: File) {
-    const result = await extract(file);
-    if (result) setContext(result);
+  async function handleFiles(files: File[]) {
+    for (const file of files) {
+      const result = await extract(file);
+      if (result) {
+        setContexts((prev) =>
+          prev.some((c) => c.fileName === result.fileName)
+            ? prev
+            : [...prev, result]
+        );
+      }
+    }
+  }
+
+  function removeContext(fileName: string) {
+    setContexts((prev) => prev.filter((c) => c.fileName !== fileName));
+  }
+
+  function buildCombinedText(items: ExtractedContext[]): string {
+    let combined = "";
+    for (const item of items) {
+      const segment = `--- ${item.fileName} ---\n${item.text}\n`;
+      if (combined.length + segment.length > MAX_COMBINED_CHARS) {
+        const remaining = MAX_COMBINED_CHARS - combined.length;
+        if (remaining > 0) combined += segment.slice(0, remaining);
+        break;
+      }
+      combined += segment;
+    }
+    return combined;
   }
 
   function resolvedPurpose(): string {
@@ -146,7 +174,7 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
           brief: brief.trim(),
           slideCount,
           style,
-          context: context?.text ?? undefined,
+          context: contexts.length > 0 ? buildCombinedText(contexts) : undefined,
         }),
       });
 
@@ -337,63 +365,69 @@ export function DeckBuilder({ defaultStyle, onBack, onGenerateDeck }: DeckBuilde
             <form className="deck-builder-form" onSubmit={handleSubmit} noValidate>
               {/* Context upload */}
               <div className="deck-builder-field">
-                <label className="deck-builder-label">Reference document (optional)</label>
-                {context ? (
-                  <div className="deck-builder-context-active">
-                    <span className="deck-builder-context-name" title={context.fileName}>
-                      {context.fileName}
-                    </span>
-                    <span className="deck-builder-context-chars">
-                      {context.text.length.toLocaleString()} chars
-                    </span>
-                    {context.truncated && (
-                      <span className="deck-builder-context-truncated">Truncated to 30 KB</span>
-                    )}
-                    <button
-                      className="deck-builder-context-clear"
-                      onClick={() => setContext(null)}
-                      type="button"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    className={`deck-builder-drop-zone${dragOver ? " drag-over" : ""}`}
-                    onClick={() => fileInputRef.current?.click()}
-                    onDragLeave={() => setDragOver(false)}
-                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      setDragOver(false);
-                      const file = e.dataTransfer.files[0];
-                      if (file) void handleFile(file);
-                    }}
-                    onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <input
-                      accept=".pdf,.txt,application/pdf,text/plain"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) void handleFile(file);
-                        e.target.value = "";
-                      }}
-                      ref={fileInputRef}
-                      style={{ display: "none" }}
-                      type="file"
-                    />
-                    {extracting ? (
-                      <span>Extracting text…</span>
-                    ) : (
-                      <>
-                        <span className="deck-builder-drop-hint">Drop PDF or TXT</span>
-                        <span className="deck-builder-drop-sub">click to browse</span>
-                      </>
-                    )}
+                <label className="deck-builder-label">Reference documents (optional)</label>
+                {contexts.length > 0 && (
+                  <div className="deck-builder-context-list">
+                    {contexts.map((ctx) => (
+                      <div className="deck-builder-context-active" key={ctx.fileName}>
+                        <span className="deck-builder-context-name" title={ctx.fileName}>
+                          {ctx.fileName}
+                        </span>
+                        <span className="deck-builder-context-chars">
+                          {ctx.text.length.toLocaleString()} chars
+                        </span>
+                        {ctx.truncated && (
+                          <span className="deck-builder-context-truncated">Truncated</span>
+                        )}
+                        <button
+                          className="deck-builder-context-clear"
+                          onClick={() => removeContext(ctx.fileName)}
+                          type="button"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
+                <div
+                  className={`deck-builder-drop-zone${dragOver ? " drag-over" : ""}`}
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragLeave={() => setDragOver(false)}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOver(false);
+                    const files = Array.from(e.dataTransfer.files);
+                    if (files.length) void handleFiles(files);
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <input
+                    accept=".pdf,.txt,application/pdf,text/plain"
+                    multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files ?? []);
+                      if (files.length) void handleFiles(files);
+                      e.target.value = "";
+                    }}
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    type="file"
+                  />
+                  {extracting ? (
+                    <span>Extracting text…</span>
+                  ) : (
+                    <>
+                      <span className="deck-builder-drop-hint">Drop PDF or TXT</span>
+                      <span className="deck-builder-drop-sub">
+                        {contexts.length > 0 ? "add more files" : "click to browse"}
+                      </span>
+                    </>
+                  )}
+                </div>
                 {extractError && <p className="deck-builder-field-error">{extractError}</p>}
               </div>
 
