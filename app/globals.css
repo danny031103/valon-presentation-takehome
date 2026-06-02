@@ -787,8 +787,11 @@ textarea:focus {
 
 .layout-image-top .layout-text-pane {
   flex: 0 0 40%;
-  padding: 16px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   gap: 8px;
+  padding: 20px 28px;
 }
 
 /* image-bottom: text panel top 40%, image fills bottom 60% */
@@ -806,8 +809,11 @@ textarea:focus {
 
 .layout-image-bottom .layout-text-pane {
   flex: 0 0 40%;
-  padding: 16px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   gap: 8px;
+  padding: 20px 28px;
   order: 1;
 }
 
@@ -872,6 +878,11 @@ textarea:focus {
   font-size: 2rem;
   text-align: center;
   min-height: calc(1.3em * 2 + 8px);
+}
+
+.layout-image-top .layout-text-field-title,
+.layout-image-bottom .layout-text-field-title {
+  min-height: calc(1.3em * 1 + 8px);
 }
 
 /* Status chip — tucked into the canvas padding, bottom-right, muted */
@@ -2445,9 +2456,11 @@ input.deck-builder-select.field-error {
   white-space: pre-wrap;
 }
 
-/* In presentation mode the read-only text pane should start from the top,
-   matching how the editor appears (textarea min-heights push content up). */
-.layout-text-pane:has(.slide-read-title) {
+/* In presentation mode, side-by-side text panes start from the top to match
+   how editor textareas appear. Top/bottom image layouts use flex-start
+   with their own padding instead, so this rule is scoped to avoid interfering. */
+.layout-image-text .layout-text-pane:has(.slide-read-title),
+.layout-text-image .layout-text-pane:has(.slide-read-title) {
   justify-content: flex-start;
 }
 
