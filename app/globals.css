@@ -227,6 +227,46 @@ button {
   align-items: flex-start;
 }
 
+/* Vertical thumbnail layouts (image-top, image-bottom) */
+.thumb-image-top,
+.thumb-image-bottom {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.thumb-image-pane-top,
+.thumb-image-pane-bottom {
+  flex: 0 0 60%;
+  overflow: hidden;
+  background: var(--surface-raised);
+}
+
+.thumb-image-pane-top {
+  border-bottom: 1px solid var(--border);
+}
+
+.thumb-image-pane-bottom {
+  border-top: 1px solid var(--border);
+}
+
+.thumb-image-pane-top img,
+.thumb-image-pane-bottom img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumb-text-pane-bottom,
+.thumb-text-pane-top {
+  flex: 0 0 40%;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+}
+
 .thumb-art-overlay {
   position: absolute;
   inset: 0;
@@ -654,6 +694,30 @@ textarea:focus {
   opacity: 0.6;
 }
 
+/* "···" / "‹" toggle for the expanded layout section */
+.layout-picker-more {
+  width: auto !important;
+  padding: 0 6px !important;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--foreground);
+  opacity: 0.5;
+  border-left: 1px solid var(--border) !important;
+  border-radius: 0 !important;
+  margin-left: 2px;
+}
+
+.layout-picker-more:hover {
+  opacity: 1;
+  border-color: var(--border) !important;
+}
+
+.layout-picker-more.active {
+  opacity: 1;
+  border-color: var(--brand) !important;
+  background: transparent !important;
+}
+
 /* Layout regions inside the 16:9 card */
 .layout-region {
   width: 100%;
@@ -691,6 +755,88 @@ textarea:focus {
 
 .layout-text-only {
   padding: 48px;
+}
+
+/* text-image: text left, image right (mirror of image-text) */
+.layout-text-image {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.layout-text-image .layout-image-pane {
+  border-right: 0;
+  border-left: 1px solid var(--border);
+  order: 2;
+}
+
+.layout-text-image .layout-text-pane {
+  order: 1;
+}
+
+/* image-top: image fills top 60%, text panel bottom 40% */
+.layout-image-top {
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-image-top .layout-image-pane {
+  flex: 0 0 60%;
+  border-right: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.layout-image-top .layout-text-pane {
+  flex: 0 0 40%;
+  padding: 16px 28px;
+  gap: 8px;
+}
+
+/* image-bottom: text panel top 40%, image fills bottom 60% */
+.layout-image-bottom {
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-image-bottom .layout-image-pane {
+  flex: 0 0 60%;
+  border-right: 0;
+  border-top: 1px solid var(--border);
+  order: 2;
+}
+
+.layout-image-bottom .layout-text-pane {
+  flex: 0 0 40%;
+  padding: 16px 28px;
+  gap: 8px;
+  order: 1;
+}
+
+/* big-quote: large centered display text, no image */
+.layout-big-quote {
+  display: grid;
+  place-items: center;
+  padding: 48px 10%;
+  background: var(--surface-raised);
+}
+
+.layout-big-quote .layout-text-field-title {
+  font-size: clamp(1.5rem, 4.5cqw, 3.5rem);
+  line-height: 1.2;
+  font-weight: 400;
+  text-align: center;
+  min-height: unset;
+}
+
+.slide-read-big-quote {
+  margin: 0;
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4.5cqw, 3.5rem);
+  line-height: 1.2;
+  font-weight: 400;
+  text-align: center;
+  color: var(--foreground);
+  padding: 4px 6px;
 }
 
 /* Editable title/body fields — transparent until focus, text sits on canvas.

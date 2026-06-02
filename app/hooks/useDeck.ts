@@ -13,7 +13,7 @@ export type ImageStyle =
   | "photographic"
   | "none";
 
-export type SlideLayout = "title" | "image-text" | "text-only" | "full-bleed";
+export type SlideLayout = "title" | "image-text" | "text-only" | "full-bleed" | "text-image" | "image-top" | "image-bottom" | "big-quote";
 
 export type SlideFormatting = {
   bold?: boolean;

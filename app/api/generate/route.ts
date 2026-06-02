@@ -54,8 +54,25 @@ export async function POST(request: Request) {
     const imageTextComposition =
       body.layout === "image-text"
         ? "Compose this image for the left half of a presentation slide. Use a vertically-oriented composition. Keep the main subject left or center-left. The right portion of the scene should be less busy, as text will appear beside this image on the right side of the slide."
+        : body.layout === "text-image"
+        ? "Compose this image for the right half of a presentation slide. Use a vertically-oriented composition. Keep the main subject right or center-right. The left portion of the scene should be less busy, as text will appear beside this image on the left side of the slide."
+        : body.layout === "image-top"
+        ? "Compose this image for the top 60% of a presentation slide. Use a wide horizontal composition. Keep important elements centered and avoid placing key details at the very bottom edge, as text will appear below this image."
+        : body.layout === "image-bottom"
+        ? "Compose this image for the bottom 60% of a presentation slide. Use a wide horizontal composition. Keep important elements centered and avoid placing key details at the very top edge, as text will appear above this image."
         : null;
-    const effectivePrompt = [prompt, fragment || null, imageTextComposition, contextNote, QUALITY_SUFFIX]
+
+    const allowsText = body.layout === "full-bleed" || body.layout === "big-quote";
+    const promptMentionsText = /\b(text|type|typograph|word|letter|font|caption|headline|title|quote|label)\b/i.test(prompt);
+    const textEncouragement =
+      allowsText && !promptMentionsText
+        ? "If typography or text elements would enhance the composition, feel free to include them."
+        : null;
+    const qualitySuffix = allowsText
+      ? "High resolution. Sharp focus. Professional presentation quality."
+      : QUALITY_SUFFIX;
+
+    const effectivePrompt = [prompt, fragment || null, imageTextComposition, contextNote, qualitySuffix, textEncouragement]
       .filter(Boolean)
       .join("\n\n");
     const resolvedModel = body.model || process.env.GOOGLE_IMAGE_MODEL || DEFAULT_MODEL;

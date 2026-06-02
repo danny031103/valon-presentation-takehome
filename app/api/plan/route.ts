@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import type { DeckPlan, DeckPlanSlide } from "../../hooks/useDeck";
 
-const VALID_LAYOUTS = ["full-bleed", "image-text", "title", "text-only"];
+const VALID_LAYOUTS = ["full-bleed", "image-text", "title", "text-only", "text-image", "image-top", "image-bottom", "big-quote"];
 const CONTEXT_API_LIMIT = 8000;
 
 const SYSTEM_PROMPT =
@@ -35,15 +35,27 @@ function buildUserPrompt(
       "title": "string",
       "body": "string",
       "imagePrompt": "string",
-      "layout": "full-bleed" | "image-text" | "title" | "text-only"
+      "layout": "full-bleed" | "image-text" | "text-image" | "title" | "text-only" | "image-top" | "image-bottom" | "big-quote"
     }
   ]
 }
 
 Rules:
-- imagePrompt should be vivid and specific, written for an image generation model
-- layout should match the slide content (title slide → "title", data/text heavy → "text-only", etc.)
-- body should be concise bullet points separated by newlines, not paragraphs
+- imagePrompt must describe a specific, real-world scene with concrete visual details. Avoid generic corporate imagery, floating objects on white backgrounds, cliché stock photo compositions, and anything that looks like AI clip art. Think cinematic photography or editorial illustration.
+- layout must follow these strict rules:
+  - Use 'title' only for the opening title slide with no body text
+  - Use 'image-text' when the slide has both an image AND meaningful title/body text — image left, text right
+  - Use 'text-image' like image-text but text is the focus — text left, image right; use when text is more important than the image
+  - Use 'text-only' when the slide content is primarily text-based (data, lists, comparisons) and an image would distract
+  - Use 'full-bleed' ONLY when the image IS the message and no text is needed — use sparingly, maximum 1-2 slides per deck
+  - Never assign full-bleed to a slide that has title or body text
+  - Use 'image-top' for scene-setting slides where the image establishes context and text below explains it
+  - Use 'image-bottom' when leading with a statement or question at the top, then showing visual evidence below
+  - Use 'big-quote' for impactful single statements, key statistics, or memorable moments — no image, just powerful text in the title field; leave body empty
+- body should be concise bullet points, one per line, each prefixed with •. Example:
+  • First point under ten words
+  • Second point under ten words
+  Never use plain text paragraphs for body content.
 - body text must be maximum 3 bullet points per slide
 - each bullet point must be under 10 words
 - title must be under 8 words

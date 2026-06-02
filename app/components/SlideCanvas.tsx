@@ -227,6 +227,90 @@ export function CanvasBody({
           />
         </div>
       );
+    case "text-image":
+      return (
+        <div className="layout-region layout-text-image">
+          <div className="layout-text-pane">
+            <TitleField
+              value={title}
+              style={titleStyle}
+              onChange={(value) => onPatch({ title: value })}
+              onFocus={() => onFocusField("title")}
+              onBlur={() => onFocusField(null)}
+            />
+            <BodyField
+              value={body}
+              style={bodyStyle}
+              onChange={(value) => onPatch({ body: value })}
+              onFocus={() => onFocusField("body")}
+              onBlur={() => onFocusField(null)}
+            />
+          </div>
+          <div className="layout-image-pane">
+            <SlideImage slide={slide} />
+          </div>
+        </div>
+      );
+    case "image-top":
+      return (
+        <div className="layout-region layout-image-top">
+          <div className="layout-image-pane">
+            <SlideImage slide={slide} />
+          </div>
+          <div className="layout-text-pane">
+            <TitleField
+              value={title}
+              style={titleStyle}
+              onChange={(value) => onPatch({ title: value })}
+              onFocus={() => onFocusField("title")}
+              onBlur={() => onFocusField(null)}
+            />
+            <BodyField
+              value={body}
+              style={bodyStyle}
+              onChange={(value) => onPatch({ body: value })}
+              onFocus={() => onFocusField("body")}
+              onBlur={() => onFocusField(null)}
+            />
+          </div>
+        </div>
+      );
+    case "image-bottom":
+      return (
+        <div className="layout-region layout-image-bottom">
+          <div className="layout-text-pane">
+            <TitleField
+              value={title}
+              style={titleStyle}
+              onChange={(value) => onPatch({ title: value })}
+              onFocus={() => onFocusField("title")}
+              onBlur={() => onFocusField(null)}
+            />
+            <BodyField
+              value={body}
+              style={bodyStyle}
+              onChange={(value) => onPatch({ body: value })}
+              onFocus={() => onFocusField("body")}
+              onBlur={() => onFocusField(null)}
+            />
+          </div>
+          <div className="layout-image-pane">
+            <SlideImage slide={slide} />
+          </div>
+        </div>
+      );
+    case "big-quote":
+      return (
+        <div className="layout-region layout-big-quote">
+          <TitleField
+            value={title}
+            style={titleStyle}
+            onChange={(value) => onPatch({ title: value })}
+            onFocus={() => onFocusField("title")}
+            onBlur={() => onFocusField(null)}
+          />
+        </div>
+      );
     case "full-bleed":
     default: {
       if (slide.imageData) {
@@ -299,6 +383,48 @@ export function SlideReadView({ slide }: { slide: Slide }) {
         <div className="layout-region layout-text-only">
           {title && <p className="slide-read-title" style={titleStyle}>{title}</p>}
           {body && <p className="slide-read-body" style={bodyStyle}>{body}</p>}
+        </div>
+      );
+    case "text-image":
+      return (
+        <div className="layout-region layout-text-image">
+          <div className="layout-text-pane">
+            {title && <p className="slide-read-title" style={titleStyle}>{title}</p>}
+            {body && <p className="slide-read-body" style={bodyStyle}>{body}</p>}
+          </div>
+          <div className="layout-image-pane">
+            <SlideImage slide={slide} />
+          </div>
+        </div>
+      );
+    case "image-top":
+      return (
+        <div className="layout-region layout-image-top">
+          <div className="layout-image-pane">
+            <SlideImage slide={slide} />
+          </div>
+          <div className="layout-text-pane">
+            {title && <p className="slide-read-title" style={titleStyle}>{title}</p>}
+            {body && <p className="slide-read-body" style={bodyStyle}>{body}</p>}
+          </div>
+        </div>
+      );
+    case "image-bottom":
+      return (
+        <div className="layout-region layout-image-bottom">
+          <div className="layout-text-pane">
+            {title && <p className="slide-read-title" style={titleStyle}>{title}</p>}
+            {body && <p className="slide-read-body" style={bodyStyle}>{body}</p>}
+          </div>
+          <div className="layout-image-pane">
+            <SlideImage slide={slide} />
+          </div>
+        </div>
+      );
+    case "big-quote":
+      return (
+        <div className="layout-region layout-big-quote">
+          {title && <p className="slide-read-big-quote" style={titleStyle}>{title}</p>}
         </div>
       );
     case "full-bleed":

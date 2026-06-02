@@ -103,6 +103,51 @@ function ThumbArt({ slide }: { slide: Slide }) {
 
     case "title":
       return <ThumbPreviewTitleOnly slide={slide} />;
+
+    case "text-image":
+      return (
+        <div className="thumb-image-text">
+          <div className="thumb-text-pane">
+            <ThumbPreview slide={slide} />
+          </div>
+          <div className="thumb-image-pane">
+            {slide.imageData ? (
+              <img alt={slide.name || "Slide image"} src={slide.imageData} />
+            ) : null}
+          </div>
+        </div>
+      );
+
+    case "image-top":
+      return (
+        <div className="thumb-image-top">
+          <div className="thumb-image-pane-top">
+            {slide.imageData ? (
+              <img alt={slide.name || "Slide image"} src={slide.imageData} />
+            ) : null}
+          </div>
+          <div className="thumb-text-pane-bottom">
+            <ThumbPreview slide={slide} />
+          </div>
+        </div>
+      );
+
+    case "image-bottom":
+      return (
+        <div className="thumb-image-bottom">
+          <div className="thumb-text-pane-top">
+            <ThumbPreview slide={slide} />
+          </div>
+          <div className="thumb-image-pane-bottom">
+            {slide.imageData ? (
+              <img alt={slide.name || "Slide image"} src={slide.imageData} />
+            ) : null}
+          </div>
+        </div>
+      );
+
+    case "big-quote":
+      return <ThumbPreviewTitleOnly slide={slide} />;
   }
 }
 
