@@ -685,6 +685,8 @@ textarea:focus {
   justify-content: center;
   gap: 14px;
   padding: 32px;
+  overflow: hidden;
+  max-height: 100%;
 }
 
 .layout-text-only {

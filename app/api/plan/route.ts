@@ -44,6 +44,12 @@ Rules:
 - imagePrompt should be vivid and specific, written for an image generation model
 - layout should match the slide content (title slide → "title", data/text heavy → "text-only", etc.)
 - body should be concise bullet points separated by newlines, not paragraphs
+- body text must be maximum 3 bullet points per slide
+- each bullet point must be under 10 words
+- title must be under 8 words
+- if there is more content, split it across multiple slides rather than cramming into one
+- less is more — slides should be scannable in 3 seconds
+- No emojis anywhere in the deck — not in titles, body text, or slide names
 - Do not include any text outside the JSON object`,
   ];
 
