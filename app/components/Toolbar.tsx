@@ -2,7 +2,7 @@ import type { SlideFormatting, SlideLayout } from "../hooks/useDeck";
 import { LayoutPicker } from "./LayoutPicker";
 import { UploadImageButton } from "./UploadImageButton";
 
-const LAYOUTS_WITH_IMAGE: SlideLayout[] = ["image-text", "full-bleed"];
+const LAYOUTS_WITH_IMAGE: SlideLayout[] = ["full-bleed", "image-text", "text-image", "image-top", "image-bottom"];
 
 type ToolbarProps = {
   focusedField: "title" | "body" | null;
