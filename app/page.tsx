@@ -17,6 +17,7 @@ import { SlideCanvas } from "./components/SlideCanvas";
 import { StatusBar } from "./components/StatusBar";
 import { Toolbar } from "./components/Toolbar";
 import { useDeck } from "./hooks/useDeck";
+import { resetLearning } from "./hooks/useLearning";
 
 export default function Home() {
   const {
@@ -151,6 +152,7 @@ export default function Home() {
           onStartOver={startOver}
           onPresent={handlePresent}
           onReview={() => { void handleReview(); }}
+          onResetLearning={resetLearning}
         />
 
         <SlideCanvas

@@ -16,6 +16,7 @@ export async function POST(request: Request) {
       style?: string;
       deckTitle?: string;
       slideTitle?: string;
+      preferences?: string;
     };
 
     const prompt = body.prompt?.trim();
@@ -32,12 +33,17 @@ export async function POST(request: Request) {
       ? `${contextParts.join("\n")}\n\nPrompt to enhance: ${prompt}`
       : prompt;
 
+    const baseSystem =
+      "You are an expert at writing prompts for AI image generation. Rewrite the user's rough prompt into a vivid, specific scene description that will produce a high-quality presentation slide image. Keep it under 100 words. Return only the enhanced prompt, no explanation.";
+    const system = body.preferences
+      ? `${baseSystem}\n\nAdditional context about this user's preferences: ${body.preferences}. Use this to inform the enhanced prompt but don't explicitly mention these preferences in the output.`
+      : baseSystem;
+
     const client = new Anthropic({ apiKey });
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 300,
-      system:
-        "You are an expert at writing prompts for AI image generation. Rewrite the user's rough prompt into a vivid, specific scene description that will produce a high-quality presentation slide image. Keep it under 100 words. Return only the enhanced prompt, no explanation.",
+      system,
       messages: [{ role: "user", content: userMessage }]
     });
 

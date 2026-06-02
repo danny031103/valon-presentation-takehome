@@ -37,6 +37,7 @@ type EditorTopBarProps = {
   onStartOver: () => void;
   onPresent: () => void;
   onReview: () => void;
+  onResetLearning: () => void;
 };
 
 export function EditorTopBar({
@@ -54,6 +55,7 @@ export function EditorTopBar({
   onStartOver,
   onPresent,
   onReview,
+  onResetLearning,
 }: EditorTopBarProps) {
   const [naming, setNaming] = useState(false);
   const [overflowOpen, setOverflowOpen] = useState(false);
@@ -198,6 +200,14 @@ export function EditorTopBar({
                 type="button"
               >
                 Import deck JSON
+              </button>
+              <div className="overflow-divider" />
+              <button
+                className="overflow-item"
+                onClick={() => { onResetLearning(); setOverflowOpen(false); }}
+                type="button"
+              >
+                Reset learned preferences
               </button>
               <div className="overflow-divider" />
               <button

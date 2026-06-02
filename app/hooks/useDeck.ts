@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { getLearnedStyle, learnFromRejection, learnFromSuccess } from "./useLearning";
 
 export type SlideStatus = "idle" | "working" | "done" | "error";
 
@@ -190,6 +191,9 @@ export function useDeck() {
           )
         ) {
           setImageStyle(parsed.imageStyle);
+        } else {
+          const learned = getLearnedStyle();
+          if (learned) setImageStyle(learned);
         }
         if (typeof parsed.imageModel === "string") {
           setImageModel(parsed.imageModel);
@@ -264,6 +268,13 @@ export function useDeck() {
       lastEditKeyRef.current = editKey;
     }
     const applied: Partial<Slide> = "prompt" in patch ? { ...patch, regenerationCount: 0 } : patch;
+    if ("userRating" in patch) {
+      const slide = slides.find((s) => s.id === id);
+      if (slide) {
+        if (patch.userRating === "up") learnFromSuccess(slide.prompt, imageStyle);
+        if (patch.userRating === "down") learnFromRejection(slide.prompt);
+      }
+    }
     applyPatch(id, applied);
   }
 
@@ -563,6 +574,9 @@ export function useDeck() {
     } else if (count >= 3) {
       modifier =
         "Multiple attempts have not worked. Dramatically reimagine this prompt. Try abstract, minimal, or conceptual interpretations.";
+    }
+    if (count === 3) {
+      learnFromRejection(selectedSlide.prompt);
     }
     const effectivePrompt = modifier
       ? `${selectedSlide.prompt}\n\n${modifier}`

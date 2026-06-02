@@ -2555,6 +2555,15 @@ input.deck-builder-select.field-error {
   font-style: italic;
 }
 
+.prompt-personalized {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--foreground);
+  opacity: 0.35;
+  user-select: none;
+}
+
 .prompt-undo-enhance {
   display: inline-block;
   margin-top: 4px;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ImageStyle, PromptHistoryEntry } from "../hooks/useDeck";
+import { getPreferences } from "../hooks/useLearning";
 import { UploadImageButton } from "./UploadImageButton";
 
 const STYLE_OPTIONS: { value: ImageStyle; label: string }[] = [
@@ -81,10 +82,11 @@ export function PromptPanel({
     setEnhancing(true);
     setPreEnhancePrompt(prompt);
     try {
+      const preferences = getPreferences();
       const response = await fetch("/api/enhance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, style: imageStyle, deckTitle, slideTitle })
+        body: JSON.stringify({ prompt, style: imageStyle, deckTitle, slideTitle, preferences: preferences ?? undefined })
       });
       const data = (await response.json()) as { enhancedPrompt?: string; error?: string };
       if (data.enhancedPrompt) {
@@ -100,6 +102,7 @@ export function PromptPanel({
   }
 
   const hasHistory = (promptHistory?.length ?? 0) > 0;
+  const hasPreferences = getPreferences() !== null;
 
   return (
     <>
@@ -146,6 +149,9 @@ export function PromptPanel({
           rows={4}
           value={prompt}
         />
+        {hasPreferences && preEnhancePrompt === null && (
+          <span className="prompt-personalized">✓ Personalized</span>
+        )}
         {preEnhancePrompt !== null && (
           <button
             className="prompt-undo-enhance"
