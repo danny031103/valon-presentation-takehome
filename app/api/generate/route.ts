@@ -62,6 +62,11 @@ export async function POST(request: Request) {
         ? "Compose this image for the bottom 60% of a presentation slide. Use a wide horizontal composition. Keep important elements centered and avoid placing key details at the very top edge, as text will appear above this image."
         : null;
 
+    const fullBleedComposition =
+      body.layout === "full-bleed"
+        ? "Generate this image in a wide 16:9 landscape aspect ratio. The composition must fill the entire frame edge to edge with no letterboxing, black bars, or empty space at the edges. All important visual elements must be within the frame. Leave the center of the image relatively clean and uncluttered — avoid busy textures, text, or high-contrast details in the center third of the frame. The image should work as a background with overlaid text."
+        : null;
+
     const allowsText = body.layout === "full-bleed" || body.layout === "big-quote";
     const promptMentionsText = /\b(text|type|typograph|word|letter|font|caption|headline|title|quote|label)\b/i.test(prompt);
     const textEncouragement =
@@ -72,7 +77,7 @@ export async function POST(request: Request) {
       ? "High resolution. Sharp focus. Professional presentation quality."
       : QUALITY_SUFFIX;
 
-    const effectivePrompt = [prompt, fragment || null, imageTextComposition, contextNote, qualitySuffix, textEncouragement]
+    const effectivePrompt = [prompt, fragment || null, imageTextComposition, fullBleedComposition, contextNote, qualitySuffix, textEncouragement]
       .filter(Boolean)
       .join("\n\n");
     const resolvedModel = body.model || process.env.GOOGLE_IMAGE_MODEL || DEFAULT_MODEL;

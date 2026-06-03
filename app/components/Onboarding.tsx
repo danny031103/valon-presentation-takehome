@@ -8,7 +8,7 @@ const TIPS = [
   {
     num: "01",
     heading: "Upload context for better images",
-    body: "Drop a PDF into the Context panel. The AI uses it to generate images tied to your actual content — not stock imagery.",
+    body: "Drop a PDF into the Context panel. AI uses it to generate images tied to your actual content — not stock imagery.",
   },
   {
     num: "02",
@@ -25,7 +25,7 @@ const TIPS = [
   {
     num: "04",
     heading: "Review your deck",
-    body: "Use 'Review my deck' in the ••• menu to get feedback on your narrative, slide structure, and visual cohesion — powered by Claude.",
+    body: "Use 'Review my deck' in the ••• menu to get AI feedback on your narrative, slide structure, and visual cohesion.",
   },
   {
     num: "05",

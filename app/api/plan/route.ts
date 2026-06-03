@@ -65,7 +65,11 @@ Rules:
 - title must be under 8 words
 - if there is more content, split it across multiple slides rather than cramming into one
 - less is more — slides should be scannable in 3 seconds
-- The first slide must always be a title slide with layout 'full-bleed'. It should have a dramatic, high-quality hero image that represents the deck's theme, with the deck title as the slide title field. The imagePrompt for slide 1 should describe a cinematic, visually striking scene appropriate for an opening slide. Count this title slide as slide 1 toward the requested slideCount — if the user requests 5 slides, generate 1 title slide plus 4 content slides for a total of 5.
+- The first slide must always be a title slide with layout 'full-bleed'. Rules for the title slide:
+  - title field must be a short, punchy phrase (3-6 words maximum) that captures the essence of the entire presentation — think magazine cover headline, not a description
+  - body field must be empty for the title slide
+  - imagePrompt must describe a cinematic, wide hero image that works as a background — dramatic lighting, strong composition, relevant to the deck theme. The image must have a clear dark or light region in the center where white or dark text can be legible — avoid busy patterns or high-contrast details in the center of the frame
+  - Count this as slide 1 toward the requested slideCount
 - No emojis anywhere in the deck — not in titles, body text, or slide names
 - Do not include any text outside the JSON object`,
   ];
