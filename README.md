@@ -36,6 +36,7 @@ The expected workflow is simple:
    ```bash
    GOOGLE_API_KEY=your_key_here
    GOOGLE_IMAGE_MODEL=gemini-3-pro-image-preview
+   ANTHROPIC_API_KEY=your_anthropic_api_key_here
    ```
 
    `GOOGLE_IMAGE_MODEL` is optional. The default is `gemini-3-pro-image-preview`.
@@ -58,3 +59,24 @@ The expected workflow is simple:
 ## Suggested focus
 
 Treat this repo like a rough product seed. The goal is not to preserve the starter exactly as-is; it is to turn it into something stronger with better product sense, better interface decisions, and better implementation choices.
+
+## What I built
+
+This fork significantly extends the starter. Key additions:
+
+- **AI deck generation** — guided setup flow (purpose, audience, style) that uses Claude to plan a full deck and Gemini to generate images for every slide
+- **Document context** — upload PDFs or text files to ground image generation in your actual content
+- **8 slide layouts** — full-bleed, image+text, text+image, title, text-only, image-top, image-bottom, big-quote
+- **Slide editor** — text editing with formatting toolbar (bold, italic, font size, color, alignment), per-field formatting for title and body
+- **AI deck review** — Claude reviews your deck as a presentation consultant with per-slide feedback and auto-apply suggestions
+- **Prompt enhancement** — Claude rewrites rough prompts into vivid scene descriptions before sending to Gemini
+- **Cross-session learning** — app learns your style preferences and successful prompt patterns across sessions
+- **Presentation mode** — fullscreen presentation with keyboard navigation
+- **PDF export** — browser-native PDF export alongside PPTX
+- **Image cropping** — pan/zoom crop modal when uploading images
+- **Undo/redo, drag-to-reorder, duplicate slides, JSON export/import**
+
+## New environment variables
+
+This fork requires:
+- `ANTHROPIC_API_KEY` — used for deck planning, review, prompt enhancement, and suggestion application
