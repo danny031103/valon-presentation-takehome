@@ -72,9 +72,9 @@ This fork extends the starter. Key additions:
 - **Prompt enhancement** — Claude rewrites rough prompts into vivid scene descriptions before sending to Gemini
 - **Cross-session learning** — app learns your style preferences and successful prompt patterns across sessions
 - **Presentation mode** — fullscreen presentation with keyboard navigation
-- **PDF export** — browser-native PDF export alongside PPTX
+- **PDF export** — browser-native PDF export alongside PPTX, although in-app sharing preferred for proper styling
 - **Image cropping** — pan/zoom crop modal when uploading images
-- **Undo/redo, drag-to-reorder, duplicate slides, JSON export/import**
+- **Undo/redo, drag-to-reorder, duplicate slides, JSON IN-APP export/import**
 
 ## New environment variables
 
