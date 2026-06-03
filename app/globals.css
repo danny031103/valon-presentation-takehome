@@ -2714,6 +2714,41 @@ input.deck-builder-select.field-error {
   font-style: italic;
 }
 
+.review-apply-btn {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 0.35rem);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  transition: border-color 120ms ease, opacity 120ms ease;
+}
+
+.review-apply-btn:hover:not(:disabled) {
+  border-color: var(--brand);
+}
+
+.review-apply-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.review-applied {
+  font-size: 0.78rem;
+  color: var(--success);
+  font-style: normal;
+}
+
+.review-apply-error {
+  font-size: 0.78rem;
+  color: var(--foreground);
+  opacity: 0.55;
+  font-style: normal;
+}
+
 .prompt-personalized {
   display: inline-block;
   margin-top: 4px;

@@ -60,7 +60,8 @@ export default function Home() {
     exportPdf,
     exportJson,
     importJson,
-    reviewDeck
+    reviewDeck,
+    applySuggestion
   } = useDeck();
 
   const [focusedField, setFocusedField] = useState<"title" | "body" | null>(null);
@@ -283,7 +284,11 @@ export default function Home() {
       )}
 
       {review && (
-        <ReviewPanel state={review} onClose={() => setReview(null)} />
+        <ReviewPanel
+          state={review}
+          onClose={() => setReview(null)}
+          onApplySuggestion={applySuggestion}
+        />
       )}
 
       <div className="print-layer" aria-hidden="true">

@@ -816,6 +816,89 @@ export function useDeck() {
     window.print();
   }
 
+  async function applySuggestion(
+    slideIndex: number,
+    suggestion: string
+  ): Promise<{ success: boolean; action?: "content" | "remove" | "split"; message?: string }> {
+    const slide = slides[slideIndex];
+    if (!slide) {
+      return { success: false, message: "Slide not found." };
+    }
+
+    let data: {
+      action?: "content" | "remove" | "split";
+      title?: string;
+      body?: string;
+      slide1?: { title: string; body: string };
+      slide2?: { title: string; body: string };
+      error?: string;
+      message?: string;
+    };
+    try {
+      const response = await fetch("/api/apply-suggestion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slideTitle: slide.title ?? "",
+          slideBody: slide.body ?? "",
+          suggestion,
+          deckTitle,
+        }),
+      });
+      data = (await response.json()) as typeof data;
+    } catch {
+      return { success: false, message: "Failed to apply suggestion." };
+    }
+
+    if (data.error) {
+      return { success: false, message: data.message ?? "Failed to apply suggestion." };
+    }
+
+    if (data.action === "remove") {
+      killSlide(slide.id);
+      return { success: true, action: "remove" };
+    }
+
+    if (
+      data.action === "split" &&
+      data.slide1 && data.slide2
+    ) {
+      const { slide1, slide2 } = data;
+      pushHistory();
+      lastEditKeyRef.current = null;
+      setSlides((current) => {
+        const idx = current.findIndex((s) => s.id === slide.id);
+        if (idx === -1) return current;
+        const next = [...current];
+        next[idx] = { ...next[idx], title: slide1.title, body: slide1.body };
+        const continuation: Slide = {
+          id: crypto.randomUUID(),
+          name: `${slide.name} (cont.)`,
+          prompt: "",
+          status: "idle",
+          note: "",
+          title: slide2.title,
+          body: slide2.body,
+          layout: slide.layout,
+        };
+        next.splice(idx + 1, 0, continuation);
+        return next;
+      });
+      return { success: true, action: "split" };
+    }
+
+    if (
+      data.action === "content" &&
+      typeof data.title === "string" &&
+      typeof data.body === "string"
+    ) {
+      patchSlide(slide.id, { title: data.title, body: data.body });
+      return { success: true, action: "content" };
+    }
+
+    return { success: false, message: "Unexpected response from server." };
+  }
+
   async function reviewDeck(): Promise<DeckReview> {
     const response = await fetch("/api/review", {
       method: "POST",
@@ -882,6 +965,7 @@ export function useDeck() {
     exportJson,
     importJson,
     startOver,
-    reviewDeck
+    reviewDeck,
+    applySuggestion
   };
 }

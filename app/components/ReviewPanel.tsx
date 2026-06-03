@@ -8,9 +8,17 @@ export type ReviewState =
   | { loading: false; error: string }
   | { loading: false; data: DeckReview };
 
+type ApplyState =
+  | { status: "idle" }
+  | { status: "applying" }
+  | { status: "applied"; message: string }
+  | { status: "structural"; message: string }
+  | { status: "error"; message: string };
+
 type Props = {
   state: ReviewState;
   onClose: () => void;
+  onApplySuggestion: (slideIndex: number, suggestion: string) => Promise<{ success: boolean; action?: "content" | "remove" | "split"; message?: string }>;
 };
 
 function scoreClass(score: number) {
@@ -19,13 +27,36 @@ function scoreClass(score: number) {
   return "review-score-chip--low";
 }
 
-export function ReviewPanel({ state, onClose }: Props) {
+export function ReviewPanel({ state, onClose, onApplySuggestion }: Props) {
   const [open, setOpen] = useState(false);
+  const [applyStates, setApplyStates] = useState<Record<number, ApplyState>>({});
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setOpen(true));
     return () => cancelAnimationFrame(id);
   }, []);
+
+  async function handleApply(slideIndex: number, suggestion: string) {
+    setApplyStates((prev) => ({ ...prev, [slideIndex]: { status: "applying" } }));
+    const result = await onApplySuggestion(slideIndex, suggestion);
+    if (result.success) {
+      const message =
+        result.action === "remove" ? "Slide removed ✓" :
+        result.action === "split" ? "Split into 2 slides ✓" :
+        "Applied ✓";
+      setApplyStates((prev) => ({ ...prev, [slideIndex]: { status: "applied", message } }));
+    } else if (result.message?.includes("manual editing")) {
+      setApplyStates((prev) => ({
+        ...prev,
+        [slideIndex]: { status: "structural", message: result.message! },
+      }));
+    } else {
+      setApplyStates((prev) => ({
+        ...prev,
+        [slideIndex]: { status: "error", message: result.message ?? "Failed to apply." },
+      }));
+    }
+  }
 
   return (
     <div
@@ -111,7 +142,42 @@ export function ReviewPanel({ state, onClose }: Props) {
                   </div>
                   <p className="review-slide-feedback">{sr.feedback}</p>
                   {sr.suggestion && (
-                    <p className="review-slide-suggestion">{sr.suggestion}</p>
+                    <>
+                      <p className="review-slide-suggestion">{sr.suggestion}</p>
+                      {(() => {
+                        const as = applyStates[sr.index] ?? { status: "idle" };
+                        if (as.status === "applied") {
+                          return <span className="review-applied">{as.message}</span>;
+                        }
+                        if (as.status === "structural") {
+                          return <span className="review-apply-error">{as.message}</span>;
+                        }
+                        if (as.status === "error") {
+                          return (
+                            <>
+                              <span className="review-apply-error">{as.message}</span>
+                              <button
+                                className="review-apply-btn"
+                                type="button"
+                                onClick={() => handleApply(sr.index, sr.suggestion!)}
+                              >
+                                Retry
+                              </button>
+                            </>
+                          );
+                        }
+                        return (
+                          <button
+                            className="review-apply-btn"
+                            type="button"
+                            disabled={as.status === "applying"}
+                            onClick={() => handleApply(sr.index, sr.suggestion!)}
+                          >
+                            {as.status === "applying" ? "Applying…" : "Apply suggestion"}
+                          </button>
+                        );
+                      })()}
+                    </>
                   )}
                 </div>
               ))}
