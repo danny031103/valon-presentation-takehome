@@ -68,7 +68,7 @@ Rules:
 - The first slide must always be a title slide with layout 'full-bleed'. Rules for the title slide:
   - title field must be a short, punchy phrase (3-6 words maximum) that captures the essence of the entire presentation — think magazine cover headline, not a description
   - body field must be empty for the title slide
-  - imagePrompt must describe a cinematic, wide hero image that works as a background — dramatic lighting, strong composition, relevant to the deck theme. The image must have a clear dark or light region in the center where white or dark text can be legible — avoid busy patterns or high-contrast details in the center of the frame
+  - imagePrompt must describe a cinematic, wide hero image that works as a background — dramatic lighting, strong composition, relevant to the deck theme. The imagePrompt for the title slide must include the actual deck title as text to render in the image. Example: if the deck title is "Climate in Crisis", the imagePrompt should say something like: "Cinematic aerial view of melting glaciers at golden hour, with the bold white text CLIMATE IN CRISIS centered in the frame, clean sans-serif typography, dramatic lighting." The text in the imagePrompt must match the deck title exactly.
   - Count this as slide 1 toward the requested slideCount
 - No emojis anywhere in the deck — not in titles, body text, or slide names
 - Do not include any text outside the JSON object`,

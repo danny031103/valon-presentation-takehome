@@ -448,7 +448,8 @@ export function useDeck() {
             prompt: slide.prompt,
             style,
             model: imageModel || undefined,
-            layout: slide.layout
+            layout: slide.layout,
+            isTitle: i === 0 || undefined
           })
         });
 
@@ -562,6 +563,7 @@ export function useDeck() {
     if (!selectedSlide) {
       return;
     }
+    const selectedIndex = slides.findIndex((s) => s.id === selectedSlide.id);
 
     if (selectedSlide.layout === "big-quote" || selectedSlide.layout === "text-only") {
       setMessage("This layout doesn't use an image.");
@@ -609,7 +611,8 @@ export function useDeck() {
         model: imageModel || undefined,
         context: context?.text ?? undefined,
         layout: selectedSlide.layout,
-        referenceImage: referenceImage || undefined
+        referenceImage: referenceImage || undefined,
+        isTitle: (selectedIndex === 0 && selectedSlide.layout === "full-bleed") || undefined
       })
     });
 

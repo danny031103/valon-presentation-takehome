@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       context?: string;
       layout?: string;
       referenceImage?: string;
+      isTitle?: boolean;
     };
     const prompt = body.prompt?.trim();
 
@@ -64,17 +65,21 @@ export async function POST(request: Request) {
 
     const fullBleedComposition =
       body.layout === "full-bleed"
-        ? "Generate this image in a wide 16:9 landscape aspect ratio. The composition must fill the entire frame edge to edge with no letterboxing, black bars, or empty space at the edges. All important visual elements must be within the frame. Leave the center of the image relatively clean and uncluttered — avoid busy textures, text, or high-contrast details in the center third of the frame. The image should work as a background with overlaid text."
+        ? body.isTitle
+          ? "Generate this image in a wide 16:9 landscape aspect ratio. The composition must fill the entire frame edge to edge with no letterboxing, black bars, or empty space at the edges. All important visual elements must be within the frame. Include the title text prominently in the center of the image. Use bold, clean typography — white or light colored text that contrasts well against the background. The text should look like it was designed as part of the image, not added on top."
+          : "Generate this image in a wide 16:9 landscape aspect ratio. The composition must fill the entire frame edge to edge with no letterboxing, black bars, or empty space at the edges. All important visual elements must be within the frame. Leave the center of the image relatively clean and uncluttered — avoid busy textures, text, or high-contrast details in the center third of the frame. The image should work as a background with overlaid text."
         : null;
 
-    const allowsText = body.layout === "full-bleed" || body.layout === "big-quote";
-    const promptMentionsText = /\b(text|type|typograph|word|letter|font|caption|headline|title|quote|label)\b/i.test(prompt);
+    const allowsText = body.layout === "full-bleed" || body.layout === "big-quote" || body.isTitle;
+    const promptMentionsText = /\b(text|type|typograph|word|letter|font|caption|headline|title|quote|label|chart|graph|diagram|table|infographic|visualization|dashboard|data|statistics|stats|numbers|percentage|percent|metric|legend|axis|annotation)\b/i.test(prompt);
     const textEncouragement =
       allowsText && !promptMentionsText
         ? "If typography or text elements would enhance the composition, feel free to include them."
         : null;
-    const qualitySuffix = allowsText
-      ? "High resolution. Sharp focus. Professional presentation quality."
+    const qualitySuffix = allowsText || promptMentionsText
+      ? promptMentionsText && !allowsText
+        ? "High resolution. Sharp focus. Professional presentation quality. Include any text, labels, or data visualizations as requested in the prompt."
+        : "High resolution. Sharp focus. Professional presentation quality."
       : QUALITY_SUFFIX;
 
     const effectivePrompt = [prompt, fragment || null, imageTextComposition, fullBleedComposition, contextNote, qualitySuffix, textEncouragement]
