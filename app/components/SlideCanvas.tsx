@@ -68,6 +68,7 @@ type SlideCanvasProps = {
   canvasRef?: React.RefObject<HTMLDivElement | null>;
   userRating?: "up" | "down" | null;
   onRating?: (rating: "up" | "down" | null) => void;
+  onCancelGenerate?: () => void;
 };
 
 function SlideImage({ slide }: { slide: Slide }) {
@@ -445,7 +446,7 @@ export function SlideReadView({ slide }: { slide: Slide }) {
   }
 }
 
-export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField, canvasRef, userRating, onRating }: SlideCanvasProps) {
+export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField, canvasRef, userRating, onRating, onCancelGenerate }: SlideCanvasProps) {
   const layout: SlideLayout = slide?.layout ?? "full-bleed";
   const showLayoutHint =
     !!slide?.imageData &&
@@ -459,6 +460,11 @@ export function SlideCanvas({ slide, editorMode, onPatch, onRetry, onFocusField,
         {slide?.status === "working" ? (
           <div className="canvas-skeleton">
             <p className="skeleton-hint">Generating image — usually 10–20s</p>
+            {onCancelGenerate ? (
+              <button className="ghost-button button-sm skeleton-cancel" onClick={onCancelGenerate} type="button">
+                Cancel
+              </button>
+            ) : null}
           </div>
         ) : null}
         {slide?.status === "error" && ["full-bleed", "image-text", "text-image", "image-top", "image-bottom"].includes(slide.layout ?? "") ? (() => {

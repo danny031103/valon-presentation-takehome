@@ -55,6 +55,7 @@ export default function Home() {
     generateDeck,
     cancelGeneration,
     generateSlide,
+    cancelGenerate,
     importImage,
     exportDeck,
     exportPdf,
@@ -167,6 +168,7 @@ export default function Home() {
           onFocusField={setFocusedField}
           userRating={selectedSlide?.userRating}
           onRating={(rating) => selectedSlide && patchSlide(selectedSlide.id, { userRating: rating })}
+          onCancelGenerate={cancelGenerate}
         />
 
         <div className="bottom-panel">

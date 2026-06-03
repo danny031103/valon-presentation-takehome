@@ -141,6 +141,8 @@ export function useDeck() {
   const lastEditKeyRef = useRef<string | null>(null);
   // Set to true by cancelGeneration(); checked between slides in generateDeck loop.
   const cancelGenerationRef = useRef(false);
+  // Holds the AbortController for the in-flight single-slide generateSlide() fetch.
+  const generateAbortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -493,6 +495,15 @@ export function useDeck() {
     cancelGenerationRef.current = true;
   }
 
+  function cancelGenerate() {
+    generateAbortControllerRef.current?.abort();
+    generateAbortControllerRef.current = null;
+    if (selectedSlide) {
+      applyPatch(selectedSlide.id, { status: "idle", feedback: "" });
+    }
+    setMessage("Generation cancelled.");
+  }
+
   // Keep refs to the latest undo/redo so the keydown listener can stay
   // subscribed once while always calling the current closures.
   const undoRef = useRef(undo);
@@ -600,21 +611,44 @@ export function useDeck() {
     });
     setMessage("Generating image…");
 
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        prompt: effectivePrompt,
-        style: imageStyle,
-        model: imageModel || undefined,
-        context: context?.text ?? undefined,
-        layout: selectedSlide.layout,
-        referenceImage: referenceImage || undefined,
-        isTitle: (selectedIndex === 0 && selectedSlide.layout === "full-bleed") || undefined
-      })
-    });
+    const controller = new AbortController();
+    generateAbortControllerRef.current = controller;
+
+    let response: Response;
+    try {
+      response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          prompt: effectivePrompt,
+          style: imageStyle,
+          model: imageModel || undefined,
+          context: context?.text ?? undefined,
+          layout: selectedSlide.layout,
+          referenceImage: referenceImage || undefined,
+          isTitle: (selectedIndex === 0 && selectedSlide.layout === "full-bleed") || undefined
+        }),
+        signal: controller.signal
+      });
+    } catch (err) {
+      generateAbortControllerRef.current = null;
+      if (
+        (err instanceof DOMException && err.name === "AbortError") ||
+        (err instanceof Error && err.name === "AbortError")
+      ) {
+        return;
+      }
+      applyPatch(selectedSlide.id, {
+        status: "error",
+        feedback: "Image generation failed."
+      });
+      setMessage("Image generation failed.");
+      return;
+    }
+
+    generateAbortControllerRef.current = null;
 
     const payload = (await response.json()) as {
       error?: string;
@@ -962,6 +996,7 @@ export function useDeck() {
     generateDeck,
     cancelGeneration,
     generateSlide,
+    cancelGenerate,
     importImage,
     exportDeck,
     exportPdf,
