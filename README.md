@@ -62,7 +62,7 @@ Treat this repo like a rough product seed. The goal is not to preserve the start
 
 ## What I built
 
-This fork significantly extends the starter. Key additions:
+This fork extends the starter. Key additions:
 
 - **AI deck generation** — guided setup flow (purpose, audience, style) that uses Claude to plan a full deck and Gemini to generate images for every slide
 - **Document context** — upload PDFs or text files to ground image generation in your actual content
